@@ -7,17 +7,20 @@ import (
 	<LOCK_COMMENT>"sync"
 )
 
+//auto locked global value
 type AutoLockGbl<TYPE_NAME> struct {
 	val  <VALUE_TYPE>
 	<LOCK_COMMENT>lock sync.RWMutex
 }
 
+//new and init a global value
 func New<TYPE_NAME>(val <VALUE_TYPE>) *AutoLockGbl<TYPE_NAME>{
 	p := &AutoLockGbl<TYPE_NAME>{}
 	p.val = val
 	return p
 }
 
+//get value, if modify is disable, lock is unneeded
 func (me *AutoLockGbl<TYPE_NAME>) Get() (r <VALUE_TYPE>) {
 <LOCK_COMMENT>	me.lock.RLock()
 <LOCK_COMMENT>	defer me.lock.RUnlock()
@@ -25,6 +28,7 @@ func (me *AutoLockGbl<TYPE_NAME>) Get() (r <VALUE_TYPE>) {
 	return
 }
 
+//set value, if modify is disable, delete this function
 <LOCK_COMMENT>func (me *AutoLockGbl<TYPE_NAME>) Set(val <VALUE_TYPE>) (r <VALUE_TYPE>) {
 <LOCK_COMMENT>	me.lock.Lock()
 <LOCK_COMMENT>	defer me.lock.Unlock()
