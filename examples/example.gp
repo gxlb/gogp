@@ -4,25 +4,31 @@
 package example
 
 import (
-	"sync"
+	<LOCK_COMMENT>"sync"
 )
 
-type AutoLockGbl_<TYPE_NAME> struct {
+type AutoLockGbl<TYPE_NAME> struct {
 	val  <VALUE_TYPE>
-	lock sync.RWMutex
+	<LOCK_COMMENT>lock sync.RWMutex
 }
 
-func (me *AutoLockGbl_<TYPE_NAME>) Get() (r <VALUE_TYPE>) {
-	me.lock.RLock()
-	defer me.lock.RUnlock()
+func New<TYPE_NAME>(val <VALUE_TYPE>) *AutoLockGbl<TYPE_NAME>{
+	p := &AutoLockGbl<TYPE_NAME>{}
+	p.val = val
+	return p
+}
+
+func (me *AutoLockGbl<TYPE_NAME>) Get() (r <VALUE_TYPE>) {
+<LOCK_COMMENT>	me.lock.RLock()
+<LOCK_COMMENT>	defer me.lock.RUnlock()
 	r = me.val
 	return
 }
 
-func (me *AutoLockGbl_<TYPE_NAME>) Set(val <VALUE_TYPE>) (r <VALUE_TYPE>) {
-	me.lock.Lock()
-	defer me.lock.Unlock()
-	r = me.val
-	me.val = val
-	return
-}
+<LOCK_COMMENT>func (me *AutoLockGbl<TYPE_NAME>) Set(val <VALUE_TYPE>) (r <VALUE_TYPE>) {
+<LOCK_COMMENT>	me.lock.Lock()
+<LOCK_COMMENT>	defer me.lock.Unlock()
+<LOCK_COMMENT>	r = me.val
+<LOCK_COMMENT>	me.val = val
+<LOCK_COMMENT>	return
+<LOCK_COMMENT>}
