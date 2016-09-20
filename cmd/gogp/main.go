@@ -17,7 +17,7 @@ func main() {
 	exit_code := 0
 
 	cmdline.Summary("Tool <thiscmd> is used to generate Generic-Programming code")
-	cmdline.StringVar(&workPath, "", "path", workPath, false, "path of gp")
+	cmdline.StringVar(&workPath, "", "workPath", workPath, false, "path of gp")
 	cmdline.Parse()
 
 	if workPath == "" {
