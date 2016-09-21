@@ -29,7 +29,16 @@ const (
 
 	//generic-programming flag <XXX>
 	g_gp_regexp = `\<[[:alpha:]][[:word:]]{0,}\>`
+
+	version = "1.0.2"
 )
+
+func init() {
+	cmdline.Version(version)
+	cmdline.CopyRight(cpright.CopyRight())
+	copyRightCode = cmdline.ReplaceTags(copyRightCode)
+	CopyRight(copyRightCode)
+}
 
 var (
 	g_gp_sign      = regexp.MustCompile(g_gp_regexp)
@@ -46,6 +55,7 @@ func CopyRight(s string) {
 
 //main func of gogp
 func Work(dir string) (nGpg, nGp int, err error) {
+
 	fmt.Printf("Processing path:[%s]\n", dir)
 	files, e := collect_sub_files(dir, g_gpg_ext)
 	if e != nil {
