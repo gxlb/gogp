@@ -18,17 +18,21 @@ import (
 	"github.com/vipally/cmdline"
 	"github.com/vipally/cpright"
 	"github.com/vipally/gogp/ini"
+	xdebug "github.com/vipally/gx/debug"
 )
 
 const (
 	g_gp_ext         = ".gp"
 	g_gpg_ext        = ".gpg"
-	g_gp_code_ext    = ".go"
+	g_go_code_ext    = ".go"
 	g_gp_file_suffix = "gpg"
 	g_gp_fmt         = "<%s>"
 
 	//generic-programming flag <XXX>
 	g_gp_regexp = `\<[[:alpha:]][[:word:]]{0,}\>`
+
+	gpFileDir       = "GpFilePath" //read gp file from another path
+	thisPackagePath = "github.com/vipally/gogp"
 
 	version = "1.0.2"
 )
@@ -87,7 +91,7 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 			for _, gp_reg_src := range gp_reg_srcs {
 				replace := ini.GetString(gpg_imp, gp_reg_src, "")
 				if replace == "" {
-					fmt.Println(gpg_file, gpg_imp, gp_reg_src, "has no replace string")
+					fmt.Println("[Warn:]", gpg_file, gpg_imp, gp_reg_src, "has no replace string")
 				}
 				match := fmt.Sprintf(g_gp_fmt, gp_reg_src)
 				g_map_rep[match] = replace
@@ -103,7 +107,12 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 
 func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 	var fin, fout *os.File
+	fmt.Println("gen_gp_code_by_gp", path_with_name, imp_name, xdebug.BtFileLine())
+	if gp, ok := g_map_rep[gpFileDir]; ok { //read gp file from another path
+		path_with_name = gp
+	}
 	gp_file := path_with_name + g_gp_ext
+
 	if fin, err = os.Open(gp_file); err != nil {
 		return
 	}
@@ -167,7 +176,7 @@ func write_header(wt *bufio.Writer) (err error) {
 
 func get_code_file(path_with_name, imp_name string) (r string) {
 	r = fmt.Sprintf("%s_%s_%s%s",
-		path_with_name, g_gp_file_suffix, imp_name, g_gp_code_ext)
+		path_with_name, g_gp_file_suffix, imp_name, g_go_code_ext)
 	return
 }
 
