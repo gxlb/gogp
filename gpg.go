@@ -12,13 +12,13 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/vipally/cmdline"
 	"github.com/vipally/cpright"
 	"github.com/vipally/gogp/ini"
-	xdebug "github.com/vipally/gx/debug"
 )
 
 const (
@@ -31,25 +31,30 @@ const (
 	//generic-programming flag <XXX>
 	g_gp_regexp = `\<[[:alpha:]][[:word:]]{0,}\>`
 
-	gpFileDir       = "GpFilePath" //read gp file from another path
-	thisPackagePath = "github.com/vipally/gogp"
+	gpFileDir    = "GpFilePath" //read gp file from another path
+	thisFilePath = "github.com/vipally/gogp/gpg.go"
 
 	version = "1.0.2"
 )
-
-func init() {
-	copyRightCode = cmdline.ReplaceTags(copyRightCode)
-	CopyRight(copyRightCode)
-}
 
 var (
 	g_gp_sign      = regexp.MustCompile(g_gp_regexp)
 	g_map_rep      = make(map[string]string)
 	g_match_no_rep = false
 	g_proc_line    = 0
+	goPath         = "" //GoPath
 
 	copyRightCode = "//    " + strings.Replace(cpright.CopyRight(), "\n", "\n//", strings.Count(cpright.CopyRight(), "\n")-1)
 )
+
+func init() {
+	copyRightCode = cmdline.ReplaceTags(copyRightCode)
+	CopyRight(copyRightCode)
+	//get GoPath
+	if _, __file, _, __ok := runtime.Caller(0); __ok { //0 means init func itself
+		goPath = strings.TrimSuffix(__file, thisFilePath)
+	}
+}
 
 func CopyRight(s string) {
 	copyRightCode = s
@@ -107,9 +112,9 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 
 func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 	var fin, fout *os.File
-	fmt.Println("gen_gp_code_by_gp", path_with_name, imp_name, xdebug.BtFileLine())
+	fmt.Println("gen_gp_code_by_gp", path_with_name, imp_name)
 	if gp, ok := g_map_rep[gpFileDir]; ok { //read gp file from another path
-		path_with_name = gp
+		path_with_name = goPath + gp
 	}
 	gp_file := path_with_name + g_gp_ext
 
