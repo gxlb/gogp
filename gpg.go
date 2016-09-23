@@ -31,7 +31,7 @@ const (
 	//generic-programming flag <XXX>
 	g_gp_regexp = `\<[[:alpha:]][[:word:]]{0,}\>`
 
-	gpFileDir    = "GpFilePath" //read gp file from another path
+	keyGpFileDir = "<GpFilePath>" //read gp file from another path
 	thisFilePath = "github.com/vipally/gogp/gpg.go"
 
 	version = "1.0.2"
@@ -103,6 +103,8 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 			}
 			if err = gen_gp_code_by_gp(path_with_name, gpg_imp); err == nil {
 				nGen++
+			} else {
+				panic(err)
 			}
 		}
 		fmt.Printf("%s finish gen %d file(s)\n", path_with_name, nGen)
@@ -112,18 +114,19 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 
 func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 	var fin, fout *os.File
+	var gpFilePath = path_with_name
 	fmt.Println("gen_gp_code_by_gp", path_with_name, imp_name)
-	if gp, ok := g_map_rep[gpFileDir]; ok { //read gp file from another path
-		path_with_name = goPath + gp
+	if gp, ok := g_map_rep[keyGpFileDir]; ok { //read gp file from another path
+		gpFilePath = goPath + gp
 	}
-	gp_file := path_with_name + g_gp_ext
-
+	gp_file := gpFilePath + g_gp_ext
 	if fin, err = os.Open(gp_file); err != nil {
 		return
 	}
 	defer fin.Close()
 
 	code_file := get_code_file(path_with_name, imp_name)
+
 	if fout, err = os.OpenFile(code_file,
 		os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {
 		return
