@@ -64,10 +64,14 @@ func Version() string {
 	return version
 }
 
+func relatePath(full string) string {
+	return strings.TrimPrefix(full, goPath)
+}
+
 //main func of gogp
 func Work(dir string) (nGpg, nGp int, err error) {
-
-	fmt.Printf("Processing path:[%s]\n", dir)
+	dir = strings.Replace(dir, "\\", "/", -1)
+	fmt.Printf("Working at:[%s]\n", relatePath(dir))
 	files, e := collect_sub_files(dir, g_gpg_ext)
 	if e != nil {
 		err = e
@@ -86,7 +90,7 @@ func Work(dir string) (nGpg, nGp int, err error) {
 }
 
 func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
-	fmt.Printf("Processing:%s\n", path_with_name)
+	fmt.Printf(" Processing:%s\n", relatePath(path_with_name))
 	gpg_file := path_with_name + g_gpg_ext
 	if ini, err := ini.New(gpg_file); err == nil {
 		gpg_imps := ini.Sections()
@@ -96,7 +100,7 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 			for _, gp_reg_src := range gp_reg_srcs {
 				replace := ini.GetString(gpg_imp, gp_reg_src, "")
 				if replace == "" {
-					fmt.Println("[Warn:]", gpg_file, gpg_imp, gp_reg_src, "has no replace string")
+					fmt.Println("    [Warn:]", relatePath(gpg_file), gpg_imp, gp_reg_src, "has no replace string")
 				}
 				match := fmt.Sprintf(g_gp_fmt, gp_reg_src)
 				g_map_rep[match] = replace
@@ -107,7 +111,6 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 				panic(err)
 			}
 		}
-		fmt.Printf("%s finish gen %d file(s)\n", path_with_name, nGen)
 	}
 	return
 }
@@ -115,9 +118,10 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 	var fin, fout *os.File
 	var gpFilePath = path_with_name
-	fmt.Println("gen_gp_code_by_gp", path_with_name, imp_name)
+	//fmt.Println("gen_gp_code_by_gp", relatePath(path_with_name), imp_name)
 	if gp, ok := g_map_rep[keyGpFileDir]; ok { //read gp file from another path
 		gpFilePath = goPath + gp
+		gpFilePath = strings.Replace(gpFilePath, "\\", "/", -1)
 	}
 	gp_file := gpFilePath + g_gp_ext
 	if fin, err = os.Open(gp_file); err != nil {
@@ -155,10 +159,11 @@ func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 		return
 	}
 	if g_match_no_rep {
-		s := fmt.Sprintf("error:[%s].[%s] not every gp have been replaced\n", path_with_name, imp_name)
+		s := fmt.Sprintf("error:[%s].[%s] not every gp have been replaced\n", relatePath(path_with_name), imp_name)
 		fmt.Println(s)
 		err = fmt.Errorf(s)
 	}
+	fmt.Printf("  [%s] finish\n", relatePath(code_file))
 	return
 }
 
