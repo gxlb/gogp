@@ -1,12 +1,17 @@
-gopg
-===
+# gopg 
+----
+	
+	gopg is a tool of generic-programming for golang or any other language
+	
+	Current Version 2.0.0
+
+----
 
 	CopyRight @Ally Dale 2016
     Author  : Ally Dale(vipally@gmail.com)
     Blog    : http://blog.csdn.net/vipally
     Site    : https://github.com/vipally
 
-### gopg is a tool of generic-programming for golang or any other language
 
 	it is available for generate gp code for golang
 	see details in example directory
