@@ -2,7 +2,7 @@
 // Last modify at: [Sat Sep 24 2016 09:59:44]
 // Generate from:
 //     [github.com/vipally/gogp/examples/example.gp]
-//     [github.com/vipally/gogp/examples/example.gpg] [int]
+//     [github.com/vipally/gogp/examples/example2/example.gpg] [uint]
 // !!!!!!!!!NEVER MODIFY IT MANUALLY!!!!!!!!!
 
 //    CopyRight @Ally Dale 2016. All rights reserved.
@@ -16,27 +16,27 @@
 //This is an example of using gopg tool for generic-programming
 //this is an example of using gopg to define an auto-lock global value with generic type
 //it will be realized to real go code by gopg tool through the .gpg file with the same name
-package example
+package example2
 
 import (
 	"sync"
 )
 
 //auto locked global value
-type AutoLockGblInt struct {
-	val  int
+type AutoLockGblUint struct {
+	val  uint
 	lock sync.RWMutex
 }
 
 //new and init a global value
-func NewInt(val int) *AutoLockGblInt{
-	p := &AutoLockGblInt{}
+func NewUint(val uint) *AutoLockGblUint{
+	p := &AutoLockGblUint{}
 	p.val = val
 	return p
 }
 
 //get value, if modify is disable, lock is unneeded
-func (me *AutoLockGblInt) Get() (r int) {
+func (me *AutoLockGblUint) Get() (r uint) {
 	me.lock.RLock()
 	defer me.lock.RUnlock()
 	r = me.val
@@ -44,7 +44,7 @@ func (me *AutoLockGblInt) Get() (r int) {
 }
 
 //set value, if modify is disable, delete this function
-func (me *AutoLockGblInt) Set(val int) (r int) {
+func (me *AutoLockGblUint) Set(val uint) (r uint) {
 	me.lock.Lock()
 	defer me.lock.Unlock()
 	r = me.val
