@@ -48,6 +48,7 @@ var (
 )
 
 func init() {
+	cmdline.Version(version)
 	copyRightCode = cmdline.ReplaceTags(copyRightCode)
 	CopyRight(copyRightCode)
 	//get GoPath
