@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -50,29 +51,26 @@ var (
 func init() {
 	cmdline.Version(version)
 	copyRightCode = cmdline.ReplaceTags(copyRightCode)
-	CopyRight(copyRightCode)
+
 	//get GoPath
 	if _, __file, _, __ok := runtime.Caller(0); __ok { //0 means init func itself
+		__file = filepath.ToSlash(__file)
 		goPath = strings.TrimSuffix(__file, thisFilePath)
 	}
-}
-
-func CopyRight(s string) {
-	copyRightCode = s
 }
 
 func Version() string {
 	return version
 }
 
-func relatePath(full string) string {
+func relateGoPath(full string) string {
 	return strings.TrimPrefix(full, goPath)
 }
 
 //main func of gogp
 func Work(dir string) (nGpg, nGp int, err error) {
-	dir = strings.Replace(dir, "\\", "/", -1)
-	fmt.Printf("Working at:[%s]\n", relatePath(dir))
+	dir = path.Clean(filepath.ToSlash(dir))
+	fmt.Printf("Working at:[%s]\n", relateGoPath(dir))
 	files, e := collect_sub_files(dir, g_gpg_ext)
 	if e != nil {
 		err = e
@@ -92,7 +90,7 @@ func Work(dir string) (nGpg, nGp int, err error) {
 }
 
 func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
-	fmt.Printf(" Processing:%s\n", relatePath(path_with_name))
+	fmt.Printf(" Processing:%s\n", relateGoPath(path_with_name))
 	gpg_file := path_with_name + g_gpg_ext
 	if ini, err := ini.New(gpg_file); err == nil {
 		gpg_imps := ini.Sections()
@@ -102,7 +100,7 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 			for _, gp_reg_src := range gp_reg_srcs {
 				replace := ini.GetString(gpg_imp, gp_reg_src, "")
 				if replace == "" {
-					fmt.Println("    [Warn:]", relatePath(gpg_file), gpg_imp, gp_reg_src, "has no replace string")
+					fmt.Println("    [Warn:]", relateGoPath(gpg_file), gpg_imp, gp_reg_src, "has no replace string")
 				}
 				match := fmt.Sprintf(g_gp_fmt, gp_reg_src)
 				g_map_rep[match] = replace
@@ -161,11 +159,11 @@ func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 		return
 	}
 	if g_match_no_rep {
-		s := fmt.Sprintf("error:[%s].[%s] not every gp have been replaced\n", relatePath(path_with_name), imp_name)
+		s := fmt.Sprintf("error:[%s].[%s] not every gp have been replaced\n", relateGoPath(path_with_name), imp_name)
 		fmt.Println(s)
 		err = fmt.Errorf(s)
 	}
-	fmt.Printf("  [%s] finish\n", relatePath(code_file))
+	fmt.Printf("  [%s] finish\n", relateGoPath(code_file))
 	return
 }
 
@@ -187,7 +185,7 @@ func write_header(wt *bufio.Writer, gpg_file, gp_file, imp_name string) (err err
 
 `,
 		time.Now().Format("Mon Jan 02 2006 15:04:05"),
-		relatePath(gp_file), relatePath(gpg_file), imp_name)
+		relateGoPath(gp_file), relateGoPath(gpg_file), imp_name)
 	wt.WriteString(s)
 	wt.WriteString(copyRightCode)
 	wt.WriteString("\n\n")

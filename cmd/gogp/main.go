@@ -14,7 +14,7 @@ func main() {
 	cmdline.CopyRight(cpright.CopyRight())
 
 	cmdline.Summary("Tool <thiscmd> is used to generate Generic-Programming code")
-	cmdline.StringVar(&workPath, "", "workPath", workPath, false, "path of gp")
+	cmdline.StringVar(&workPath, "", "workPath", workPath, false, "path of .gpg file")
 	cmdline.Parse()
 
 	if workPath == "" {
