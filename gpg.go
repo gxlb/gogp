@@ -35,7 +35,7 @@ const (
 	keyGpFileDir = "<GpFilePath>" //read gp file from another path
 	thisFilePath = "github.com/vipally/gogp/gpg.go"
 
-	version = "1.0.2"
+	version = "2.1.0"
 )
 
 var (
