@@ -72,6 +72,50 @@ type replaceCase struct {
 	src, dst string
 }
 
+// reverse work, gen gp from code file
+func ReverseWork(codeFilePath string) (err error) {
+	defer func() {
+		if err != nil {
+			fmt.Println(err)
+		}
+		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
+	}()
+	var p gpgProcessor
+
+	if err = p.reverseWork(codeFilePath); err != nil {
+		return
+	}
+
+	return
+}
+
+func (this *gpgProcessor) reverseWork(codeFilePath string) (err error) {
+
+	if !strings.HasSuffix(codeFilePath, gCodeExt) { //must go code file
+		err = fmt.Errorf("[%s] must be go code file", codeFilePath)
+		return
+	}
+
+	codeFullPath := formatPath(filepath.Join(gGoPath, codeFilePath)) //make full path
+	if err = this.loadCodeFile(codeFullPath); err != nil {           //load code file
+		return
+	}
+
+	pathWithName := strings.TrimSuffix(codeFullPath, gCodeExt)
+	gpFilePath := pathWithName + gGpExt
+	gpgFilePath := pathWithName + gGpExt
+	if err = this.loadGpgFile(gpgFilePath); err == nil {
+		if keys := this.gpgContent.Keys(gSectionReversse); keys != nil {
+			//reverse op
+			fmt.Println(gpFilePath)
+		} else {
+			err = fmt.Errorf("[%s] must have [%s] section", codeFilePath, gSectionReversse)
+		}
+	}
+	return
+}
+
+// work, gen code from gp file
 func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 	defer func() {
 		if err != nil {
