@@ -73,6 +73,7 @@ type replaceCase struct {
 }
 
 // reverse work, gen gp from code file
+// codeFilePath must related from GoPath
 func ReverseWork(codeFilePath string) (err error) {
 	defer func() {
 		if err != nil {
