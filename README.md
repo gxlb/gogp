@@ -21,7 +21,7 @@
         use "gopg <path>" to generate go code file(s) from .gp file via .gpg file in path directory
         use "gopg -h" for help
 	
-2. package usage:****
+2. package usage:
 
 		2.1 import gogp package in test file, the tool will auto work at current path
 	 		import (
