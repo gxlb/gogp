@@ -46,7 +46,7 @@ const (
 	gCodeExt         = ".go"
 	gGpFileSuffix    = "gpg"
 	gReplaceKeyFmt   = "<%s>"
-	gSectionReversse = "GOPG_REVERSE" //gpg section that for gogp reverse only
+	gSectionReversse = "GOGP_REVERSE" //gpg section that for gogp reverse only
 
 	//generic-programming flag <XXX>
 	gReplaceExpTxt = `\<[[:alpha:]][[:word:]]{0,}\>`
