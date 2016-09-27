@@ -34,18 +34,18 @@ type replaceCase struct {
 
 //object to process gpg file
 type gpgProcessor struct {
-	gpgPath         string            //gpg file path
-	replaceMap      map[string]string //cases that need replacing
-	nProcessingLine int               //line that is processing
-	nNoRepMath      int               //number of math that has no replace string
+	gpgPath           string            //gpg file path
+	replaceMap        map[string]string //cases that need replacing
+	nProcessingLine   int               //line that is processing
+	nNoReplaceMathNum int               //number of math that has no replace string
 }
 
 const (
-	gGpExt         = ".gp"
-	gGpgExt        = ".gpg"
-	gCodeExt       = ".go"
-	gGpFileSuffix  = "gpg"
-	gReplaceKeyFmt = "<%s>"
+	gGpExt           = ".gp"
+	gGpgExt          = ".gpg"
+	gCodeExt         = ".go"
+	gGpFileSuffix    = "gpg"
+	gReplaceKeyFmt   = "<%s>"
 
 	//generic-programming flag <XXX>
 	gReplaceExpTxt = `\<[[:alpha:]][[:word:]]{0,}\>`
