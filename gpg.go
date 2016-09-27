@@ -3,6 +3,8 @@
 //    Blog    : http://blog.csdn.net/vipally
 //    Site    : https://github.com/vipally
 
+//todo: reverse replace?
+
 //package gogp implement a way to generate go-gp code from *.gp+*.gpg file
 package gogp
 
@@ -108,7 +110,7 @@ func Work(dir string) (nGpg, nGp int, err error) {
 }
 
 func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
-	fmt.Printf(" [gogp]Processing:%s\n", relateGoPath(path_with_name))
+	fmt.Printf(">[gogp]Processing:%s\n", relateGoPath(path_with_name))
 	gpg_file := path_with_name + g_gpg_ext
 	if ini, err := ini.New(gpg_file); err == nil {
 		gpg_imps := ini.Sections()
@@ -118,7 +120,7 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 			for _, gp_reg_src := range gp_reg_srcs {
 				replace := ini.GetString(gpg_imp, gp_reg_src, "")
 				if replace == "" {
-					fmt.Println("    [gogp][Warn:]", relateGoPath(gpg_file), gpg_imp, gp_reg_src, "has no replace string")
+					fmt.Println(">>>>[gogp][Warn:]", relateGoPath(gpg_file), gpg_imp, gp_reg_src, "has no replace string")
 				}
 				match := fmt.Sprintf(g_gp_fmt, gp_reg_src)
 				g_map_rep[match] = replace
@@ -180,14 +182,14 @@ func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 		fmt.Println(s)
 		err = fmt.Errorf(s)
 	}
-	fmt.Printf("  [gogp][%s] finish\n", relateGoPath(code_file))
+	fmt.Printf(">>[gogp][%s] finish\n", relateGoPath(code_file))
 	return
 }
 
 func gen_gp_code(src string) (r string, err error) {
-	if strings.HasPrefix(src, "//") { //never replace comment line
-		return src, nil
-	}
+	//	if strings.HasPrefix(src, "//") { //never replace comment line
+	//		return src, nil
+	//	}
 	r = g_gp_sign.ReplaceAllStringFunc(src, match_replace)
 	return
 }

@@ -1,18 +1,16 @@
 package example
 
 import (
-	"os"
 	"testing"
 
-	"github.com/vipally/gogp"
+	"github.com/vipally/gogp" //auto run gogp tool at current path in test process
 )
+
+func init() {
+	gogp.Work("./example2") //run gogp at another path
+}
 
 //run gogp tool to auto-generate go file(s) in test process
 func TestCallGogp(t *testing.T) {
-	if dir, err := os.Getwd(); err == nil {
-		gogp.Work(dir)
-		gogp.Work(dir + "/example2")
-	} else {
-		panic(err)
-	}
+
 }
