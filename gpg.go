@@ -3,7 +3,11 @@
 //    Blog    : http://blog.csdn.net/vipally
 //    Site    : https://github.com/vipally
 
-//todo: reverse replace?
+//todo:
+//reverse replace?
+//walk on all sub dir?
+//work on GoPath, find all .gpg file, and auto generate go code for them
+//backup old code file, if only time changes never make the change
 
 //package gogp implement a way to generate go-gp code from *.gp+*.gpg file
 package gogp
@@ -24,24 +28,36 @@ import (
 	"github.com/vipally/gogp/ini"
 )
 
+type replaceCase struct {
+	src, dst string
+}
+
+//object to process gpg file
+type gpgProcessor struct {
+	gpgPath         string            //gpg file path
+	replaceMap      map[string]string //cases that need replacing
+	nProcessingLine int               //line that is processing
+	nNoRepMath      int               //number of math that has no replace string
+}
+
 const (
-	g_gp_ext         = ".gp"
-	g_gpg_ext        = ".gpg"
-	g_go_code_ext    = ".go"
-	g_gp_file_suffix = "gpg"
-	g_gp_fmt         = "<%s>"
+	gGpExt         = ".gp"
+	gGpgExt        = ".gpg"
+	gCodeExt       = ".go"
+	gGpFileSuffix  = "gpg"
+	gReplaceKeyFmt = "<%s>"
 
 	//generic-programming flag <XXX>
-	g_gp_regexp = `\<[[:alpha:]][[:word:]]{0,}\>`
+	gReplaceExpTxt = `\<[[:alpha:]][[:word:]]{0,}\>`
 
-	keyGpFileDir = "<GpFilePath>" //read gp file from another path
-	thisFilePath = "github.com/vipally/gogp/gpg.go"
+	gkeyGpFilePath = "<GpFilePath>" //read gp file from another path
+	gThisFilePath  = "github.com/vipally/gogp/gpg.go"
 
-	version = "2.1.0"
+	gLibVersion = "2.1.0"
 )
 
 var (
-	g_gp_sign      = regexp.MustCompile(g_gp_regexp)
+	gReplaceExp    = regexp.MustCompile(gReplaceExpTxt)
 	g_map_rep      = make(map[string]string)
 	g_match_no_rep = false
 	g_proc_line    = 0
@@ -51,20 +67,20 @@ var (
 )
 
 func init() {
-	cmdline.Version(version)
+	cmdline.Version(gLibVersion)
 	copyRightCode = cmdline.ReplaceTags(copyRightCode)
 
 	//get GoPath
 	if _, __file, _, __ok := runtime.Caller(0); __ok { //0 means init func itself
 		__file = filepath.ToSlash(__file)
-		goPath = strings.TrimSuffix(__file, thisFilePath)
+		goPath = strings.TrimSuffix(__file, gThisFilePath)
 	}
 
 	Work(workPath()) //auto work at working path
 }
 
 func Version() string {
-	return version
+	return gLibVersion
 }
 
 func relateGoPath(full string) string {
@@ -88,7 +104,7 @@ func workPath() (p string) {
 func Work(dir string) (nGpg, nGp int, err error) {
 	dir = formatPath(dir)
 
-	files, e := collect_sub_files(dir, g_gpg_ext)
+	files, e := collect_sub_files(dir, gGpgExt)
 	if e != nil {
 		err = e
 		panic(err)
@@ -111,7 +127,7 @@ func Work(dir string) (nGpg, nGp int, err error) {
 
 func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 	fmt.Printf(">[gogp]Processing:%s\n", relateGoPath(path_with_name))
-	gpg_file := path_with_name + g_gpg_ext
+	gpg_file := path_with_name + gGpgExt
 	if ini, err := ini.New(gpg_file); err == nil {
 		gpg_imps := ini.Sections()
 		for _, gpg_imp := range gpg_imps {
@@ -119,10 +135,10 @@ func gen_gp_code_by_gpg(path_with_name string) (nGen int, err error) {
 			g_map_rep = make(map[string]string) //clear map
 			for _, gp_reg_src := range gp_reg_srcs {
 				replace := ini.GetString(gpg_imp, gp_reg_src, "")
-				if replace == "" {
-					fmt.Println(">>>>[gogp][Warn:]", relateGoPath(gpg_file), gpg_imp, gp_reg_src, "has no replace string")
-				}
-				match := fmt.Sprintf(g_gp_fmt, gp_reg_src)
+				//				if replace == "" {
+				//					fmt.Println(">>>>[gogp][Warn:]", relateGoPath(gpg_file), gpg_imp, gp_reg_src, "has no replace string")
+				//				}
+				match := fmt.Sprintf(gReplaceKeyFmt, gp_reg_src)
 				g_map_rep[match] = replace
 			}
 			if err = gen_gp_code_by_gp(path_with_name, gpg_imp); err == nil {
@@ -139,10 +155,10 @@ func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 	var fin, fout *os.File
 	var gpFilePath = path_with_name
 	//fmt.Println("gen_gp_code_by_gp", relatePath(path_with_name), imp_name)
-	if gp, ok := g_map_rep[keyGpFileDir]; ok { //read gp file from another path
+	if gp, ok := g_map_rep[gkeyGpFilePath]; ok { //read gp file from another path
 		gpFilePath = formatPath(goPath + gp)
 	}
-	gp_file := gpFilePath + g_gp_ext
+	gp_file := gpFilePath + gGpExt
 	if fin, err = os.Open(gp_file); err != nil {
 		return
 	}
@@ -158,7 +174,7 @@ func gen_gp_code_by_gp(path_with_name string, imp_name string) (err error) {
 
 	rd := bufio.NewReader(fin)
 	wt := bufio.NewWriter(fout)
-	if err = write_header(wt, path_with_name+g_gpg_ext, gp_file, imp_name); err != nil {
+	if err = write_header(wt, path_with_name+gGpgExt, gp_file, imp_name); err != nil {
 		return
 	}
 	g_proc_line = 0
@@ -190,13 +206,13 @@ func gen_gp_code(src string) (r string, err error) {
 	//	if strings.HasPrefix(src, "//") { //never replace comment line
 	//		return src, nil
 	//	}
-	r = g_gp_sign.ReplaceAllStringFunc(src, match_replace)
+	r = gReplaceExp.ReplaceAllStringFunc(src, match_replace)
 	return
 }
 
 func write_header(wt *bufio.Writer, gpg_file, gp_file, imp_name string) (err error) {
 	s := fmt.Sprintf(`// This file was auto-generated by [gogp] tool
-// Last modify at: [%s]
+// Last update at: [%s]
 // Generate from:
 //     [%s]
 //     [%s] [%s]
@@ -213,7 +229,7 @@ func write_header(wt *bufio.Writer, gpg_file, gp_file, imp_name string) (err err
 
 func get_code_file(path_with_name, imp_name string) (r string) {
 	r = fmt.Sprintf("%s_%s_%s%s",
-		path_with_name, g_gp_file_suffix, imp_name, g_go_code_ext)
+		path_with_name, gGpFileSuffix, imp_name, gCodeExt)
 	return
 }
 
