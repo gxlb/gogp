@@ -7,19 +7,21 @@ import (
 	"sync"
 )
 
+//GOGPDummyDefineComment/*
+//these defines will never exists in real go files
 type GOGPStoreValue int
 
-//type GOGPGblName int
+//GOGPDummyDefineComment*/
 
 //auto locked global value
-type AutoLockGblGOGPGblName struct {
+type AutoLockGblGOPGGblNameSuffice struct {
 	val  GOGPStoreValue
 	lock sync.RWMutex
 }
 
 //new and init a global value
-func NewGOGPGblName(val GOGPStoreValue) *AutoLockGblGOGPGblName {
-	p := &AutoLockGblGOGPGblName{}
+func NewGOGOPGGblNameSuffice(val GOGPStoreValue) *AutoLockGblGOGOPGGblNameSuffice {
+	p := &AutoLockGblGOGOPGGblNameSuffice{}
 	p.val = val
 	return p
 }
@@ -33,7 +35,7 @@ func NewGOGPGblName(val GOGPStoreValue) *AutoLockGblGOGPGblName {
 //GOGPGLockComment}
 
 //set value, if modify is disable, delete this function
-func (me *AutoLockGblGOGPGblName) Set(val GOGPStoreValue) (r GOGPStoreValue) {
+func (me *AutoLockGblGOGOPGGblNameSuffice) Set(val GOGPStoreValue) (r GOGPStoreValue) {
 	me.lock.Lock()
 	defer me.lock.Unlock()
 	r = me.val

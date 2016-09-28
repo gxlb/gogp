@@ -67,7 +67,7 @@ func init() {
 		gGoPath = strings.TrimSuffix(__file, gThisFilePath)
 	}
 
-	Work(workPath()) //auto work at working path
+	//Work(workPath()) //auto work at working path
 }
 
 type replaceCase struct {
@@ -106,17 +106,17 @@ func (this *replaceList) expString() string {
 }
 
 // reverse work, gen .gp file from code & .gpg file
-// codeFilePath must related from GoPath
-func ReverseWork(codeFilePath string) (err error) {
+// gpgFilePath must related from GoPath
+func ReverseWork(gpgFilePath string) (err error) {
 	defer func() {
 		if err != nil {
 			fmt.Println(err)
 		}
 		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
 	}()
-	var p gpgProcessor
 
-	if err = p.reverseWork(codeFilePath); err != nil {
+	var p gpgProcessor
+	if err = p.reverseWork(gpgFilePath); err != nil {
 		return
 	}
 
@@ -132,7 +132,7 @@ func (this *gpgProcessor) reverseWork(gpgFilePath string) (err error) {
 
 	gpgFullPath := formatPath(filepath.Join(gGoPath, gpgFilePath)) //make full path
 	this.impName = gSectionReversse
-	pathWithName := strings.TrimSuffix(gpgFullPath, gCodeExt)
+	pathWithName := strings.TrimSuffix(gpgFullPath, gGpgExt)
 	gpFilePath := pathWithName + gGpExt
 	codeFilePath := pathWithName + gCodeExt
 	if err = this.loadCodeFile(codeFilePath); err != nil { //load code file
@@ -147,7 +147,7 @@ func (this *gpgProcessor) reverseWork(gpgFilePath string) (err error) {
 				v := this.gpgContent.GetString(gSectionReversse, k, "")
 				if v != "" {
 					sortKey.push(&replaceCase{key: k, value: v})
-					this.replaceMap[v] = k //match key from value
+					this.replaceMap[v] = fmt.Sprintf(gReplaceKeyFmt, k) //match key from value
 				}
 			}
 			sort.Sort(&sortKey)
@@ -190,6 +190,10 @@ func (this *gpgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	this.nCodeFile++
 	fmt.Printf(">>[gogp][%s] ok\n", relateGoPath(this.gpPath))
 	return
+}
+
+func WorkOnGoPath() (nGpg, nCode, nSkip int, err error) {
+	return Work(gGoPath)
 }
 
 // work, gen code from gp file
