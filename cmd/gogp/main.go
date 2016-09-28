@@ -16,7 +16,7 @@ func main() {
 
 	cmdline.Summary("Tool <thiscmd> is used to generate Generic-Programming code")
 	cmdline.Details(`1. .gpg files
-		Is an ini in fact.It's used to define generic parameters's replaceing relation.
+		Is an ini file in fact.It's used to define generic parameters's replacing relation.
 		Corresponding .gp file may with the same path and name, but we can redirect it by key "GOGP_GpFilePath".
 		Section "GOGP_REVERSE" is defined for ReverseWork mode to auto-generate .gp file from .go file.
 		So normal work mode will not generate go code file for this section.
