@@ -35,6 +35,7 @@
 			func init() {
 				gogp.WorkOnGoPath() //Recommend
 				gogp.ReverseWork(gpgFilePath)
+				gogp.WorkOnWorkPath()
 				//gogp.ReverseWork("github.com/vipally/gogp/examples/reverse.gpg")
 				//gogp.Work(someDir)
 			}
@@ -46,6 +47,7 @@
 			func someFunc(){
 				gogp.WorkOnGoPath()
 				gogp.ReverseWork(gpgFilePath)
+				gogp.WorkOnWorkPath()
 				//gogp.Work(someDir)
 			}
 	
