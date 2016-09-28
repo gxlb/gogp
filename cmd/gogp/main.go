@@ -25,13 +25,13 @@ func main() {
 		Is a go-like file, but exists some <xxx> format keys, need to replace with which defined in .gpg file.
 		
 	3. .go files
-		gogp tool auto-generated .go files can be identification and complied as well as normal go code files.
+		gogp tool auto-generated .go files can be identification and compiled as well as normal go code files.
 		But never modify it manualy, you can see this warning at the first line in every file.
 		Auto work on GoPath is recmmended. 
 		gogp tool will deep travel the path to find all .gpg files to generate go code files for them.
 		If the generated go code file's body has no changes, this file will not be updated.
 		So run gogp tool any times on GoPath is harmless, unless there are indeed changes.
-		So any manualy modification will be restored by tool.So take care of that.`)
+		So any manualy modification will be restored by tool.Take care of that.`)
 
 	cmdline.StringVar(&filePath, "", "filePath", filePath, false, "Path that gogp will work, if not set, it will work on GoPath.")
 	cmdline.BoolVar(&reverseWork, "r", "reverseWork", reverseWork, false, "Reverse work, this mod is used to gen .gp file from a real-go file.\n      If set this flag, the filePath flag must be a .gpg file path related to GoPath.")
