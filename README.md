@@ -1,7 +1,7 @@
 # gogp [![GoDoc](https://godoc.org/github.com/vipally/gogp?status.svg)](https://godoc.org/github.com/vipally/gogp) ![Version](https://img.shields.io/badge/version-2.9.0-green.svg)
 ----
 	
-	gopg is a tool of generic-programming for golang or any other language
+	gogp is a tool of generic-programming for golang or any other language
 
 ----
 
