@@ -3,12 +3,6 @@
 //    Blog    : http://blog.csdn.net/vipally
 //    Site    : https://github.com/vipally
 
-//todo:
-//reverse replace?
-//walk on all sub dir?
-//work on GoPath, find all .gpg file, and auto generate go code for them
-//backup old code file, if only time changes never make the change
-
 //package gogp implement a way to generate go-gp code from *.gp+*.gpg file
 package gogp
 
@@ -41,7 +35,7 @@ const (
 	//generic-programming flag <XXX>
 	gReplaceExpTxt = `\<[[:alpha:]][[:word:]]{0,}\>`
 
-	gkeyGpFilePath = "<GpFilePath>" //read gp file from another path
+	gkeyGpFilePath = "<GOGP_GpFilePath>" //read gp file from another path
 	gThisFilePath  = "github.com/vipally/gogp/gpg.go"
 
 	gLibVersion = "2.9.0"

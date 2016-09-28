@@ -14,14 +14,14 @@ type GOGPStoreValue int
 //GOGPDummyDefineComment*/
 
 //auto locked global value
-type AutoLockGblGOPGGblNameSuffice struct {
+type AutoLockGblGOGPGblNameSuffice struct {
 	val  GOGPStoreValue
 	lock sync.RWMutex
 }
 
 //new and init a global value
-func NewGOGOPGGblNameSuffice(val GOGPStoreValue) *AutoLockGblGOGOPGGblNameSuffice {
-	p := &AutoLockGblGOGOPGGblNameSuffice{}
+func NewGblGOGPGblNameSuffice(val GOGPStoreValue) *AutoLockGblGOGPGblNameSuffice {
+	p := &AutoLockGblGOGPGblNameSuffice{}
 	p.val = val
 	return p
 }
@@ -37,7 +37,7 @@ func NewGOGOPGGblNameSuffice(val GOGPStoreValue) *AutoLockGblGOGOPGGblNameSuffic
 //GOGPGLockComment}
 
 //set value, if modify is disable, delete this function
-func (me *AutoLockGblGOGOPGGblNameSuffice) Set(val GOGPStoreValue) (r GOGPStoreValue) {
+func (me *AutoLockGblGOGPGblNameSuffice) Set(val GOGPStoreValue) (r GOGPStoreValue) {
 	me.lock.Lock()
 	defer me.lock.Unlock()
 	r = me.val
