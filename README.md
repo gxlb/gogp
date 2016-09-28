@@ -28,7 +28,7 @@
 		Detail desctription:
 		1. .gpg files
 			Is an ini in fact.It's used to define generic parameters's replaceing relation.
-			Corresponding .gp file is with the same name default, but we can redirect it by key "GOGP_GpFilePath".
+			Corresponding .gp file is with the same path and name default, but we can redirect it by key "GOGP_GpFilePath".
 			Section "GOGP_REVERSE" is defined for ReverseWork mode to auto-generate .gp file from .go file.
 			So normal work mode will not generate go code file for this section.
 			
