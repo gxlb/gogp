@@ -14,12 +14,14 @@ package gogp
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 
@@ -69,10 +71,41 @@ func init() {
 }
 
 type replaceCase struct {
-	src, dst string
+	key, value string
+}
+type replaceList struct {
+	list []*replaceCase
 }
 
-// reverse work, gen gp from code file
+func (this *replaceList) push(v *replaceCase) int {
+	if v.value != "" {
+
+	}
+	this.list = append(this.list, v)
+	return this.Len()
+}
+
+func (this *replaceList) Len() int {
+	return len(this.list)
+}
+func (this *replaceList) Less(i, j int) bool { //sort by value descend
+	l, r := this.list[i], this.list[j]
+	return l.value > r.value
+}
+func (this *replaceList) Swap(i, j int) {
+	this.list[i], this.list[j] = this.list[j], this.list[i]
+}
+func (this *replaceList) expString() string {
+	var b bytes.Buffer
+	for _, v := range this.list {
+		b.WriteString(v.value)
+		b.WriteByte('|')
+	}
+	b.Truncate(b.Len() - 1) //remove last '|'
+	return b.String()
+}
+
+// reverse work, gen .gp file from code & .gpg file
 // codeFilePath must related from GoPath
 func ReverseWork(codeFilePath string) (err error) {
 	defer func() {
@@ -90,29 +123,72 @@ func ReverseWork(codeFilePath string) (err error) {
 	return
 }
 
-func (this *gpgProcessor) reverseWork(codeFilePath string) (err error) {
+func (this *gpgProcessor) reverseWork(gpgFilePath string) (err error) {
 
-	if !strings.HasSuffix(codeFilePath, gCodeExt) { //must go code file
-		err = fmt.Errorf("[%s] must be go code file", codeFilePath)
+	if !strings.HasSuffix(gpgFilePath, gGpgExt) { //must .gpg file
+		err = fmt.Errorf("[%s] must be %s file at reverse mode", relateGoPath(gpgFilePath), gGpgExt)
 		return
 	}
 
-	codeFullPath := formatPath(filepath.Join(gGoPath, codeFilePath)) //make full path
-	if err = this.loadCodeFile(codeFullPath); err != nil {           //load code file
-		return
-	}
-
-	pathWithName := strings.TrimSuffix(codeFullPath, gCodeExt)
+	gpgFullPath := formatPath(filepath.Join(gGoPath, gpgFilePath)) //make full path
+	this.impName = gSectionReversse
+	pathWithName := strings.TrimSuffix(gpgFullPath, gCodeExt)
 	gpFilePath := pathWithName + gGpExt
-	gpgFilePath := pathWithName + gGpExt
-	if err = this.loadGpgFile(gpgFilePath); err == nil {
+	codeFilePath := pathWithName + gCodeExt
+	if err = this.loadCodeFile(codeFilePath); err != nil { //load code file
+		return
+	}
+
+	if err = this.loadGpgFile(gpgFullPath); err == nil {
 		if keys := this.gpgContent.Keys(gSectionReversse); keys != nil {
-			//reverse op
-			fmt.Println(gpFilePath)
+			var sortKey replaceList
+			this.replaceMap = make(map[string]string) //clear map
+			for _, k := range keys {
+				v := this.gpgContent.GetString(gSectionReversse, k, "")
+				if v != "" {
+					sortKey.push(&replaceCase{key: k, value: v})
+					this.replaceMap[v] = k //match key from value
+				}
+			}
+			sort.Sort(&sortKey)
+			exp := sortKey.expString()
+			fmt.Println(exp)
+			reg := regexp.MustCompile(exp)
+			replacedCode := reg.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
+				if v, ok := this.getMatch(src); ok {
+					rep = v
+				} else {
+					fmt.Printf("error: %s has no replacing\n", src)
+					rep = src
+					this.nNoReplaceMathNum++
+				}
+				return
+			})
+			if this.nNoReplaceMathNum > 0 { //report error
+				s := fmt.Sprintf("error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
+				fmt.Println(s)
+				err = fmt.Errorf(s)
+			}
+			if err = this.saveGpFile(replacedCode, gpFilePath); err != nil { //save code to file
+				return
+			}
 		} else {
-			err = fmt.Errorf("[%s] must have [%s] section", codeFilePath, gSectionReversse)
+			err = fmt.Errorf("[%s] must have [%s] section", relateGoPath(gpgFullPath), gSectionReversse)
 		}
 	}
+	return
+}
+func (this *gpgProcessor) saveGpFile(body, gpFilePath string) (err error) {
+	this.gpPath = gpFilePath
+	var fout *os.File
+	if fout, err = os.OpenFile(this.gpPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {
+		return
+	}
+	defer fout.Close()
+	fout.WriteString(body)
+
+	this.nCodeFile++
+	fmt.Printf(">>[gogp][%s] ok\n", relateGoPath(this.gpPath))
 	return
 }
 
@@ -159,6 +235,7 @@ type gpgProcessor struct {
 	gpgContent        *ini.IniFile
 	gpContent         string
 	codeContent       string
+	impName           string
 	//newCodeContent    string
 }
 
@@ -185,6 +262,7 @@ func (this *gpgProcessor) genCode(impName string) (err error) {
 	if impName == gSectionReversse { //reverse only section, ignore it
 		return
 	}
+	this.impName = impName
 	this.nNoReplaceMathNum = 0
 	this.replaceMap = make(map[string]string) //clear map
 	if replaceList := this.gpgContent.Keys(impName); replaceList != nil {
@@ -227,7 +305,7 @@ func (this *gpgProcessor) genCode(impName string) (err error) {
 			fmt.Println(s)
 			err = fmt.Errorf(s)
 		}
-		if err = this.saveCodeFile(replacedGp, impName); err != nil { //save code to file
+		if err = this.saveCodeFile(replacedGp); err != nil { //save code to file
 			return
 		}
 	}
@@ -254,7 +332,7 @@ func (this *gpgProcessor) loadCodeFile(file string) (err error) {
 	}
 	return
 }
-func (this *gpgProcessor) saveCodeFile(body, impName string) (err error) {
+func (this *gpgProcessor) saveCodeFile(body string) (err error) {
 	if !strings.HasSuffix(this.codeContent, body) { //body change then save it,else skip it
 		var fout *os.File
 		if fout, err = os.OpenFile(this.codePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {
@@ -273,7 +351,7 @@ func (this *gpgProcessor) saveCodeFile(body, impName string) (err error) {
 //     [%s] [%s]
 //
 //
-`, filepath.ToSlash(filepath.Dir(gThisFilePath)), time.Now().Format("Mon Jan 02 2006 15:04:05"), relateGoPath(this.gpPath), relateGoPath(this.gpgPath), impName)
+`, filepath.ToSlash(filepath.Dir(gThisFilePath)), time.Now().Format("Mon Jan 02 2006 15:04:05"), relateGoPath(this.gpPath), relateGoPath(this.gpgPath), this.impName)
 		wt.WriteString(s)
 		wt.WriteString(gCopyRightCode)
 		wt.WriteString("///////////////////////////////////////////////////////////////////\n\n")
