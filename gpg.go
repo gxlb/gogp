@@ -44,7 +44,7 @@ const (
 	gkeyGpFilePath = "<GpFilePath>" //read gp file from another path
 	gThisFilePath  = "github.com/vipally/gogp/gpg.go"
 
-	gLibVersion = "2.1.0"
+	gLibVersion = "2.9.0"
 )
 
 var (
@@ -88,7 +88,11 @@ func (this *replaceList) push(v *replaceCase) int {
 func (this *replaceList) Len() int {
 	return len(this.list)
 }
-func (this *replaceList) Less(i, j int) bool { //sort by value descend
+
+//sort by value descend
+//so in regexp, with the same prefix, the longer will match first
+//eg: hello|hehe|he, "he" has the lowest priority but "hello" has the highest
+func (this *replaceList) Less(i, j int) bool {
 	l, r := this.list[i], this.list[j]
 	return l.value > r.value
 }
@@ -102,7 +106,9 @@ func (this *replaceList) expString() string {
 		b.WriteByte('|')
 	}
 	b.Truncate(b.Len() - 1) //remove last '|'
-	return b.String()
+	exp := b.String()
+	//fmt.Println(exp)
+	return exp
 }
 
 // reverse work, gen .gp file from code & .gpg file
@@ -152,7 +158,6 @@ func (this *gpgProcessor) reverseWork(gpgFilePath string) (err error) {
 			}
 			sort.Sort(&sortKey)
 			exp := sortKey.expString()
-			fmt.Println(exp)
 			reg := regexp.MustCompile(exp)
 			replacedCode := reg.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
 				if v, ok := this.getMatch(src); ok {

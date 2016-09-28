@@ -9,22 +9,24 @@ import (
 
 <GOGP_DUMY_DEFINE_COMMENT>/*
 //t<b>se defines will never exists in real go files
-type GOGPStoreValue int
+type <STORE_VALUE> int
 
 <GOGP_DUMY_DEFINE_COMMENT>*/
 
 //auto locked global value
 type AutoLockGbl<GBL_NAME_SUFFICE> struct {
-	val  GOGPStoreValue
+	val  <STORE_VALUE>
 	lock sync.RWMutex
 }
 
 //new and init a global value
-func NewGO<GBL_NAME_SUFFICE>(val GOGPStoreValue) *AutoLockGblGO<GBL_NAME_SUFFICE> {
+func NewGO<GBL_NAME_SUFFICE>(val <STORE_VALUE>) *AutoLockGblGO<GBL_NAME_SUFFICE> {
 	p := &AutoLockGblGO<GBL_NAME_SUFFICE>{}
 	p.val = val
 	return p
 }
+
+//<a> <b> <c><b>
 
 //get value, if modify is disable, lock is unneeded
 <LOCK_COMMENT>func (me *AutoLockGblInt) Get() (r TemplateVlue) {
@@ -35,7 +37,7 @@ func NewGO<GBL_NAME_SUFFICE>(val GOGPStoreValue) *AutoLockGblGO<GBL_NAME_SUFFICE
 <LOCK_COMMENT>}
 
 //set value, if modify is disable, delete this function
-func (me *AutoLockGblGO<GBL_NAME_SUFFICE>) Set(val GOGPStoreValue) (r GOGPStoreValue) {
+func (me *AutoLockGblGO<GBL_NAME_SUFFICE>) Set(val <STORE_VALUE>) (r <STORE_VALUE>) {
 	me.lock.Lock()
 	defer me.lock.Unlock()
 	r = me.val

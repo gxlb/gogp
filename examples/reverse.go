@@ -26,6 +26,8 @@ func NewGOGOPGGblNameSuffice(val GOGPStoreValue) *AutoLockGblGOGOPGGblNameSuffic
 	return p
 }
 
+//hello he hehehe
+
 //get value, if modify is disable, lock is unneeded
 //GOGPGLockCommentfunc (me *AutoLockGblInt) Get() (r TemplateVlue) {
 //GOGPGLockComment	me.lock.RLock()
