@@ -34,7 +34,7 @@ func main() {
 		So any manualy modification will be restored by tool.Take care of that.`)
 
 	cmdline.StringVar(&filePath, "", "filePath", filePath, false, "Path that gogp will work, if not set, it will work on GoPath.")
-	cmdline.BoolVar(&reverseWork, "r", "reverseWork", reverseWork, false, "Reverse work, this mod is used to gen .gp file from a real-go file.\n      If set this flag, the filePath flag must be a .gpg file path related to GoPath.")
+	cmdline.BoolVar(&reverseWork, "r", "reverseWork", reverseWork, false, "Reverse work, this mode is used to gen .gp file from a real-go file.\n      If set this flag, the filePath flag must be a .gpg file path related to GoPath.")
 	cmdline.Parse()
 
 	//	if filePath == "" {

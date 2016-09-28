@@ -20,7 +20,7 @@
 		Usage:
     		gogp [-r=<reverseWork>] <filePath>]
 		-r=<reverseWork>
-      		Reverse work, this mod is used to gen .gp file from a real-go file.
+      		Reverse work, this mode is used to gen .gp file from a real-go file.
       		If set this flag, the filePath flag must be a .gpg file path related to GoPath.
   		<filePath>  string
       		Path that gogp will work, if not set, it will work on GoPath.
