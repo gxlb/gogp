@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -54,9 +53,9 @@ func init() {
 	gCopyRightCode = cmdline.ReplaceTags(gCopyRightCode)
 
 	//get GoPath
-	if _, __file, _, __ok := runtime.Caller(0); __ok { //0 means init func itself
-		__file = filepath.ToSlash(__file)
-		gGoPath = strings.TrimSuffix(__file, gThisFilePath)
+	s := os.Getenv("GOPATH")
+	if ss := strings.Split(s, ";"); ss != nil && len(ss) > 0 {
+		gGoPath = formatPath(ss[0]) + "/src/"
 	}
 	//Work(workPath()) //auto work at working path
 }
@@ -126,12 +125,12 @@ func (this *gpgProcessor) reverseWork(gpgFilePath string) (err error) {
 		err = fmt.Errorf("[%s] must be %s file at reverse mode", relateGoPath(gpgFilePath), gGpgExt)
 		return
 	}
-
 	gpgFullPath := formatPath(filepath.Join(gGoPath, gpgFilePath)) //make full path
 	this.impName = gSectionReversse
 	pathWithName := strings.TrimSuffix(gpgFullPath, gGpgExt)
 	gpFilePath := pathWithName + gGpExt
 	codeFilePath := pathWithName + gCodeExt
+	fmt.Printf("[gogp]ReverseWork:[%s]\n", relateGoPath(gpgFullPath))
 	if err = this.loadCodeFile(codeFilePath); err != nil { //load code file
 		return
 	}

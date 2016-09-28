@@ -2,6 +2,7 @@ package gogp_test
 
 import (
 	//"fmt"
+	//"os"
 	//"regexp"
 	"testing"
 
@@ -17,5 +18,6 @@ func init() {
 func TestCallGogp(t *testing.T) {
 	//	r := regexp.MustCompile("hello|he")
 	//	s := r.FindAllString("I think he is say hello to HE hehe", -1)
-	//	fmt.Printf("%#v", s)
+	//fmt.Printf("%#v\n", os.Environ())
+	//fmt.Println(os.Getenv("GOPATH"))
 }
