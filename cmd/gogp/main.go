@@ -8,6 +8,7 @@ import (
 
 func main() {
 	filePath := ""
+	codeExt := ""
 	reverseWork := false
 	exit_code := 0
 
@@ -35,11 +36,13 @@ func main() {
 
 	cmdline.StringVar(&filePath, "", "filePath", filePath, false, "Path that gogp will work, if not set, it will work on GoPath.")
 	cmdline.BoolVar(&reverseWork, "r", "reverseWork", reverseWork, false, "Reverse work, this mode is used to gen .gp file from a real-go file.\n      If set this flag, the filePath flag must be a .gpg file path related to GoPath.")
+	cmdline.StringVar(&codeExt, "e", "codeExt", codeExt, false, "Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.")
 	cmdline.Parse()
 
 	//	if filePath == "" {
 	//		filePath = cmdline.GoPath()
 	//	}
+	gogp.CodeExtName(codeExt)
 	if reverseWork {
 		gogp.ReverseWork(filePath)
 	} else {

@@ -26,7 +26,6 @@ import (
 const (
 	gGpgExt          = ".gpg"
 	gGpExt           = ".gp"
-	gCodeExt         = ".go"
 	gGpFileSuffix    = "gpg"
 	gReplaceKeyFmt   = "<%s>"
 	gSectionReversse = "GOGP_REVERSE" //gpg section that for gogp reverse only
@@ -46,6 +45,7 @@ var (
 	gGoPath     = "" //GoPath
 
 	gCopyRightCode = "//    " + strings.Replace(cpright.CopyRight(), "\n", "\n//", strings.Count(cpright.CopyRight(), "\n")-1)
+	gCodeExt       = ".go"
 )
 
 func init() {
@@ -99,6 +99,12 @@ func (this *replaceList) expString() string {
 	exp := b.String()
 	//fmt.Println(exp)
 	return exp
+}
+func CodeExtName(n string) string {
+	if n != "" && gCodeExt != n && n != gGpExt && n != gGpgExt {
+		gCodeExt = n
+	}
+	return gCodeExt
 }
 
 // reverse work, gen .gp file from code & .gpg file

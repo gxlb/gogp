@@ -19,6 +19,8 @@
         Tool gogp is used to generate Generic-Programming code
 		Usage:
     		gogp [-r=<reverseWork>] <filePath>]
+		-e=<codeExt>  string
+    		Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.
 		-r=<reverseWork>
       		Reverse work, this mode is used to gen .gp file from a real-go file.
       		If set this flag, the filePath flag must be a .gpg file path related to GoPath.
