@@ -10,13 +10,10 @@
     Blog    : http://blog.csdn.net/vipally
     Site    : https://github.com/vipally
 
-	It is available for generate gp code for golang
-	See details in example directory
-
 ## usage of gogp tool:
     1. (Recommend)use cmdline(cmd/gogp):
 
-        Tool gogp is used to generate Generic-Programming code
+        Tool gogp is a generic-programming solution for golang or any other languages.
 		Usage:
     		gogp [-r=<reverseWork>] <filePath>]
 		-e=<codeExt>  string
@@ -25,7 +22,7 @@
       		Reverse work, this mode is used to gen .gp file from a real-go file.
       		If set this flag, the filePath flag must be a .gpg file path related to GoPath.
   		<filePath>  string
-      		Path that gogp will work, if not set, it will work on GoPath.
+      		Path that gogp will work. GoPath and WorkPath is allowed.
 			
 		Detail desctription:
 		1. .gpg files
@@ -35,7 +32,7 @@
 			So normal work mode will not generate go code file for this section.
 			
 		2. .gp files
-			Is a go-like file, but exists some <xxx> format keys, need to be replaced with which are defined in .gpg file.
+			Is a code-like file, but exists some <xxx> format keys, need to be replaced with which defined in .gpg file.
 			
 		3. .go files
 			gogp tool auto-generated .go files can be identification and compiled as well as normal go code files.

@@ -18,7 +18,7 @@ usage of gogp tool:
       		Reverse work, this mode is used to gen .gp file from a real-go file.
       		If set this flag, the filePath flag must be a .gpg file path related to GoPath.
   		<filePath>  string
-      		Path that gogp will work, if not set, it will work on GoPath.
+      		Path that gogp will work. GoPath and WorkPath is allowed.
 
 		Detail desctription:
 		1. .gpg files
@@ -28,7 +28,7 @@ usage of gogp tool:
 			So normal work mode will not generate go code file for this section.
 
 		2. .gp files
-			Is a go-like file, but exists some <xxx> format keys, need to be replaced with which are defined in .gpg file.
+			Is a go-like file, but exists some <xxx> format keys, need to be replaced with which defined in .gpg file.
 
 		3. .go files
 			gogp tool auto-generated .go files can be identification and compiled as well as normal go code files.
@@ -188,6 +188,70 @@ func ReverseWork(gpgFilePath string) (err error) {
 	return
 }
 
+//run work process on current working path
+func WorkOnWorkPath() (nGpg, nCode, nSkip int, err error) {
+	return Work(workPath())
+}
+
+//run work process on GoPath
+func WorkOnGoPath() (nGpg, nCode, nSkip int, err error) {
+	return Work(gGoPath)
+}
+
+// work, gen code from gp file
+func Work(dir string) (nGpg, nCode, nSkip int, err error) {
+	defer func() {
+		if err != nil {
+			fmt.Println(err)
+		}
+		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
+	}()
+	if dir == "" || dir == "GoPath" { //if not set a dir,use GoPath
+		dir = gGoPath
+	} else if dir == "WorkPath" {
+		dir = workPath()
+	}
+	dir = formatPath(dir)
+	var list []string
+	if list, err = deepCollectSubFiles(dir, gGpgExt); err == nil {
+		if len(list) > 0 {
+			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
+		}
+		for _, gpg := range list {
+			nGpg++
+			var p gopgProcessor
+			if err = p.procGpg(gpg); err != nil {
+				return
+			}
+			nCode += p.nCodeFile
+			nSkip += p.nSkipCodeFile
+		}
+	}
+	fmt.Printf("[gogp][%s] %d/%d updated from %d gpg file(s)\n", relateGoPath(dir), nCode, nCode+nSkip, nGpg)
+	return
+}
+
+//get version of this gogp lib
+func Version() string {
+	return gLibVersion
+}
+
+//object to process gpg file
+type gopgProcessor struct {
+	gpgPath    string            //gpg file path
+	gpPath     string            //gp file path
+	codePath   string            //code file path
+	replaceMap map[string]string //cases that need replacing
+
+	nNoReplaceMathNum int //number of math that has no replace string
+	nCodeFile         int
+	nSkipCodeFile     int
+	gpgContent        *ini.IniFile
+	gpContent         string
+	codeContent       string
+	impName           string
+}
+
 func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
 
 	if !strings.HasSuffix(gpgFilePath, gGpgExt) { //must .gpg file
@@ -254,62 +318,6 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	this.nCodeFile++
 	fmt.Printf(">>[gogp][%s] ok\n", relateGoPath(this.gpPath))
 	return
-}
-
-//run work process on current working path
-func WorkOnWorkPath() (nGpg, nCode, nSkip int, err error) {
-	return Work(workPath())
-}
-
-//run work process on GoPath
-func WorkOnGoPath() (nGpg, nCode, nSkip int, err error) {
-	return Work(gGoPath)
-}
-
-// work, gen code from gp file
-func Work(dir string) (nGpg, nCode, nSkip int, err error) {
-	defer func() {
-		if err != nil {
-			fmt.Println(err)
-		}
-		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
-	}()
-	if dir == "" { //if not set a dir,use GoPath
-		dir = gGoPath
-	}
-	dir = formatPath(dir)
-	var list []string
-	if list, err = deepCollectSubFiles(dir, gGpgExt); err == nil {
-		if len(list) > 0 {
-			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
-		}
-		for _, gpg := range list {
-			nGpg++
-			var p gopgProcessor
-			if err = p.procGpg(gpg); err != nil {
-				return
-			}
-			nCode += p.nCodeFile
-			nSkip += p.nSkipCodeFile
-		}
-	}
-	return
-}
-
-//object to process gpg file
-type gopgProcessor struct {
-	gpgPath    string            //gpg file path
-	gpPath     string            //gp file path
-	codePath   string            //code file path
-	replaceMap map[string]string //cases that need replacing
-
-	nNoReplaceMathNum int //number of math that has no replace string
-	nCodeFile         int
-	nSkipCodeFile     int
-	gpgContent        *ini.IniFile
-	gpContent         string
-	codeContent       string
-	impName           string
 }
 
 func (this *gopgProcessor) procGpg(file string) (err error) {
@@ -448,17 +456,19 @@ func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 	return
 }
 
-//get version of this gogp lib
-func Version() string {
-	return gLibVersion
-}
-
 func relateGoPath(full string) string {
 	return strings.TrimPrefix(formatPath(full), gGoPath)
 }
+func expadGoPath(path string) (r string) {
+	r = path
+	if filepath.VolumeName(path) == "" {
+		r = filepath.Join(gGoPath, path)
+	}
+	return
+}
 
 func formatPath(path string) string {
-	return filepath.ToSlash(filepath.Clean(path))
+	return filepath.ToSlash(filepath.Clean(expadGoPath(path)))
 }
 
 func workPath() (p string) {

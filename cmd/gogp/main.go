@@ -24,7 +24,7 @@ func main() {
 		So normal work mode will not generate go code file for this section.
 		
 	2. .gp files
-		Is a go-like file, but exists some <xxx> format keys, need to be replaced with which are defined in .gpg file.
+		Is a go-like file, but exists some <xxx> format keys, need to be replaced with which defined in .gpg file.
 		
 	3. .go files
 		gogp tool auto-generated .go files can be identification and compiled as well as normal go code files.
@@ -36,7 +36,7 @@ func main() {
 		So any manualy modification will be restored by tool.
 		Take care of that.`)
 
-	cmdline.StringVar(&filePath, "", "filePath", filePath, true, "Path that gogp will work, if not set, it will work on GoPath.")
+	cmdline.StringVar(&filePath, "", "filePath", filePath, true, "Path that gogp will work. GoPath and WorkPath is allowed.")
 	cmdline.BoolVar(&reverseWork, "r", "reverseWork", reverseWork, false, "Reverse work, this mode is used to gen .gp file from a real-go file.\nIf set this flag, the filePath flag must be a .gpg file path related to GoPath.")
 	cmdline.StringVar(&codeExt, "e", "codeExt", codeExt, false, "Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.")
 	cmdline.Parse()
