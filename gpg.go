@@ -22,13 +22,13 @@ usage of gogp tool:
 
 		Detail desctription:
 		1. .gpg files
-			Is an ini file in fact.It's used to define generic parameters's replacing relation.
+			An ini file in fact.It's used to define generic parameters's replacing relation.
 			Corresponding .gp file may with the same path and name, but we can redirect it by key "GOGP_GpFilePath".
 			Section "GOGP_REVERSE" is defined for ReverseWork mode to auto-generate .gp file from .go file.
 			So normal work mode will not generate go code file for this section.
 
 		2. .gp files
-			Is a go-like file, but exists some <xxx> format keys, need to be replaced with which defined in .gpg file.
+			A go-like file, but exists some <xxx> format keys, need to be replaced with which defined in .gpg file.
 
 		3. .go files
 			gogp tool auto-generated .go files can be identification and compiled as well as normal go code files.
