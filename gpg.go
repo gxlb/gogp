@@ -206,9 +206,9 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 		}
 		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
 	}()
-	if dir == "" || dir == "GoPath" { //if not set a dir,use GoPath
+	if dir == "" || strings.ToLower(dir) == "gopath" { //if not set a dir,use GoPath
 		dir = gGoPath
-	} else if dir == "WorkPath" {
+	} else if strings.ToLower(dir) == "workpath" {
 		dir = workPath()
 	}
 	dir = formatPath(dir)
