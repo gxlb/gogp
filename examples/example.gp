@@ -1,6 +1,7 @@
 //This is an example of using gopg tool for generic-programming
 //this is an example of using gopg to define an auto-lock global value with generic type
 //it will be realized to real go code by gopg tool through the .gpg file with the same name
+
 package <PACKAGE>
 
 import (

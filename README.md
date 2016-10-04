@@ -1,7 +1,7 @@
 # gogp [![GoDoc](https://godoc.org/github.com/vipally/gogp?status.svg)](https://godoc.org/github.com/vipally/gogp) ![Version](https://img.shields.io/badge/version-2.9.0-green.svg)
 ----
 	
-	gogp is a tool of generic-programming for golang or any other language
+	package gogp is a generic-programming solution for golang or any other languages.
 
 ----
 
@@ -14,7 +14,7 @@
 	See details in example directory
 
 ## usage of gogp tool:
-1. (Recommend)use cmdline(cmd/gogp):
+    1. (Recommend)use cmdline(cmd/gogp):
 
         Tool gogp is used to generate Generic-Programming code
 		Usage:
@@ -35,7 +35,7 @@
 			So normal work mode will not generate go code file for this section.
 			
 		2. .gp files
-			Is a go-like file, but exists some <xxx> format keys, need to replace with which defined in .gpg file.
+			Is a go-like file, but exists some <xxx> format keys, need to be replaced with which are defined in .gpg file.
 			
 		3. .go files
 			gogp tool auto-generated .go files can be identification and compiled as well as normal go code files.
@@ -44,9 +44,10 @@
 			gogp tool will deep travel the path to find all .gpg files to generate go code files for them.
 			If the generated go code file's body has no changes, this file will not be updated.
 			So run gogp tool any times on GoPath is harmless, unless there are indeed changes.
-			So any manually modification will be restored by this tool.Take care of that.
+			So any manually modification will be restored by this tool.
+			Take care of that.
 	
-2. package usage:
+    2. package usage:
 
 		2.1 (Recommend)import gogp package in test file
 	 		import (
@@ -55,10 +56,9 @@
 	 		)
 			func init() {
 				gogp.WorkOnGoPath() //Recommend
-				gogp.ReverseWork(gpgFilePath)
-				gogp.WorkOnWorkPath()
-				//gogp.ReverseWork("github.com/vipally/gogp/examples/reverse.gpg")
+				//gogp.WorkOnWorkPath()
 				//gogp.Work(someDir)
+				//gogp.ReverseWork("github.com/vipally/gogp/examples/reverse.gpg")
 			}
 	
 		2.2 (Seldom use)import gogp package in normal package
@@ -66,9 +66,9 @@
 				"github.com/vipally/gogp"
 			)
 			func someFunc(){
-				gogp.WorkOnGoPath()
-				gogp.ReverseWork(gpgFilePath)
-				gogp.WorkOnWorkPath()
+				//gogp.WorkOnGoPath()
+				//gogp.ReverseWork(gpgFilePath)
+				//gogp.WorkOnWorkPath()
 				//gogp.Work(someDir)
 			}
 	

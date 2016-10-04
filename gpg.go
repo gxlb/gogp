@@ -3,7 +3,68 @@
 //    Blog    : http://blog.csdn.net/vipally
 //    Site    : https://github.com/vipally
 
-//package gogp implement a way to generate go-gp code from *.gp+*.gpg file
+/*
+package gogp is a generic-programming solution for golang or any other languages.
+
+usage of gogp tool:
+    1. (Recommend)use cmdline(cmd/gogp):
+
+        Tool gogp is a generic-programming solution for golang or any other languages.
+		Usage:
+    		gogp [-r=<reverseWork>] <filePath>]
+		-e=<codeExt>  string
+    		Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.
+		-r=<reverseWork>
+      		Reverse work, this mode is used to gen .gp file from a real-go file.
+      		If set this flag, the filePath flag must be a .gpg file path related to GoPath.
+  		<filePath>  string
+      		Path that gogp will work, if not set, it will work on GoPath.
+
+		Detail desctription:
+		1. .gpg files
+			Is an ini file in fact.It's used to define generic parameters's replacing relation.
+			Corresponding .gp file may with the same path and name, but we can redirect it by key "GOGP_GpFilePath".
+			Section "GOGP_REVERSE" is defined for ReverseWork mode to auto-generate .gp file from .go file.
+			So normal work mode will not generate go code file for this section.
+
+		2. .gp files
+			Is a go-like file, but exists some <xxx> format keys, need to be replaced with which are defined in .gpg file.
+
+		3. .go files
+			gogp tool auto-generated .go files can be identification and compiled as well as normal go code files.
+			But never modify it manually, you can see this warning at the first line in every file.
+			Auto work on GoPath is recmmended.
+			gogp tool will deep travel the path to find all .gpg files to generate go code files for them.
+			If the generated go code file's body has no changes, this file will not be updated.
+			So run gogp tool any times on GoPath is harmless, unless there are indeed changes.
+			So any manually modification will be restored by this tool.
+			Take care of that.
+
+    2. package usage:
+
+		2.1 (Recommend)import gogp package in test file
+	 		import (
+	 			//"testing"
+				"github.com/vipally/gogp"
+	 		)
+			func init() {
+				gogp.WorkOnGoPath() //Recommend
+				//gogp.WorkOnWorkPath()
+				//gogp.Work(someDir)
+				//gogp.ReverseWork("github.com/vipally/gogp/examples/reverse.gpg")
+			}
+
+		2.2 (Seldom use)import gogp package in normal package
+			import (
+				"github.com/vipally/gogp"
+			)
+			func someFunc(){
+				//gogp.WorkOnGoPath()
+				//gogp.ReverseWork(gpgFilePath)
+				//gogp.WorkOnWorkPath()
+				//gogp.Work(someDir)
+			}
+*/
 package gogp
 
 import (
@@ -57,21 +118,20 @@ func init() {
 	if ss := strings.Split(s, ";"); ss != nil && len(ss) > 0 {
 		gGoPath = formatPath(ss[0]) + "/src/"
 	}
-	//Work(workPath()) //auto work at working path
 }
 
 type replaceCase struct {
 	key, value string
 }
+
 type replaceList struct {
 	list []*replaceCase
 }
 
 func (this *replaceList) push(v *replaceCase) int {
 	if v.value != "" {
-
+		this.list = append(this.list, v)
 	}
-	this.list = append(this.list, v)
 	return this.Len()
 }
 
@@ -81,11 +141,12 @@ func (this *replaceList) Len() int {
 
 //sort by value descend
 //so in regexp, with the same prefix, the longer will match first
-//eg: hello|hehe|he, "he" has the lowest priority but "hello" has the highest
+//eg: hello|hehe|he, "he" has the lowest priority and "hello" has the highest
 func (this *replaceList) Less(i, j int) bool {
 	l, r := this.list[i], this.list[j]
 	return l.value > r.value
 }
+
 func (this *replaceList) Swap(i, j int) {
 	this.list[i], this.list[j] = this.list[j], this.list[i]
 }
@@ -100,6 +161,8 @@ func (this *replaceList) expString() string {
 	//fmt.Println(exp)
 	return exp
 }
+
+//set extension of code file, ".go" is default
 func CodeExtName(n string) string {
 	if n != "" && gCodeExt != n && n != gGpExt && n != gGpgExt {
 		gCodeExt = n
@@ -107,7 +170,7 @@ func CodeExtName(n string) string {
 	return gCodeExt
 }
 
-// reverse work, gen .gp file from code & .gpg file
+// reverse work, gen .gp file from code and .gpg file
 // gpgFilePath must related from GoPath
 func ReverseWork(gpgFilePath string) (err error) {
 	defer func() {
@@ -117,7 +180,7 @@ func ReverseWork(gpgFilePath string) (err error) {
 		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
 	}()
 
-	var p gpgProcessor
+	var p gopgProcessor
 	if err = p.reverseWork(gpgFilePath); err != nil {
 		return
 	}
@@ -125,7 +188,7 @@ func ReverseWork(gpgFilePath string) (err error) {
 	return
 }
 
-func (this *gpgProcessor) reverseWork(gpgFilePath string) (err error) {
+func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
 
 	if !strings.HasSuffix(gpgFilePath, gGpgExt) { //must .gpg file
 		err = fmt.Errorf("[%s] must be %s file at reverse mode", relateGoPath(gpgFilePath), gGpgExt)
@@ -179,7 +242,7 @@ func (this *gpgProcessor) reverseWork(gpgFilePath string) (err error) {
 	}
 	return
 }
-func (this *gpgProcessor) saveGpFile(body, gpFilePath string) (err error) {
+func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	this.gpPath = gpFilePath
 	var fout *os.File
 	if fout, err = os.OpenFile(this.gpPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {
@@ -192,9 +255,13 @@ func (this *gpgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	fmt.Printf(">>[gogp][%s] ok\n", relateGoPath(this.gpPath))
 	return
 }
+
+//run work process on current working path
 func WorkOnWorkPath() (nGpg, nCode, nSkip int, err error) {
 	return Work(workPath())
 }
+
+//run work process on GoPath
 func WorkOnGoPath() (nGpg, nCode, nSkip int, err error) {
 	return Work(gGoPath)
 }
@@ -218,7 +285,7 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 		}
 		for _, gpg := range list {
 			nGpg++
-			var p gpgProcessor
+			var p gopgProcessor
 			if err = p.procGpg(gpg); err != nil {
 				return
 			}
@@ -230,7 +297,7 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 }
 
 //object to process gpg file
-type gpgProcessor struct {
+type gopgProcessor struct {
 	gpgPath    string            //gpg file path
 	gpPath     string            //gp file path
 	codePath   string            //code file path
@@ -245,7 +312,7 @@ type gpgProcessor struct {
 	impName           string
 }
 
-func (this *gpgProcessor) procGpg(file string) (err error) {
+func (this *gopgProcessor) procGpg(file string) (err error) {
 	fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(file))
 	this.gpContent = "" //clear gp content
 	if err = this.loadGpgFile(file); err == nil {
@@ -257,14 +324,16 @@ func (this *gpgProcessor) procGpg(file string) (err error) {
 	}
 	return
 }
-func (this *gpgProcessor) loadGpgFile(file string) (err error) {
+
+func (this *gopgProcessor) loadGpgFile(file string) (err error) {
 	file = formatPath(file)
 	this.gpPath = ""
 	this.gpgPath = formatPath(file)
 	this.gpgContent, err = ini.New(this.gpgPath)
 	return
 }
-func (this *gpgProcessor) genCode(impName string) (err error) {
+
+func (this *gopgProcessor) genCode(impName string) (err error) {
 	if impName == gSectionReversse { //reverse only section, ignore it
 		return
 	}
@@ -317,11 +386,13 @@ func (this *gpgProcessor) genCode(impName string) (err error) {
 	}
 	return
 }
-func (this *gpgProcessor) getMatch(key string) (match string, ok bool) {
+
+func (this *gopgProcessor) getMatch(key string) (match string, ok bool) {
 	match, ok = this.replaceMap[key]
 	return
 }
-func (this *gpgProcessor) loadGpFile(file string) (err error) {
+
+func (this *gopgProcessor) loadGpFile(file string) (err error) {
 	var b []byte
 	if b, err = ioutil.ReadFile(file); err == nil {
 		this.gpPath = file
@@ -329,7 +400,8 @@ func (this *gpgProcessor) loadGpFile(file string) (err error) {
 	}
 	return
 }
-func (this *gpgProcessor) loadCodeFile(file string) (err error) {
+
+func (this *gopgProcessor) loadCodeFile(file string) (err error) {
 	var b []byte
 	this.codeContent = ""
 	this.codePath = file
@@ -338,7 +410,8 @@ func (this *gpgProcessor) loadCodeFile(file string) (err error) {
 	}
 	return
 }
-func (this *gpgProcessor) saveCodeFile(body string) (err error) {
+
+func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 	if !strings.HasSuffix(this.codeContent, body) { //body change then save it,else skip it
 		var fout *os.File
 		if fout, err = os.OpenFile(this.codePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {
@@ -375,6 +448,7 @@ func (this *gpgProcessor) saveCodeFile(body string) (err error) {
 	return
 }
 
+//get version of this gogp lib
 func Version() string {
 	return gLibVersion
 }
