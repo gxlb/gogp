@@ -129,6 +129,9 @@ func init() {
 	if ss := strings.Split(s, ";"); ss != nil && len(ss) > 0 {
 		gGoPath = formatPath(ss[0]) + "/src/"
 	}
+
+	//auto work on GoPath
+	WorkOnGoPath()
 }
 
 type replaceCase struct {
@@ -228,10 +231,18 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 		if len(list) > 0 {
 			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
 		}
-		for _, gpg := range list {
+		for _, gpg := range list { //reverse work
+			var p gopgProcessor
+			if err = p.procGpg(gpg, true); err != nil {
+				return
+			}
+			nCode += p.nCodeFile
+			nSkip += p.nSkipCodeFile
+		}
+		for _, gpg := range list { //normal work
 			nGpg++
 			var p gopgProcessor
-			if err = p.procGpg(gpg); err != nil {
+			if err = p.procGpg(gpg, false); err != nil {
 				return
 			}
 			nCode += p.nCodeFile
@@ -270,53 +281,69 @@ func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
 		return
 	}
 	gpgFullPath := formatPath(filepath.Join(gGoPath, gpgFilePath)) //make full path
+
+	if err = this.loadGpgFile(gpgFullPath); err != nil {
+		fmt.Println(err)
+		return
+	}
+	if err = this.reverseProcess(); err != nil {
+		return
+	}
+
+	return
+}
+
+func (this *gopgProcessor) reverseProcess() (err error) {
+
+	fmt.Printf("[gogp]ReverseWork:[%s]\n", relateGoPath(this.gpgPath))
+
 	this.impName = gSectionReversse
-	pathWithName := strings.TrimSuffix(gpgFullPath, gGpgExt)
+	pathWithName := strings.TrimSuffix(this.gpgPath, gGpgExt)
 	gpFilePath := pathWithName + gGpExt
 	codeFilePath := pathWithName + gCodeExt
-	fmt.Printf("[gogp]ReverseWork:[%s]\n", relateGoPath(gpgFullPath))
-	if err = this.loadCodeFile(codeFilePath); err != nil { //load code file
+	this.codePath = codeFilePath
+	this.gpPath = gpFilePath
+
+	if err = this.loadCodeFile(this.codePath); err != nil { //load code file
 		return
 	}
 
 	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
 	this.codeContent = gGogpIgnoreExp.ReplaceAllString(this.codeContent, "\n\n")
 
-	if err = this.loadGpgFile(gpgFullPath); err == nil {
-		if keys := this.gpgContent.Keys(gSectionReversse); keys != nil {
-			var sortKey replaceList
-			this.replaceMap = make(map[string]string) //clear map
-			for _, k := range keys {
-				v := this.gpgContent.GetString(gSectionReversse, k, "")
-				if v != "" {
-					sortKey.push(&replaceCase{key: k, value: v})
-					this.replaceMap[v] = fmt.Sprintf(gReplaceKeyFmt, k) //match key from value
-				}
+	if keys := this.gpgContent.Keys(gSectionReversse); keys != nil {
+		var sortKey replaceList
+		this.replaceMap = make(map[string]string) //clear map
+		for _, k := range keys {
+			v := this.gpgContent.GetString(gSectionReversse, k, "")
+			if v != "" {
+				sortKey.push(&replaceCase{key: k, value: v})
+				this.replaceMap[v] = fmt.Sprintf(gReplaceKeyFmt, k) //match key from value
 			}
-			sort.Sort(&sortKey)
-			exp := sortKey.expString()
-			reg := regexp.MustCompile(exp)
-			replacedCode := reg.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
-				if v, ok := this.getMatch(src); ok {
-					rep = v
-				} else {
-					fmt.Printf("error: %s has no replacing\n", src)
-					rep = src
-					this.nNoReplaceMathNum++
-				}
-				return
-			})
-			if this.nNoReplaceMathNum > 0 { //report error
-				s := fmt.Sprintf("error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
-				fmt.Println(s)
-				err = fmt.Errorf(s)
-			}
-			if err = this.saveGpFile(replacedCode, gpFilePath); err != nil { //save code to file
-				return
-			}
-		} else {
-			err = fmt.Errorf("[%s] must have [%s] section", relateGoPath(gpgFullPath), gSectionReversse)
 		}
+		sort.Sort(&sortKey)
+		exp := sortKey.expString()
+		reg := regexp.MustCompile(exp)
+		replacedCode := reg.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
+			if v, ok := this.getMatch(src); ok {
+				rep = v
+			} else {
+				fmt.Printf("error: %s has no replacing\n", src)
+				rep = src
+				this.nNoReplaceMathNum++
+			}
+			return
+		})
+		if this.nNoReplaceMathNum > 0 { //report error
+			s := fmt.Sprintf("error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
+			fmt.Println(s)
+			err = fmt.Errorf(s)
+		}
+		if err = this.saveGpFile(replacedCode, this.gpPath); err != nil { //save code to file
+			return
+		}
+	} else {
+		err = fmt.Errorf("[%s] must have [%s] section", relateGoPath(this.gpgPath), gSectionReversse)
 	}
 	return
 }
@@ -334,13 +361,23 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	return
 }
 
-func (this *gopgProcessor) procGpg(file string) (err error) {
-	fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(file))
+func (this *gopgProcessor) procGpg(file string, reverse bool) (err error) {
 	this.gpContent = "" //clear gp content
 	if err = this.loadGpgFile(file); err == nil {
-		for _, imp := range this.gpgContent.Sections() {
-			if err = this.genCode(imp); err != nil {
-				return
+		if reverse { //reverse work
+			if this.gpgContent.Keys(gSectionReversse) != nil {
+				if err = this.genCode(gSectionReversse); err != nil {
+					return
+				}
+			}
+		} else { //normal work
+			fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(file))
+			for _, imp := range this.gpgContent.Sections() {
+				if imp != gSectionReversse {
+					if err = this.genCode(imp); err != nil {
+						return
+					}
+				}
 			}
 		}
 	}
@@ -357,6 +394,9 @@ func (this *gopgProcessor) loadGpgFile(file string) (err error) {
 
 func (this *gopgProcessor) genCode(impName string) (err error) {
 	if impName == gSectionReversse { //reverse only section, ignore it
+		if err = this.reverseProcess(); err != nil {
+			return
+		}
 		return
 	}
 	this.impName = impName

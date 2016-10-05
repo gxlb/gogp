@@ -43,7 +43,7 @@ func main() {
 	  gogp .
 	  gogp -r github.com/vipally/gogp/examples/reverse.gpg`)
 
-	cmdline.StringVar(&filePath, "", "filePath", filePath, true, "Path that gogp will work. GoPath and WorkPath is allowed.")
+	cmdline.StringVar(&filePath, "", "filePath", filePath, false, "Path that gogp will work. GoPath and WorkPath is allowed.")
 	cmdline.BoolVar(&reverseWork, "r", "reverseWork", reverseWork, false, "Reverse work, this mode is used to gen .gp file from a real-go file.\nIf set this flag, the filePath flag must be a .gpg file path related to GoPath.")
 	cmdline.StringVar(&codeExt, "e", "codeExt", codeExt, false, "Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.")
 	cmdline.Parse()

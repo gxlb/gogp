@@ -10,8 +10,7 @@ import (
 )
 
 func init() {
-	ReverseWork("github.com/vipally/gogp/examples/reverse.gpg")
-	WorkOnGoPath()
+	//ReverseWork("github.com/vipally/gogp/examples/reverse.gpg")
 }
 
 //run gogp tool to auto-generate go file(s) in test process
