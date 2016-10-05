@@ -108,9 +108,11 @@ const (
 )
 
 var (
-	gReplaceExp = regexp.MustCompile(gReplaceExpTxt)
-	g_map_rep   = make(map[string]string)
-	gGoPath     = "" //GoPath
+	gReplaceExp    = regexp.MustCompile(gReplaceExpTxt)
+	gGogpIgnoreExp = regexp.MustCompile("(?s)\\s+//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?\\n\\s*") //igonre text in code file
+
+	g_map_rep = make(map[string]string)
+	gGoPath   = "" //GoPath
 
 	gCopyRightCode = "//    " + strings.Replace(cpright.CopyRight(), "\n", "\n//", strings.Count(cpright.CopyRight(), "\n")-1)
 	gCodeExt       = ".go"
@@ -274,6 +276,9 @@ func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
 	if err = this.loadCodeFile(codeFilePath); err != nil { //load code file
 		return
 	}
+
+	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
+	this.codeContent = gGogpIgnoreExp.ReplaceAllString(this.codeContent, "\n\n")
 
 	if err = this.loadGpgFile(gpgFullPath); err == nil {
 		if keys := this.gpgContent.Keys(gSectionReversse); keys != nil {
