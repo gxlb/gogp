@@ -215,7 +215,7 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 	}()
 	if dir == "" || strings.ToLower(dir) == "gopath" { //if not set a dir,use GoPath
 		dir = gGoPath
-	} else if strings.ToLower(dir) == "workpath" {
+	} else if dir == "." || strings.ToLower(dir) == "workpath" {
 		dir = workPath()
 	}
 	dir = formatPath(dir)
