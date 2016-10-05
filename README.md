@@ -28,10 +28,13 @@ package gogp is a generic-programming solution for golang or any other languages
 
 ----
 
-	CopyRight 2016 @Ally Dale. All rights reserved.
-    Author  : Ally Dale(vipally@gmail.com)
-    Blog    : http://blog.csdn.net/vipally
-    Site    : https://github.com/vipally
+CopyRight 2016 @Ally Dale. All rights reserved.
+	
+Author  : [Ally Dale(vipally@gmail.com)](mailto://vipally@gmail.com)
+
+Blog    : [http://blog.csdn.net/vipally](http://blog.csdn.net/vipally)
+
+Site    : [https://github.com/vipally](https://github.com/vipally)
 
 ## usage of gogp tool:
     1. (Recommend)use cmdline(cmd/gogp):
