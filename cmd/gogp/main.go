@@ -33,7 +33,7 @@ func main() {
 	  gogp tool auto-generated .go files are exactly normal go code files.
 	  But never modify it manually, you can see this warning at the first line in every file.
 	  Auto work on GoPath is recmmended.
-	  gogp tool will deep travel the path to find all .gpg files for processing.
+	  gogp tool will deep travel the path to find all gpg files for processing.
 	  If the generated go code file's body has no changes, this file will not be updated.
 	  So run gogp tool any times on GoPath is harmless, unless there are indeed changes.
 	  So any manually modification will be restored by this tool.
