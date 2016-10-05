@@ -45,6 +45,7 @@ usage of gogp tool:
     usage eg:
        gogp gopath
        gogp .
+       gogp -r github.com/vipally/gogp/examples/reverse.gpg
 
   2. package usage:
 
