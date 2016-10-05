@@ -42,9 +42,8 @@ func main() {
 	  Take care of that.
 	
 	usage example:
-	  gogp gopath
-	  gogp .
-	  gogp -r github.com/vipally/gogp/examples/reverse.gpg`)
+	  gogp
+	  gogp gopath`)
 
 	cmdline.StringVar(&filePath, "", "filePath", filePath, false, "Path that gogp will work. GoPath and WorkPath is allowed.")
 	cmdline.BoolVar(&reverseWork, "r", "reverse", reverseWork, false,
@@ -57,9 +56,6 @@ func main() {
 	cmdline.AnotherName("force", "f")
 	cmdline.Parse()
 
-	//	if filePath == "" {
-	//		filePath = cmdline.GoPath()
-	//	}
 	gogp.ForceUpdate(forceUpdate)
 	gogp.CodeExtName(codeExt)
 	if reverseWork {

@@ -113,9 +113,7 @@ var (
 	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
 	gGogpIgnoreExp = regexp.MustCompile("(?s)\\s*//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?\\n\\s*")
 
-	g_map_rep = make(map[string]string)
-	gGoPath   = "" //GoPath
-
+	gGoPath        = "" //GoPath
 	gCopyRightCode = ""
 	gCodeExt       = ".go"
 	gForceUpdate   = false //force update all products
@@ -133,7 +131,7 @@ func init() {
 	}
 
 	//auto work on GoPath
-	WorkOnGoPath()
+	//WorkOnGoPath() //do not do this
 }
 
 type replaceCase struct {
@@ -178,6 +176,7 @@ func (this *replaceList) expString() string {
 	return exp
 }
 
+//set force update product flag, whitch returns the old value.
 func ForceUpdate(enable bool) (r bool) {
 	r, gForceUpdate = gForceUpdate, enable
 	return
@@ -469,12 +468,14 @@ func (this *gopgProcessor) loadCodeFile(file string) (err error) {
 	}
 	return
 }
+
 func (this *gopgProcessor) getSrcFile(gp bool) string {
 	if gp {
 		return this.gpPath
 	}
 	return this.codePath
 }
+
 func (this *gopgProcessor) fileHead(gp bool) (h string) {
 	tool := filepath.ToSlash(filepath.Dir(gThisFilePath))
 	h = fmt.Sprintf(`///////////////////////////////////////////////////////////////////
@@ -501,10 +502,12 @@ func (this *gopgProcessor) fileHead(gp bool) (h string) {
 	)
 	return
 }
+
 func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	this.gpPath = gpFilePath
 	if !gForceUpdate && this.loadGpFile(gpFilePath) == nil { //check if need update
 		if this.gpContent == body { //body not change
+			this.nSkipCodeFile++
 			fmt.Printf(">>[gogp][%s] skip\n", relateGoPath(this.gpPath))
 			return
 		}
