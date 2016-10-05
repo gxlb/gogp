@@ -24,7 +24,6 @@ func main() {
 	  Section "GOGP_REVERSE" is defined for ReverseWork to generate .gp file from .go file.
 	  So normal work mode will not generate go code file for this section.
 
-
 	2. .gp files
 	  A go-like file, but exists some <xxx> format keys,
 	  that need to be replaced with which defined in .gpg file.
