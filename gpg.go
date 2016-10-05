@@ -108,8 +108,10 @@ const (
 )
 
 var (
-	gReplaceExp    = regexp.MustCompile(gReplaceExpTxt)
-	gGogpIgnoreExp = regexp.MustCompile("(?s)\\s+//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?\\n\\s*") //igonre text in code file
+	gReplaceExp = regexp.MustCompile(gReplaceExpTxt)
+
+	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
+	gGogpIgnoreExp = regexp.MustCompile("(?s)\\s+//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?\\n\\s*")
 
 	g_map_rep = make(map[string]string)
 	gGoPath   = "" //GoPath
