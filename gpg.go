@@ -89,6 +89,7 @@ import (
 	"github.com/vipally/cmdline"
 	"github.com/vipally/cpright"
 	"github.com/vipally/gogp/ini"
+	//xhash "github.com/vipally/gx/hash"
 )
 
 const (
@@ -510,6 +511,10 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 			this.nSkipCodeFile++
 			fmt.Printf(">>[gogp][%s] skip\n", relateGoPath(this.gpPath))
 			return
+		} else {
+			//			fmt.Println("[%s]", xhash.MD5.StringHash(this.gpContent))
+			//			fmt.Println("[%s]", xhash.MD5.StringHash(body))
+			//			fmt.Println("[%s]", xhash.MD5.StringHash(strings.TrimSuffix(this.gpContent, body)))
 		}
 	}
 
@@ -537,6 +542,11 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 
 func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 	if gForceUpdate || !strings.HasSuffix(this.codeContent, body) { //body change then save it,else skip it
+
+		//		fmt.Println("[%s]", xhash.MD5.StringHash(this.codeContent))
+		//		fmt.Println("[%s]", xhash.MD5.StringHash(body))
+		//		fmt.Println("[%s]", xhash.MD5.StringHash(strings.TrimSuffix(this.codeContent, body)))
+
 		var fout *os.File
 		if fout, err = os.OpenFile(this.codePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {
 			return

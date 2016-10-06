@@ -1,16 +1,11 @@
 package gogp
 
 import (
-	//"fmt"
-	//"os"
-	//"regexp"
 	"testing"
-
-	//"github.com/vipally/gogp"
 )
 
 func init() {
-	//ReverseWork("github.com/vipally/gogp/examples/reverse.gpg")
+	WorkOnGoPath()
 }
 
 //run gogp tool to auto-generate go file(s) in test process
