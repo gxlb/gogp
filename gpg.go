@@ -90,21 +90,22 @@ import (
 )
 
 const (
-	gGpgExt          = ".gpg"
-	gGpExt           = ".gp"
-	gGpFileSuffix    = "gpg"
-	gReplaceKeyFmt   = "<%s>"
-	gSectionReversse = "GOGP_REVERSE" //gpg section that for gogp reverse only
-	gSectionIgnore   = "GOGP_IGNORE"  //gpg section that for gogp never process
+	gGpgExt         = ".gpg"
+	gGpExt          = ".gp"
+	gGpFileSuffix   = "gpg"
+	gReplaceKeyFmt  = "<%s>"
+	gSectionReverse = "GOGP_REVERSE" //gpg section that for gogp reverse only
+	gSectionIgnore  = "GOGP_IGNORE"  //gpg section that for gogp never process
 
 	//key that set a gp name in a reverse process, and code suffix in normal work
-	grawKeyName = "GOGP_Name"
+	grawKeyName       = "GOGP_Name"
+	grawKeyGpFilePath = "GOGP_GpFilePath" //read gp file from another path
+	gKeyReservePrefix = "<GOGP_"          //reserved key,do not use repalce action
 
 	//generic-programming flag <XXX>
 	gReplaceExpTxt = `\<[[:alpha:]][[:word:]]{0,}\>`
 
-	gkeyGpFilePath = "<GOGP_GpFilePath>" //read gp file from another path
-	gThisFilePath  = "github.com/vipally/gogp/gpg.go"
+	gThisFilePath = "github.com/vipally/gogp/gpg.go"
 
 	gLibVersion = "2.9.0"
 )
