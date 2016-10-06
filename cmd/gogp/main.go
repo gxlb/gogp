@@ -47,12 +47,12 @@ func main() {
 	  gogp gopath`)
 
 	cmdline.StringVar(&filePath, "", "filePath", filePath, false, "Path that gogp will work. GoPath and WorkPath is allowed.")
-	cmdline.BoolVar(&reverseWork, "r", "reverseWork", reverseWork, false,
+	cmdline.BoolVar(&reverseWork, "r", "reverse", reverseWork, false,
 		`Reverse work, this mode is used to gen .gp file from a real-go file.
 		If set this flag, the filePath flag must be a .gpg file path related to GoPath.`)
-	cmdline.BoolVar(&forceUpdate, "f", "forceUpdate", forceUpdate, false, "Force update all products.")
-	cmdline.StringVar(&codeExt, "e", "codeExt", codeExt, false, "Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.")
-	cmdline.BoolVar(&moreInfo, "m", "moreInfo", moreInfo, false, "More information in working process.")
+	cmdline.BoolVar(&forceUpdate, "f", "force", forceUpdate, false, "Force update all products.")
+	cmdline.StringVar(&codeExt, "e", "Ext", codeExt, false, "Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.")
+	cmdline.BoolVar(&moreInfo, "m", "more", moreInfo, false, "More information in working process.")
 	cmdline.AnotherName("ext", "e")
 	cmdline.AnotherName("reverse", "r")
 	cmdline.AnotherName("force", "f")
