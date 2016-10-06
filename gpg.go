@@ -7,6 +7,7 @@ package gogp
 
 import (
 	"fmt"
+	"time"
 
 	"os"
 	"path/filepath"
@@ -105,6 +106,9 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 		}
 		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
 	}()
+
+	start := time.Now()
+
 	if dir == "" || strings.ToLower(dir) == "gopath" { //if not set a dir,use GoPath
 		dir = gGoPath
 	} else if dir == "." || strings.ToLower(dir) == "workpath" {
@@ -136,7 +140,8 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 	}
 
 	if true || !gSilence { //always show this message
-		fmt.Printf("[gogp][%s] %d/%d product(s) updated from %d gpg file(s).\n", relateGoPath(dir), nCode, nCode+nSkip, nGpg)
+		cost := time.Now().Sub(start)
+		fmt.Printf("[gogp][%s] %d/%d product(s) updated from %d gpg file(s) in %s.\n", relateGoPath(dir), nCode, nCode+nSkip, nGpg, cost)
 	}
 
 	return
