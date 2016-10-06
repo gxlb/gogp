@@ -189,8 +189,10 @@ func (this *gopgProcessor) reverseProcess() (err error) {
 
 func (this *gopgProcessor) hasTask(reverse bool) bool {
 	for _, imp := range this.gpgContent.Sections() {
-		if checkReverse := strings.HasPrefix(imp, gSectionReversse); checkReverse == reverse {
-			return true
+		if !strings.HasPrefix(imp, gSectionIgnore) {
+			if checkReverse := strings.HasPrefix(imp, gSectionReversse); checkReverse == reverse {
+				return true
+			}
 		}
 	}
 	return false

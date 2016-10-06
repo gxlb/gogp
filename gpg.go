@@ -119,7 +119,7 @@ var (
 	gCopyRightCode = ""
 	gCodeExt       = ".go"
 	gForceUpdate   = false //force update all products
-	gSilence       = false //work silencely
+	gSilence       = true  //work silencely
 )
 
 func init() {
