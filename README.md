@@ -57,9 +57,8 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
             Path that gogp will work. GoPath and WorkPath is allowed.
   
         usage eg:
+           gogp
            gogp gopath
-           gogp .
-           gogp -r github.com/vipally/gogp/examples/reverse.gpg
   
     2. package usage:
   
