@@ -1,6 +1,8 @@
+// package auto runs gogp tool on GoPath when imported.
 //
 // usage:
 //   import (
+//       _ "github.com/vipally/gogp/auto"//auto runs gogp tool on GoPath when init()
 //   )
 package auto
 
