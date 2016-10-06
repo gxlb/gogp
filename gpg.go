@@ -131,23 +131,25 @@ func init() {
 	}
 }
 
+//set silence work mode flag.
 func Silence(enable bool) (old bool) {
 	old, gSilence = gSilence, enable
 	return
 }
 
-//set force update product flag, whitch returns the old value.
+//set force update product flag.
 func ForceUpdate(enable bool) (old bool) {
 	old, gForceUpdate = gForceUpdate, enable
 	return
 }
 
 //set extension of code file, ".go" is default
-func CodeExtName(n string) string {
+func CodeExtName(n string) (old string) {
+	old = gCodeExt
 	if n != "" && gCodeExt != n && n != gGpExt && n != gGpgExt {
 		gCodeExt = n
 	}
-	return gCodeExt
+	return
 }
 
 //run work process on GoPath

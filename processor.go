@@ -75,7 +75,10 @@ func (this *replaceList) expString() string {
 		b.WriteString(v.value)
 		b.WriteByte('|')
 	}
-	b.Truncate(b.Len() - 1) //remove last '|'
+	if this.Len() > 0 {
+		b.Truncate(b.Len() - 1) //remove last '|'
+	}
+
 	exp := b.String()
 	//fmt.Println(exp)
 	return exp
