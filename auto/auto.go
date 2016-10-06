@@ -7,9 +7,14 @@
 package auto
 
 import (
+	"fmt"
+
 	"github.com/vipally/gogp"
 )
 
 func init() {
-	gogp.WorkOnGoPath() //runs gogp tool at GoPath when imported
+	gogp.Silence(true)
+	if _, _, _, err := gogp.WorkOnGoPath(); err != nil { //runs gogp tool at GoPath when imported
+		fmt.Println(err)
+	}
 }

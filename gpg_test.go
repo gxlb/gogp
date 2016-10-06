@@ -5,10 +5,9 @@ import (
 )
 
 func init() {
-	WorkOnGoPath()
+	WorkOnGoPath() //run gogp tool to auto-generate go file(s) in test process
 }
 
-//run gogp tool to auto-generate go file(s) in test process
 func TestCallGogp(t *testing.T) {
 	//	r := regexp.MustCompile("hello|he")
 	//	s := r.FindAllString("I think he is say hello to HE hehe", -1)
