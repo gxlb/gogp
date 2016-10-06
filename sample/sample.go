@@ -1,4 +1,4 @@
-package examples
+package sample
 
 //GOGP_IGNORE_BEGIN//////////////////////////////GOGPCommentDummyGoFile_BEGIN
 //
