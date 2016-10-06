@@ -97,6 +97,9 @@ const (
 	gSectionReversse = "GOGP_REVERSE" //gpg section that for gogp reverse only
 	gSectionIgnore   = "GOGP_IGNORE"  //gpg section that for gogp never process
 
+	//key that set a gp name in a reverse process, and code suffix in normal work
+	grawKeyName = "GOGP_Name"
+
 	//generic-programming flag <XXX>
 	gReplaceExpTxt = `\<[[:alpha:]][[:word:]]{0,}\>`
 
@@ -116,7 +119,7 @@ var (
 	gCopyRightCode = ""
 	gCodeExt       = ".go"
 	gForceUpdate   = false //force update all products
-	gSilence       = true  //work silencely
+	gSilence       = false //work silencely
 )
 
 func init() {

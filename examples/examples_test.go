@@ -7,5 +7,4 @@ import (
 )
 
 func TestCallGogp(t *testing.T) {
-
 }

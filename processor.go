@@ -112,20 +112,35 @@ func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
 		fmt.Println(err)
 		return
 	}
-	if err = this.reverseProcess(); err != nil {
-		return
+
+	if this.hasTask(true) {
+		for _, imp := range this.gpgContent.Sections() {
+			if imp != gSectionReversse {
+				if err = this.genCode(imp, true); err != nil {
+					return
+				}
+			}
+		}
+	} else {
+		err = fmt.Errorf("[gogp]error:[%s] must has %s leaded sections", relateGoPath(gpgFilePath), gSectionReversse)
 	}
 
 	return
 }
 
-func (this *gopgProcessor) reverseProcess() (err error) {
-	if !gSilence {
-		fmt.Printf("[gogp]ReverseWork:[%s]\n", relateGoPath(this.gpgPath))
+//if has set key GOGP_Name, use it, else use section name
+func (this *gopgProcessor) getGpName() (r string) {
+	if name := this.gpgContent.GetString(this.impName, grawKeyName, ""); name != "" {
+		r = name
+	} else {
+		r = strings.TrimSuffix(filepath.Base(this.gpgPath), gGpgExt)
 	}
+	return
+}
 
-	this.impName = gSectionReversse
-	pathWithName := strings.TrimSuffix(this.gpgPath, gGpgExt)
+func (this *gopgProcessor) reverseProcess() (err error) {
+
+	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
 	gpFilePath := pathWithName + gGpExt
 	codeFilePath := pathWithName + gCodeExt
 	this.codePath = codeFilePath
@@ -134,15 +149,14 @@ func (this *gopgProcessor) reverseProcess() (err error) {
 	if err = this.loadCodeFile(this.codePath); err != nil { //load code file
 		return
 	}
-
 	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
 	this.codeContent = gGogpIgnoreExp.ReplaceAllString(this.codeContent, "\n\n")
 
-	if keys := this.gpgContent.Keys(gSectionReversse); keys != nil {
+	if keys := this.gpgContent.Keys(this.impName); keys != nil {
 		this.matches.clear()
 		for _, k := range keys {
-			v := this.gpgContent.GetString(gSectionReversse, k, "")
-			if v != "" {
+			v := this.gpgContent.GetString(this.impName, k, "")
+			if v != "" && k != grawKeyName {
 				this.matches.insert(fmt.Sprintf(gReplaceKeyFmt, k), v, true)
 			}
 		}
@@ -173,25 +187,28 @@ func (this *gopgProcessor) reverseProcess() (err error) {
 	return
 }
 
+func (this *gopgProcessor) hasTask(reverse bool) bool {
+	for _, imp := range this.gpgContent.Sections() {
+		if checkReverse := strings.HasPrefix(imp, gSectionReversse); checkReverse == reverse {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *gopgProcessor) procGpg(file string, reverse bool) (err error) {
 	this.gpContent = "" //clear gp content
-	if err = this.loadGpgFile(file); err == nil {
-		if reverse { //reverse work
-			if this.gpgContent.Keys(gSectionReversse) != nil {
-				if err = this.genCode(gSectionReversse); err != nil {
-					return
-				}
-			}
-		} else { //normal work
-			if !gSilence {
+	if err = this.loadGpgFile(file); err == nil && this.hasTask(reverse) {
+		if !gSilence {
+			if reverse {
+				fmt.Printf("[gogp]ReverseWork:[%s]\n", relateGoPath(this.gpgPath))
+			} else {
 				fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(file))
 			}
-			for _, imp := range this.gpgContent.Sections() {
-				if imp != gSectionReversse {
-					if err = this.genCode(imp); err != nil {
-						return
-					}
-				}
+		}
+		for _, imp := range this.gpgContent.Sections() {
+			if err = this.genCode(imp, reverse); err != nil {
+				return
 			}
 		}
 	}
@@ -206,17 +223,35 @@ func (this *gopgProcessor) loadGpgFile(file string) (err error) {
 	return
 }
 
-func (this *gopgProcessor) genCode(impName string) (err error) {
-	if impName == gSectionIgnore { //never deal with this section
+//if has set key GOGP_Name, use it, else use section name
+func (this *gopgProcessor) getCodeSuffix() (r string) {
+	if name := this.gpgContent.GetString(this.impName, grawKeyName, ""); name != "" {
+		r = name
+	} else {
+		r = this.impName
+	}
+	return
+}
+
+func (this *gopgProcessor) genCode(impName string, reverse bool) (err error) {
+	if strings.HasPrefix(impName, gSectionIgnore) { //never deal with this section
 		return
 	}
-	if impName == gSectionReversse { //reverse only section, do reverse option
+	checkReverse := strings.HasPrefix(impName, gSectionReversse)
+	if checkReverse != reverse {
+		return
+	}
+
+	this.impName = impName
+
+	if reverse { //reverse section
 		if err = this.reverseProcess(); err != nil {
 			//do nothing
 		}
 		return
 	}
-	this.impName = impName
+
+	//normal process
 	this.nNoReplaceMathNum = 0
 	this.matches.clear() //clear matches
 	if replaceList := this.gpgContent.Keys(impName); replaceList != nil {
@@ -229,7 +264,7 @@ func (this *gopgProcessor) genCode(impName string) (err error) {
 
 		pathWithName := strings.TrimSuffix(this.gpgPath, gGpgExt)
 		codePath := fmt.Sprintf("%s_%s_%s%s",
-			pathWithName, gGpFileSuffix, impName, gCodeExt)
+			pathWithName, gGpFileSuffix, this.getCodeSuffix(), gCodeExt)
 		gpPath := ""
 		if gp, ok := this.getMatch(gkeyGpFilePath); ok { //read gp file from another path
 			gpPath = filepath.Join(gGoPath, gp+gGpExt)

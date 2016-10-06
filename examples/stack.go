@@ -70,6 +70,7 @@ func (this *GOGPStackNamePrefixStack) Depth() int {
 	return len(*this)
 }
 
+//GOGPShowComment//show
 //GOGPShowCommentfunc (this *GOGPStackNamePrefixStack) Show() string {
 //GOGPShowComment	var b show_bytes.Buffer
 //GOGPShowComment	b.WriteByte('[')
