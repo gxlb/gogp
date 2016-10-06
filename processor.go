@@ -109,20 +109,14 @@ func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
 		err = fmt.Errorf("[gogp]error:[%s] must be %s file at reverse mode", relateGoPath(gpgFilePath), gGpgExt)
 		return
 	}
-	gpgFullPath := formatPath(filepath.Join(gGoPath, gpgFilePath)) //make full path
 
-	if err = this.loadGpgFile(gpgFullPath); err != nil {
-		fmt.Println(err)
+	gpgFullPath := expadGoPath(gpgFilePath) //make full path
+
+	if err = this.procGpg(gpgFullPath, true); err != nil {
 		return
 	}
 
-	if this.hasTask(true) {
-		for _, imp := range this.gpgContent.Sections() {
-			if err = this.genProduct(imp, true); err != nil {
-				return
-			}
-		}
-	} else {
+	if this.nCodeFile+this.nSkipCodeFile <= 0 { //no reverse tasks
 		err = fmt.Errorf("[gogp]error:[%s] must has %s leaded sections", relateGoPath(gpgFilePath), gSectionReverse)
 	}
 
@@ -140,7 +134,6 @@ func (this *gopgProcessor) getGpName() (r string) {
 }
 
 func (this *gopgProcessor) reverseProcess() (err error) {
-
 	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
 	gpFilePath := pathWithName + gGpExt
 	codeFilePath := pathWithName + gCodeExt
@@ -154,7 +147,6 @@ func (this *gopgProcessor) reverseProcess() (err error) {
 	this.codeContent = gGogpIgnoreExp.ReplaceAllString(this.codeContent, "\n\n")
 
 	if this.buildMatches(true) {
-
 		sort.Sort(&this.matches)
 		exp := this.matches.expString()
 		reg := regexp.MustCompile(exp)
