@@ -21,24 +21,43 @@ func main() {
 	cmdline.CopyRight(cpright.CopyRight())
 
 	cmdline.Summary("Tool <thiscmd> is a generic-programming solution for golang or any other languages.")
-	cmdline.Details(`1. .gpg files
-	  An ini file in fact.It's used to define generic parameters's replacing relation.
+	cmdline.Details(`Tool Site: https://github.com/vipally/gogp
+	Work flow: DummyGoFile  --(GPGFile[1])-->  gp_file  --(GPGFile[2])-->  real_go_files
+	
+	  In this flow, DummyGoFile and GPGFile are hand making, and the rests are products 
+	of gogp tool.
+	
+	1. DummyGoFiles
+	  Sample: https://github.com/vipally/gogp/blob/master/examples/stack.go
+	  This is a "normal" go file with WELL-DESIGNED structure.
+	  Texts that matches 
+	        "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END ...\n"
+	case will be ingored by gogp tool when loading.
+	  Any identifier who wants to be replaced with is defines as unique dummy 
+	word(eg: GOGPStackElem), which is similar to template parameter T in C++.
+	  GPG file "GOGP_REVERSE_xxx" style sections defines the cases to replacing 
+	them to <key> format "identifiers" in GP file.
+	
+	2. GPG files(.gpg)
+	  GPG file is an ini-format file, that defines key-value replacing cases from 
+	source to the product.
 	  "GOGP_IGNORE_xxx" style sections will be ignored by gogp tool.
-	  "GOGP_REVERSE_xxx" style sections are defined for reverse-mode to generate .gp file from .go file.
+	  "GOGP_REVERSE_xxx" style sections are defined for reverse-mode to generate 
+	GP file from DummyGoFiles.
 	  So normal work mode will not generate go code file for these sections.
 	  "GOGP_xxx" style keys are reserved by gogp tool which will never be replacing with.
-	  Corresponding .gp file may with the same path and name.
+	  Corresponding GP file may with the same path and name.
 	  But we can redirect it by key "GOGP_GpFilePath".
 	  Key "GOGP_Name" is used to specify gp file name in reverse flow.
 	  And specify go-file-name-suffix in normal flow.
 
-	2. .gp files
+	3. GP files(.gp)
 	  A go-like file, but exists some <xxx> style keys,
-	  that need to be replaced with which defined in .gpg file.
+	  that need to be replaced with which defined in GPG file.
 
-	3. .go files
-	  gogp tool auto-generated .go files are exactly normal go code files.
-	  But never modify it manually, you can see this warning at the first line in every file.
+	4. GO files(.go)
+	  gogp tool auto-generated GO files are exactly normal go code files.
+	  But never modify it manually, you can see this warning infomation at each file head.
 	  Auto work on GoPath is recmmended.
 	  gogp tool will deep travel the path to find all gpg files for processing.
 	  If the generated go code file's body has no changes, this file will not be updated.
@@ -46,7 +65,7 @@ func main() {
 	  So any manually modification will be restored by this tool.
 	  Take care of that.
 	
-	usage example:
+	usage samples:
 	  gogp
 	  gogp gopath`)
 
