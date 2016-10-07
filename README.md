@@ -122,8 +122,8 @@ DummyGoFile  --<u>(GPGFile[1])</u>-->  gp_file  --<u>(GPGFile[2])</u>-->  real_g
 	   Other styles of gpg sections are used as the last flow: generate go code 
 	file from .gp file. It is a mechanical matches from keys to values.
 	
-	   Moreover, "GOGP_xxxx" style keys are reserved by gogp tool, and they will 
-	not do replacing work.
+	   Moreover, "GOGP_xxx" style keys are reserved by gogp tool which will never 
+	be replacing with.
 	   "GOGP_Name" is used to specify DummyGoFileName in the first flow, and specify 
 	go-file-name-suffix in the second flow.
 	   "GOGP_GpFilePath" is used to specify .gp file path in the second flow.

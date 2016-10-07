@@ -23,13 +23,17 @@ func main() {
 	cmdline.Summary("Tool <thiscmd> is a generic-programming solution for golang or any other languages.")
 	cmdline.Details(`1. .gpg files
 	  An ini file in fact.It's used to define generic parameters's replacing relation.
+	  "GOGP_IGNORE_xxx" style sections will be ignored by gogp tool.
+	  "GOGP_REVERSE_xxx" style sections are defined for reverse-mode to generate .gp file from .go file.
+	  So normal work mode will not generate go code file for these sections.
+	  "GOGP_xxx" style keys are reserved by gogp tool which will never be replacing with.
 	  Corresponding .gp file may with the same path and name.
 	  But we can redirect it by key "GOGP_GpFilePath".
-	  Section "GOGP_REVERSE" is defined for ReverseWork to generate .gp file from .go file.
-	  So normal work mode will not generate go code file for this section.
+	  Key "GOGP_Name" is used to specify gp file name in reverse flow.
+	  And specify go-file-name-suffix in normal flow.
 
 	2. .gp files
-	  A go-like file, but exists some <xxx> format keys,
+	  A go-like file, but exists some <xxx> style keys,
 	  that need to be replaced with which defined in .gpg file.
 
 	3. .go files
