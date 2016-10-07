@@ -255,17 +255,28 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 
 	//normal process
 	if this.buildMatches(false) {
-		pathWithName := strings.TrimSuffix(this.gpgPath, gGpgExt)
-		codePath := fmt.Sprintf("%s_%s_%s%s",
-			pathWithName, gGpFileSuffix, this.getCodeSuffix(), gCodeExt)
 		gpPath := ""
-		if gp := this.gpgContent.GetString(this.impName, grawKeyGpFilePath, ""); gp != "" { //read gp file from another path
-			gpPath = filepath.Join(gGoPath, gp+gGpExt)
+		gpgDir := filepath.Dir(this.gpgPath)
+		if gp := this.gpgContent.GetString(this.impName, grawKeyGpFilePath, ""); gp != "" { //read gp file from another path or name
+			if !strings.HasPrefix(gp, gGpExt) {
+				gp = gp + gGpExt
+			}
+			if p, _ := filepath.Split(gp); p != "" {
+				gpPath = filepath.Join(gGoPath, gp)
+			} else { //if only config gp name, use gpg dir
+				gpPath = filepath.Join(gpgDir, gp)
+			}
+
 			this.gpPath = "" //clear gp content
-		} else {
-			gpPath = pathWithName + gGpExt
+		} else { //not config gp name, use gpg path and name
+			gpPath = strings.TrimSuffix(this.gpgPath, gGpgExt) + gGpExt
 		}
-		this.loadCodeFile(codePath) //load code file
+
+		gpName := strings.TrimSuffix(filepath.Base(gpPath), gGpExt)
+		codePath := fmt.Sprintf("%s/%s_%s_%s%s",
+			gpgDir, gpName, gGpFileSuffix, this.getCodeSuffix(), gCodeExt)
+
+		this.loadCodeFile(codePath) //load code file, ignore error
 		if this.gpPath != gpPath {  //load gp file if needed
 			if err = this.loadGpFile(gpPath); err != nil {
 				return
