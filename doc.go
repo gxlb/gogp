@@ -91,7 +91,7 @@ More gogp details:
 
     1. Working flow:
 
-    DummyGoFile  --<u>(GPGFile[1])</u>-->  gp_file  --<u>(GPGFile[2])</u>-->  real_go_files
+    DummyGoFile  --(GPGFile[1])-->  gp_file  --(GPGFile[2])-->  real_go_files
 
            In this flow, DummyGoFile and GPGFile are hand making, and the rests are products
         of gogp tool.
