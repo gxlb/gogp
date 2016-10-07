@@ -1,3 +1,8 @@
+//    CopyRight @Ally Dale 2016
+//    Author  : Ally Dale(vipally@gmail.com)
+//    Blog    : http://blog.csdn.net/vipally
+//    Site    : https://github.com/vipally
+
 package gogp
 
 import (
