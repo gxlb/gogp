@@ -39,7 +39,7 @@ const (
 
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
 
-	gLibVersion = "2.9.0"
+	gLibVersion = "3.0.0.final"
 )
 
 var (
