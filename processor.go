@@ -368,6 +368,11 @@ func (this *gopgProcessor) fileHead(gp bool) (h string) {
 
 func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	this.gpPath = gpFilePath
+	if gRemoveProductsOnly { //remove products only
+		this.nCodeFile++
+		os.Remove(this.gpPath)
+		return
+	}
 	if !gForceUpdate && this.loadGpFile(gpFilePath) == nil { //check if need update
 		if this.gpContent == body { //body not change
 			this.nSkipCodeFile++
@@ -407,6 +412,11 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 }
 
 func (this *gopgProcessor) saveCodeFile(body string) (err error) {
+	if gRemoveProductsOnly { //remove products only
+		this.nCodeFile++
+		os.Remove(this.codePath)
+		return
+	}
 	if gForceUpdate || !strings.HasSuffix(this.codeContent, body) { //body change then save it,else skip it
 
 		//		fmt.Println("[%s]", xhash.MD5.StringHash(this.codeContent))

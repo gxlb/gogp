@@ -24,7 +24,7 @@ import (
 const (
 	gGpgExt         = ".gpg"
 	gGpExt          = ".gp"
-	gGpFileSuffix   = "gpg"
+	gGpFileSuffix   = "gp"
 	gReplaceKeyFmt  = "<%s>"
 	gSectionReverse = "GOGP_REVERSE" //gpg section that for gogp reverse only
 	gSectionIgnore  = "GOGP_IGNORE"  //gpg section that for gogp never process
@@ -48,11 +48,12 @@ var (
 	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
 	gGogpIgnoreExp = regexp.MustCompile("(?s)\\s*//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?\\n\\s*")
 
-	gGoPath        = "" //GoPath
-	gCopyRightCode = ""
-	gCodeExt       = ".go"
-	gForceUpdate   = false //force update all products
-	gSilence       = true  //work silencely
+	gGoPath             = "" //GoPath
+	gCopyRightCode      = ""
+	gCodeExt            = ".go"
+	gForceUpdate        = false //force update all products
+	gSilence            = true  //work silencely
+	gRemoveProductsOnly = false //remove products only
 )
 
 func init() {
@@ -65,6 +66,12 @@ func init() {
 	if ss := strings.Split(s, ";"); ss != nil && len(ss) > 0 {
 		gGoPath = formatPath(ss[0]) + "/src/"
 	}
+}
+
+// enable/disable work mode RemoveProductsOnly.
+func RemoveProductsOnly(enable bool) (old bool) {
+	old, gRemoveProductsOnly = gRemoveProductsOnly, enable
+	return
 }
 
 //set silence work mode flag.
@@ -120,22 +127,20 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 		if !gSilence && len(list) > 0 {
 			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
 		}
-		for _, gpg := range list { //reverse work
-			var p gopgProcessor
-			if err = p.procGpg(gpg, true); err != nil {
-				return
-			}
-			nCode += p.nCodeFile
-			nSkip += p.nSkipCodeFile
+		reverses := []bool{true, false} //reverse work first
+		if gRemoveProductsOnly {
+			reverses = []bool{false, true} //normal work first
 		}
-		for _, gpg := range list { //normal work
-			nGpg++
-			var p gopgProcessor
-			if err = p.procGpg(gpg, false); err != nil {
-				return
+		nGpg = len(list)
+		for _, reverse := range reverses {
+			for _, gpg := range list { //reverse work
+				var p gopgProcessor
+				if err = p.procGpg(gpg, reverse); err != nil {
+					return
+				}
+				nCode += p.nCodeFile
+				nSkip += p.nSkipCodeFile
 			}
-			nCode += p.nCodeFile
-			nSkip += p.nSkipCodeFile
 		}
 	}
 

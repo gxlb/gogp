@@ -12,9 +12,10 @@ func main() {
 		filePath = ""
 		codeExt  = ""
 		//reverseWork = false
-		forceUpdate = false
-		moreInfo    = false
-		exit_code   = 0
+		forceUpdate        = false
+		moreInfo           = false
+		removeProductsOnly = false
+		exit_code          = 0
 	)
 
 	cmdline.Version(gogp.Version())
@@ -76,12 +77,15 @@ func main() {
 	cmdline.BoolVar(&forceUpdate, "f", "force", forceUpdate, false, "Force update all products.")
 	cmdline.StringVar(&codeExt, "e", "Ext", codeExt, false, "Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.")
 	cmdline.BoolVar(&moreInfo, "m", "more", moreInfo, false, "More information in working process.")
+	cmdline.BoolVar(&removeProductsOnly, "remove", "removeProductsOnly", removeProductsOnly, false, "Only remove all products.")
+
 	cmdline.AnotherName("ext", "e")
 	//cmdline.AnotherName("reverse", "r")
 	cmdline.AnotherName("force", "f")
 	cmdline.AnotherName("more", "m")
 	cmdline.Parse()
 
+	gogp.RemoveProductsOnly(removeProductsOnly)
 	gogp.Silence(!moreInfo)
 	gogp.ForceUpdate(forceUpdate)
 	gogp.CodeExtName(codeExt)
