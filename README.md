@@ -2,8 +2,58 @@
 ----
 	
 package gogp is a generic-programming solution for golang or any other languages.
+
+----
+
+CopyRight 2016 @Ally Dale. All rights reserved.
 	
-	Detail desctription:
+Author  : [Ally Dale(vipally@gmail.com)](mailto://vipally@gmail.com)
+
+Blog    : [http://blog.csdn.net/vipally](http://blog.csdn.net/vipally)
+
+Site    : [https://github.com/vipally](https://github.com/vipally)
+
+
+----
+
+## usage of gogp tool:
+    1. (Recommend)use cmdline(cmd/gogp):
+  
+        Tool gogp is a generic-programming solution for golang or any other languages.
+        Usage:
+          gogp [-e|ext=<Ext>] [-f|force=<force>] [-m|more=<more>] [<filePath>]
+        -e|ext=<Ext>  string
+          Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.
+        -f|force=<force>
+          Force update all products.
+        -m|more=<more>
+          More information in working process.
+        <filePath>  string
+          Path that gogp will work. GoPath and WorkPath is allowed.
+  
+        usage samples:
+           gogp
+           gogp gopath
+  
+    2. package usage:
+  
+        2.1 (Recommend)import gogp/auto package in test file
+          import (
+              //"testing"
+              _ "github.com/vipally/gogp/auto" //auto runs gogp tool on GoPath when init()
+          )
+    
+        2.2 (Seldom use)import gogp package in test file
+          import (
+              //"testing"
+              "github.com/vipally/gogp"
+          )
+          func init() {
+              gogp.WorkOnGoPath() //Recommend
+          }
+----
+
+## Detail desctription:
 
         Tool Site: https://github.com/vipally/gogp
         Work flow: DummyGoFile  --(GPGFile[1])-->  gp_file  --(GPGFile[2])-->  real_go_files
@@ -48,54 +98,6 @@ package gogp is a generic-programming solution for golang or any other languages
           So run gogp tool any times on GoPath is harmless, unless there are indeed changes.
           So any manually modification will be restored by this tool.
           Take care of that.
-
-----
-
-CopyRight 2016 @Ally Dale. All rights reserved.
-	
-Author  : [Ally Dale(vipally@gmail.com)](mailto://vipally@gmail.com)
-
-Blog    : [http://blog.csdn.net/vipally](http://blog.csdn.net/vipally)
-
-Site    : [https://github.com/vipally](https://github.com/vipally)
-
-----
-
-## usage of gogp tool:
-    1. (Recommend)use cmdline(cmd/gogp):
-  
-        Tool gogp is a generic-programming solution for golang or any other languages.
-        Usage:
-          gogp [-e|ext=<Ext>] [-f|force=<force>] [-m|more=<more>] [<filePath>]
-        -e|ext=<Ext>  string
-          Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.
-        -f|force=<force>
-          Force update all products.
-        -m|more=<more>
-          More information in working process.
-        <filePath>  string
-          Path that gogp will work. GoPath and WorkPath is allowed.
-  
-        usage samples:
-           gogp
-           gogp gopath
-  
-    2. package usage:
-  
-        2.1 (Recommend)import gogp/auto package in test file
-          import (
-              //"testing"
-              _ "github.com/vipally/gogp/auto" //auto runs gogp tool on GoPath when init()
-          )
-    
-        2.2 (Seldom use)import gogp package in test file
-          import (
-              //"testing"
-              "github.com/vipally/gogp"
-          )
-          func init() {
-              gogp.WorkOnGoPath() //Recommend
-          }
 
 ----		
 ## More gogp details:
