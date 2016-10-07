@@ -106,13 +106,13 @@ More gogp details:
             From line 3~14, we add some help info about this DummyGoFile, and that will
         not exists in products.
             At line-6 (/*   //<----This line can be...), we setted a whole-file comment
-        switch corresponding to line-89 (//#/).If add "//" to head of this line, this
+        switch corresponding to line-89 (// * /).If add "//" to head of this line, this
         file comes to a "normal" go file, we can edit,compile,test, and of cause, use
         go-fmt tool to format this file.
             After that, remove "//" from line-6. This file becomes a big-commented file.
         And will have noting for go-doc tool and no export-symbols.Of cause, this
         does nothing to do with the final products real-go files.
-            But there is one limit, we can not use "/* ... #/" style comment in this file
+            But there is one limit, we can not use "/* ...  * /" style comment in this file
         anywhere again.
 
             Any more, from line 18~35, we defines some dummy types and methods.For making
