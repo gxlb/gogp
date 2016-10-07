@@ -22,12 +22,12 @@ import (
 )
 
 const (
-	gGpgExt         = ".gpg"
-	gGpExt          = ".gp"
-	gGpFileSuffix   = "gp"
-	gReplaceKeyFmt  = "<%s>"
-	gSectionReverse = "GOGP_REVERSE" //gpg section that for gogp reverse only
-	gSectionIgnore  = "GOGP_IGNORE"  //gpg section that for gogp never process
+	gGpgExt           = ".gpg"
+	gGpExt            = ".gp"
+	gGpCodeFileSuffix = "gp"
+	gReplaceKeyFmt    = "<%s>"
+	gSectionReverse   = "GOGP_REVERSE" //gpg section that for gogp reverse only
+	gSectionIgnore    = "GOGP_IGNORE"  //gpg section that for gogp never process
 
 	//key that set a gp name in a reverse process, and code suffix in normal work
 	grawKeyName       = "GOGP_Name"

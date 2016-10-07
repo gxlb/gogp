@@ -274,7 +274,7 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 
 		gpName := strings.TrimSuffix(filepath.Base(gpPath), gGpExt)
 		codePath := fmt.Sprintf("%s/%s_%s_%s%s",
-			gpgDir, gpName, gGpFileSuffix, this.getCodeSuffix(), gCodeExt)
+			gpgDir, gpName, gGpCodeFileSuffix, this.getCodeSuffix(), gCodeExt)
 
 		this.loadCodeFile(codePath) //load code file, ignore error
 		if this.gpPath != gpPath {  //load gp file if needed
