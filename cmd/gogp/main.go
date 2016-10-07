@@ -77,7 +77,7 @@ func main() {
 	cmdline.BoolVar(&forceUpdate, "f", "force", forceUpdate, false, "Force update all products.")
 	cmdline.StringVar(&codeExt, "e", "Ext", codeExt, false, "Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.")
 	cmdline.BoolVar(&moreInfo, "m", "more", moreInfo, false, "More information in working process.")
-	cmdline.BoolVar(&removeProductsOnly, "remove", "removeProductsOnly", removeProductsOnly, false, "Only remove all products.")
+	cmdline.BoolVar(&removeProductsOnly, "remove", "remove", removeProductsOnly, false, "Only remove all products.")
 
 	cmdline.AnotherName("ext", "e")
 	//cmdline.AnotherName("reverse", "r")

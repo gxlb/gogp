@@ -21,13 +21,15 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
   
         Tool gogp is a generic-programming solution for golang or any other languages.
         Usage:
-          gogp [-e|ext=<Ext>] [-f|force=<force>] [-m|more=<more>] [<filePath>]
+          gogp [-e|ext=<Ext>] [-f|force=<force>] [-m|more=<more>] [-remove=<remove>] [<filePath>]
         -e|ext=<Ext>  string
           Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.
         -f|force=<force>
           Force update all products.
         -m|more=<more>
           More information in working process.
+        -remove=<remove>
+          Only remove all products.
         <filePath>  string
           Path that gogp will work. GoPath and WorkPath is allowed.
   
