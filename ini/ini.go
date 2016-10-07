@@ -1,8 +1,9 @@
-//Copyright @Ally 2014. All rights reserved.
-//Author:    vipally@gmail.com
-//Version:   1.0.0
-//Build at:  [Jan 19 2014  15:28:01]
-//Blog site: http://blog.sina.com.cn/ally2014
+//    CopyRight @Ally Dale 2016
+//    Author  : Ally Dale(vipally@gmail.com)
+//    Blog    : http://blog.csdn.net/vipally
+//    Site    : https://github.com/vipally
+//    Version :   1.0.0
+//    Build at:  [Jan 19 2014  15:28:01]
 
 //ini file reader
 package ini
