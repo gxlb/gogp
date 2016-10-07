@@ -43,16 +43,13 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
   
         Tool gogp is a generic-programming solution for golang or any other languages.
         Usage:
-            gogp [-e|ext=<Ext>] [-f|force=<force>] [-m|more=<more>] [-r|reverse=<reverse>] [<filePath>]
+            gogp [-e|ext=<Ext>] [-f|force=<force>] [-m|more=<more>] [<filePath>]
           -e|ext=<Ext>  string
             Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.
           -f|force=<force>
             Force update all products.
           -m|more=<more>
             More information in working process.
-          -r|reverse=<reverse>
-            Reverse work, this mode is used to gen .gp file from a real-go file.
-            If set this flag, the filePath flag must be a .gpg file path related to GoPath.
           <filePath>  string
             Path that gogp will work. GoPath and WorkPath is allowed.
   
@@ -79,15 +76,16 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 
 ----		
 ## More gogp details:
-	1. Working flow:
+
+### 1. Working flow:
 	
-	   DummyGoFile --(gpgFile{1})--> gp_file --(gpgFile{2})--> real_go_file(s)
+DummyGoFile  --<u>(GPGFile[1])</u>-->  gp_file  --<u>(GPGFile[2])</u>-->  real_go_files
 	
-	   In the flow, DummyGoFile and gpgFile are hand making, and the left are 
+	   In the flow, DummyGoFile and GPGFile are hand making, and the left are 
 	products of gogp tool.
 	
-	1.1 DummyGoFile
-	    Eg: https://github.com/vipally/gogp/blob/master/examples/stack.go
+#### 1.1 DummyGoFile
+	    Sample: https://github.com/vipally/gogp/blob/master/examples/stack.go
 		
 	    This is a WELL-DESIGNED structure of "normal" go file.
 	    Text that matches 
@@ -99,35 +97,35 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 	switch corresponding to line-89 (//*/).If add "//" to head of this line, this
 	file comes to a "normal" go file, we can edit,compile,test, and of cause, use
 	go-fmt tool to format this file.
-	    After that, remove "//" from line-6. This file becomes a big-comment file.
-	And will have noting to for go-doc tool and no export-symbols.Of cause, this
-	does nothing to do with the final products go files.
+	    After that, remove "//" from line-6. This file becomes a big-commented file.
+	And will have noting for go-doc tool and no export-symbols.Of cause, this
+	does nothing to do with the final products real-go files.
 	    But there is one limit, we can not use "/* ... */" style comment in this file
-	anywhere.
+	anywhere again.
 	
 	    Any more, from line 18~35, we defines some dummy types and methods.For making
 	this file LEGAL.What we exactly need is the unique dummy identifiers (GOGPStackElem). 
 	Which is similar to template parameter T in C++.
 	
-	    After that, we have a go-like file, but any where we want to replacing with others
-	has been set to a unique identifiers.
+	    After that, we have a go-like file, but anywhere we want to be replacing with 
+	has been set to a unique legal identifiers.
 	
-	1.2 gpgFile
-	   gpgFile is an ini format file, that defines key-value replacing cases from source to
-	the product.
+#### 1.2 GPGFile
+	   GPGFile is an ini-format file, that defines key-value replacing cases from 
+	source to the product.
 	   "GOGP_IGNORExxxx" style sections will ignore by gogp tool.
-	   "GOGP_REVERSExxxx" style sections are used as gpgFile{1}(reverse) process.Which is used
-	to generate .gp file from DummyGoFile.
+	   "GOGP_REVERSExxxx" style sections are used as GPGFile[1](reverse) flow.
+	Which is used to generate .gp file from DummyGoFile.
 	   Reverse process replaces value(GOGPStackElem) with <key>(<STACK_ELEM>) in .gp file.
-	   So .gp file is a normal-go-like file that exists some <xxx> like template keys, which
-	need to be replace with the proper txt to generate real-go file.
-	   Other styles of gpg sections are used as the last flow: generate go code file from .gp
-	file. It is a mechanical matches from keys to values.
+	   So .gp file is a normal-go-like file that exists some <xxx> format template 
+	keys, which	need to be replaced with proper txt to generate real-go file.
+	   Other styles of gpg sections are used as the last flow: generate go code 
+	file from .gp file. It is a mechanical matches from keys to values.
 	
-	   Moreover, "GOGP_xxxx" style keys are reserved by gogp tool, and they will not do replacing.
-	   Eg: 
-	   "GOGP_Name" is used to specify DummyGoFileName in the first flow, and specify go file name
-	suffix in the second flow.
+	   Moreover, "GOGP_xxxx" style keys are reserved by gogp tool, and they will 
+	not do replacing work.
+	   "GOGP_Name" is used to specify DummyGoFileName in the first flow, and specify 
+	go-file-name-suffix in the second flow.
 	   "GOGP_GpFilePath" is used to specify .gp file path in the second flow.
 	
 	   

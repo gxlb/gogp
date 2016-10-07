@@ -33,16 +33,13 @@ usage of gogp tool:
 
     Tool gogp is a generic-programming solution for golang or any other languages.
     Usage:
-        gogp [-e|ext=<Ext>] [-f|force=<force>] [-m|more=<more>] [-r|reverse=<reverse>] [<filePath>]
+        gogp [-e|ext=<Ext>] [-f|force=<force>] [-m|more=<more>] [<filePath>]
       -e|ext=<Ext>  string
         Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.
       -f|force=<force>
         Force update all products.
       -m|more=<more>
         More information in working process.
-      -r|reverse=<reverse>
-        Reverse work, this mode is used to gen .gp file from a real-go file.
-        If set this flag, the filePath flag must be a .gpg file path related to GoPath.
       <filePath>  string
         Path that gogp will work. GoPath and WorkPath is allowed.
 
