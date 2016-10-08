@@ -80,7 +80,7 @@ func (this *replaceList) Swap(i, j int) {
 func (this *replaceList) expString() string {
 	var b bytes.Buffer
 	for _, v := range this.list {
-		s := fmt.Sprintf("\\Q%s\\E", v.value)
+		s := fmt.Sprintf("\\Q%s\\E", v.value) //match raw letter
 		b.WriteString(s)
 		b.WriteByte('|')
 	}
