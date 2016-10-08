@@ -51,7 +51,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
               "github.com/vipally/gogp"
           )
           func init() {
-              gogp.WorkOnGoPath() //Recommend
+              gogp.WorkOnGoPath()
           }
 ----
 
