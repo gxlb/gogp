@@ -25,21 +25,17 @@ package sample
 //
 //these defines is used to make sure this dummy go file can be compiled correctlly
 //and they will be removed from real go files
-//
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 //
 //add dummy defines here..........
 //
 //
-//
-//
-//
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //GOGP_IGNORE_END////////////////////////////////GOGPDummyDefine
 
 //
 //
-//
 //add file body here..........
-//
 //
 //
 
