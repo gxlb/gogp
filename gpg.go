@@ -47,7 +47,8 @@ var (
 
 	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
 	gGogpIgnoreExp = regexp.MustCompile("(?s)\\s*//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?\\n\\s*")
-	//gGogpChoiceExp = regexp.MustCompile("(?s)\\s*//#if.*?//#else.*?//#endif.*?\\n\\s*")
+	// match //#if ... //#else ... //#endif
+	gGogpChoiceExp = regexp.MustCompile("(?s)\\s*//#if(?P<COND>.*?)\\n(?P<T>.*?)(//#else.*?\\n(?P<F>.*?)){0,1}?//#endif.*?\\n\\s*")
 
 	gGoPath             = "" //GoPath
 	gCopyRightCode      = ""

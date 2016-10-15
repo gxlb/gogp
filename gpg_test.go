@@ -6,6 +6,7 @@
 package gogp
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -61,4 +62,30 @@ type GOGPTreeNamePrefixTreeNode struct {
 	if tt != check {
 		t.Error(tt)
 	}
+}
+
+func TestChoiceExp(t *testing.T) {
+	s := `
+//#if a == 5
+true
+//#else
+false
+//#endif
+	`
+	fmt.Printf("%#v\n", gGogpChoiceExp.FindAllStringSubmatch(s, -1))
+	s2 := `
+//#if a == 5
+true
+//#endif
+`
+
+	fmt.Printf("%#v\n", gGogpChoiceExp.FindAllStringSubmatch(s2, -1))
+	fmt.Printf("%#v\n", gGogpChoiceExp.SubexpNames())
+
+	tt := gGogpChoiceExp.ReplaceAllString(s, "$COND$T$F")
+	//	tt := gGogpChoiceExp.ReplaceAllStringFunc(s, func(src string) string {
+	//		fmt.Println(src)
+	//		return "$4"
+	//	})
+	fmt.Println(tt)
 }
