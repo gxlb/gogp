@@ -37,6 +37,9 @@ const (
 	//generic-programming flag <XXX>
 	gReplaceExpTxt = `\<[[:alpha:]][[:word:]]{0,}\>`
 
+	gFalse = "false"
+	gTrue  = "true"
+
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
 
 	gLibVersion = "3.0.0.final"
@@ -49,7 +52,7 @@ var (
 	gGogpIgnoreExp = regexp.MustCompile("(?s)\\s*//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?\\n\\s*")
 	// match "//#if cd==cdv ... //#else ... //#endif" case
 	//gGogpChoiceExp = regexp.MustCompile("(?s)\\s*//#if(?P<COND>.*?)\\n(?P<T>.*?)(//#else.*?\\n(?P<F>.*?)){0,1}?//#endif.*?\\n\\s*")
-	gGogpChoiceExp = regexp.MustCompile("(?sm)\\s*//#if[ |\t]+(?P<CONDK>[[:word:]]+)(?sm:[ |\t|=]+(?P<CONDV>[[:word:]]+)){0,1}.*?$(?P<T>.*?)(?sm:^[ |\t]*?//#else.*?$(?P<F>.*?)){0,1}^[ |\t]*?//#endif.*?$\\s*")
+	gGogpChoiceExp = regexp.MustCompile("(?sm)\\s*//#if[ |\t]+(?P<CONDK>[[:word:]]+)(?sm:[ |\t|=]+(?P<CONDV>[[:word:]]+)){0,1}.*?$(?P<T>.*?)(?sm:^[ |\t]*?//#else.*?$(?P<F>.*?)){0,1}^[ |\t]*?//#endif.*?$\\n*")
 
 	gGoPath             = "" //GoPath
 	gCopyRightCode      = ""

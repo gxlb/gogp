@@ -150,20 +150,6 @@ func (this *gopgProcessor) reverseProcess() (err error) {
 		return
 	}
 
-	// match "//#if cd==cdv ... //#else ... //#endif" case
-	this.codeContent = gGogpChoiceExp.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
-		elem := gGogpChoiceExp.FindAllStringSubmatch(src, -1)[0]
-		cd, cdv, t, f := elem[1], elem[2], elem[3], elem[4]
-		cfg := this.gpgContent.GetString(this.impName, cd, "")
-		if cdv == "" && cfg != "" || cfg == cdv {
-			rep = t
-		} else {
-			rep = f
-		}
-		fmt.Println(src, rep)
-		return
-	})
-
 	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
 	this.codeContent = gGogpIgnoreExp.ReplaceAllString(this.codeContent, "\n\n")
 
@@ -303,8 +289,26 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 				return
 			}
 		}
+
+		// match "//#if cd==cdv ... //#else ... //#endif" case
+		replacedGp := gGogpChoiceExp.ReplaceAllStringFunc(this.gpContent, func(src string) (rep string) {
+			elem := gGogpChoiceExp.FindAllStringSubmatch(src, -1)[0]
+			cd, cdv, t, f := elem[1], elem[2], elem[3], elem[4]
+			if cdv == "" {
+				cdv = gTrue
+			}
+			cfg := this.gpgContent.GetString(this.impName, cd, gFalse)
+			if cfg == cdv {
+				rep = t
+			} else {
+				rep = f
+			}
+			//fmt.Printf("[%s][%s]\n", src, rep)
+			return
+		})
+
 		//gen code file content
-		replacedGp := gReplaceExp.ReplaceAllStringFunc(this.gpContent, func(src string) (rep string) {
+		replacedGp = gReplaceExp.ReplaceAllStringFunc(replacedGp, func(src string) (rep string) {
 			if v, ok := this.getMatch(src); ok {
 				rep = v
 			} else {
