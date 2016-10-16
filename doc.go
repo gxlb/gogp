@@ -143,3 +143,5 @@ More gogp details:
            "GOGP_GpFilePath" is used to specify .gp file path in the second flow.
 */
 package gogp
+
+//todo: #define Macro(xxx) yyyy

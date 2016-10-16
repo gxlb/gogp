@@ -149,6 +149,21 @@ func (this *gopgProcessor) reverseProcess() (err error) {
 	if err = this.loadCodeFile(this.codePath); err != nil { //load code file
 		return
 	}
+
+	// match "//#if cd==cdv ... //#else ... //#endif" case
+	this.codeContent = gGogpChoiceExp.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
+		elem := gGogpChoiceExp.FindAllStringSubmatch(src, -1)[0]
+		cd, cdv, t, f := elem[1], elem[2], elem[3], elem[4]
+		cfg := this.gpgContent.GetString(this.impName, cd, "")
+		if cdv == "" && cfg != "" || cfg == cdv {
+			rep = t
+		} else {
+			rep = f
+		}
+		fmt.Println(src, rep)
+		return
+	})
+
 	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
 	this.codeContent = gGogpIgnoreExp.ReplaceAllString(this.codeContent, "\n\n")
 
