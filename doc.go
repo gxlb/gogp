@@ -144,4 +144,5 @@ More gogp details:
 */
 package gogp
 
+//20161016: match "//#if cd==cdv ... //#else ... //#endif" case
 //todo: #define Macro(xxx) yyyy
