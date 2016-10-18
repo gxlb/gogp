@@ -342,6 +342,8 @@ func (this *gopgProcessor) loadGpFile(file string) (err error) {
 	if b, err = ioutil.ReadFile(file); err == nil {
 		this.gpPath = file
 		this.gpContent = string(b)
+		//deal with new line
+		this.gpContent = strings.Replace(this.gpContent, "\r\n", "\n", -1)
 
 		//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
 		this.gpContent = gGogpIgnoreExp.ReplaceAllString(this.gpContent, "")
@@ -355,6 +357,8 @@ func (this *gopgProcessor) loadCodeFile(file string) (err error) {
 	this.codePath = file
 	if b, err = ioutil.ReadFile(file); err == nil {
 		this.codeContent = string(b)
+		//deal with new line
+		this.codeContent = strings.Replace(this.codeContent, "\r\n", "\n", -1)
 	}
 	return
 }
@@ -445,10 +449,9 @@ func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 		return
 	}
 	if gForceUpdate || !strings.HasSuffix(this.codeContent, body) { //body change then save it,else skip it
-
-		//		fmt.Println("[%s]", xhash.MD5.StringHash(this.codeContent))
-		//		fmt.Println("[%s]", xhash.MD5.StringHash(body))
-		//		fmt.Println("[%s]", xhash.MD5.StringHash(strings.TrimSuffix(this.codeContent, body)))
+		//		fmt.Printf("[%#v]\n", this.gpContent)
+		//		fmt.Printf("[%#v]\n", this.codeContent)
+		//		fmt.Printf("[%#v]\n", body)
 
 		var fout *os.File
 		if fout, err = os.OpenFile(this.codePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {
