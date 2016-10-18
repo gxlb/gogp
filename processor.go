@@ -298,12 +298,14 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 				cdv = gTrue
 			}
 			cfg := this.gpgContent.GetString(this.impName, cd, gFalse)
+
 			if cfg == cdv {
-				rep = t
+				rep = fmt.Sprintf("\n\n%s\n\n", t)
 			} else {
-				rep = f
+				rep = fmt.Sprintf("\n\n%s\n\n", f)
 			}
-			//fmt.Printf("[%s][%s]\n", src, rep)
+			//fmt.Printf("[%#v]\n", src)
+			//fmt.Printf("[%#v][%#v]\n", t, f)
 			return
 		})
 
