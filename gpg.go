@@ -49,9 +49,9 @@ var (
 	gReplaceExp = regexp.MustCompile(gReplaceExpTxt)
 
 	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
-	gGogpIgnoreExp = regexp.MustCompile("(?s)\\s*//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?\\n\\s*")
+	gGogpIgnoreExp = regexp.MustCompile("(?sm)\\s*//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?$[\\r|\\n]*")
 	// match "//#if cd==cdv ... //#else ... //#endif" case
-	gGogpChoiceExp = regexp.MustCompile("(?sm)\\s*//#if[ |\t]+(?P<CONDK>[[:word:]]+)(?sm:[ |\t|=]+(?P<CONDV>[[:word:]]+)){0,1}.*?$[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?sm:[ |\t]*?//#else.*?$[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*){0,1}[ |\t]*?//#endif.*?$[\\r|\\n]*")
+	gGogpChoiceExp = regexp.MustCompile("(?sm)\\s*//#if[ |\t]+(?P<CONDK>[[:word:]]+)(?:[ |\t|=]+(?P<CONDV>[[:word:]]+)){0,1}.*?$[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\t]*?//#else.*?$[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*){0,1}[ |\t]*?//#endif.*?$[\\r|\\n]*")
 
 	gGoPath             = "" //GoPath
 	gCopyRightCode      = ""
