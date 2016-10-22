@@ -268,10 +268,10 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 			if !strings.HasPrefix(gp, gGpExt) {
 				gp = gp + gGpExt
 			}
-			if p, _ := filepath.Split(gp); p != "" {
-				gpPath = filepath.Join(gGoPath, gp)
-			} else { //if only config gp name, use gpg dir
+			if p, _ := filepath.Split(gp); p == "" || '.' == gp[0] { //if only config gp name, or lead with ".", use gpg dir
 				gpPath = filepath.Join(gpgDir, gp)
+			} else {
+				gpPath = filepath.Join(gGoPath, gp)
 			}
 
 			this.gpPath = "" //clear gp content
