@@ -326,6 +326,10 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 			}
 			return
 		})
+
+		//remove more empty line
+		replacedGp = gGogpExpEmptyLine.ReplaceAllString(replacedGp, "\n\n")
+
 		if this.nNoReplaceMathNum > 0 { //report error
 			s := fmt.Sprintf("[gogp]error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), impName)
 			fmt.Println(s)
