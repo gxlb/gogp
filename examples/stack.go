@@ -16,6 +16,8 @@ package examples
 //#GOGP_IFDEF GOGP_Show
 import show_bytes "bytes" //#GOGP_ENDIF
 
+//#GOGP_REQUIRE(./comparer)
+
 //#GOGP_IGNORE_BEGIN//////////////////////////////GOGPDummyDefine
 //
 //these defines is used to make sure this dummy go file can be compiled correctlly

@@ -244,6 +244,10 @@ func (this *gopgProcessor) buildMatches(reverse bool) (ok bool) {
 	return
 }
 
+func (this *gopgProcessor) genRequiredProduct(gpPath, codeSuffix string) (replaceCode string, err error) {
+	return
+}
+
 //gen code or gp file
 func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) {
 	if strings.HasPrefix(impName, gSectionIgnore) { //never deal with this section
@@ -292,8 +296,8 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 
 		// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 		replacedGp := gGogpExpPretreatAll.ReplaceAllStringFunc(this.gpContent, func(src string) (rep string) {
-			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQP", "CONDK", "T", "F"}
-			ignore, reqp, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5]
+			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQP", "REQN", "CONDK", "T", "F"}
+			ignore, reqp, reqn, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6]
 			switch {
 			case condk != "":
 				cfg := this.gpgContent.GetString(this.impName, condk, gFalse)
@@ -305,13 +309,16 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 			case reqp != "":
 				//requlre process
 				fmt.Println("[gogp]todo:", this.gpPath, "require", reqp)
-				fallthrough
+				if r, err := this.genRequiredProduct(reqp, reqn); err == nil {
+					rep = r
+				} else {
+					panic(err)
+				}
 			case ignore != "":
 				rep = "\n\n"
 			default:
-				panic("")
+				panic(src)
 			}
-
 			return
 		})
 

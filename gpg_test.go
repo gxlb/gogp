@@ -53,8 +53,9 @@ type GOGPTreeNamePrefixTreeNode struct {
 }
 
 //#GOGP_REQUIRE(this_is_required.xxx)
-//#GOGP_REQUIRE(this_is_
-//required2.xxx)
+//#GOGP_REQUIRE(this_is_required 2.xxx , integer)
+//#GOGP_REQUIRE(this_is_unchtched
+//required3.xxx)
 
 //#GOGP_IFDEF online_cd online_t1 online_t2 #GOGP_ELSE online_f1 online_f2 #GOGP_ENDIF
 
@@ -88,21 +89,22 @@ type GOGPTreeNamePrefixTreeNode struct {
 	    
 `
 	sCheck := `
-	package stl   
-   
+	package stl    
+    
 import (
 	"sort"
-)   
+)    
 //tree node
 type GOGPTreeNamePrefixTreeNode struct {
 	GOGPTreeNodeData
 	Children GOGPTreeNamePrefixSortSlice
-}this_is_required.xxx   
-//#GOGP_REQUIRE(this_is_
-//required2.xxx) online_cd  online_t1 online_t2  online_f1 online_f2
-//////////////////////////////// a //#GOGP_REQUIRE(this_is_required3.xxx)
+}this_is_required.xxx    
+this_is_required 2.xxx integer   
+//#GOGP_REQUIRE(this_is_unchtched
+//required3.xxx)  online_cd  online_t1 online_t2  online_f1 online_f2
+////////////////////////////////  a //#GOGP_REQUIRE(this_is_required3.xxx)
 	true1  false1
-//////////////////////////////// a2 	true2 
+////////////////////////////////  a2 	true2 
 ////////////////////////////////
 	    
 `
@@ -114,12 +116,12 @@ type GOGPTreeNamePrefixTreeNode struct {
 	//		}
 	//	}
 
-	tt := gGogpExpPretreatAll.ReplaceAllString(s, "$REQP $CONDK $T $F\n")
+	tt := gGogpExpPretreatAll.ReplaceAllString(s, "$REQP $REQN $CONDK $T $F\n")
 	if tt != sCheck {
 		t.Errorf("\n%#v\n%#v\n%#v\n", s, sCheck, tt)
 		fmt.Printf("[%s\n]", tt)
 	}
 
-	//	fmt.Printf("[%#v\n]", gGogpExpPretreatAll.SubexpNames())
+	//fmt.Printf("[%#v\n]", gGogpExpPretreatAll.SubexpNames())
 	//	fmt.Printf("[%s\n]", gGogpExpPretreatAll.String())
 }

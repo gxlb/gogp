@@ -42,7 +42,7 @@ const (
 	// match "//#GOGP_IFDEF cd ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	gsExpTxtChoice = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
 	//require another gp file, gpg config use current cases
-	gsExpTxtRequire   = "(?sm:\\s*//#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r]*?)\\).*?$[\\r|\\n]*)"
+	gsExpTxtRequire   = "(?sm:\\s*//#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\).*?$[\\r|\\n]*))"
 	gsExpTxtEmptyLine = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 
 	gFalse = "false"
