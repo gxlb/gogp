@@ -35,7 +35,14 @@ const (
 	gKeyReservePrefix = "<GOGP_"          //reserved key,do not use repalce action
 
 	//generic-programming flag <XXX>
-	gReplaceExpTxt = `\<[[:alpha:]][[:word:]]{0,}\>`
+	gsExpTxtReplace = `\<[[:alpha:]][[:word:]]{0,}\>`
+
+	//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
+	gsExpTxtIgnore = "(?sm:\\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
+	// match "//#GOGP_IFDEF cd ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
+	gsExpTxtChoice = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
+	//require another gp file, gpg config use current cases
+	gsExpTxtRequire = "(?sm:\\s*//#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r]*?)\\).*?$[\\r|\\n]*)"
 
 	gFalse = "false"
 	gTrue  = "true"
@@ -46,12 +53,11 @@ const (
 )
 
 var (
-	gReplaceExp = regexp.MustCompile(gReplaceExpTxt)
-
-	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
-	gGogpIgnoreExp = regexp.MustCompile("(?sm)\\s*//GOGP_IGNORE_BEGIN.*?//GOGP_IGNORE_END.*?$[\\r|\\n]*")
-	// match "//#if cd==cdv ... //#else ... //#endif" case
-	gGogpChoiceExp = regexp.MustCompile("(?sm)\\s*//#if[ |\t]+(?P<CONDK>[[:word:]]+)(?:[ |\t|=]+(?P<CONDV>[[:word:]]+)){0,1}.*?$[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\t]*?//#else.*?$[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*){0,1}[ |\t]*?//#endif.*?$[\\r|\\n]*")
+	gGogpExpReplace     = regexp.MustCompile(gsExpTxtReplace)
+	gGogpExpPretreatAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice))
+	gGogpExpIgnore      = regexp.MustCompile(gsExpTxtIgnore)
+	//	gGogpExpChoice      = regexp.MustCompile(gsExpTxtChoice)
+	//	gGogpExpRequire     = regexp.MustCompile(gsExpTxtRequire)
 
 	gGoPath             = "" //GoPath
 	gCopyRightCode      = ""

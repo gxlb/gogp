@@ -1,9 +1,9 @@
 package examples
 
-//GOGP_IGNORE_BEGIN//////////////////////////////GOGPCommentDummyGoFile_BEGIN
+//#GOGP_IGNORE_BEGIN//////////////////////////////GOGPCommentDummyGoFile_BEGIN
 //
 //
-/*   //<----This line can be uncommented to disable all this file, and it doesn't effect to the .gp file
+///*   //<----This line can be uncommented to disable all this file, and it doesn't effect to the .gp file
 //	 //If test or change .gp file required, comment it to modify and cmomile as normal go file
 //
 //
@@ -11,11 +11,12 @@ package examples
 // It is used to generate .gp file by gogp tool
 // Real go code file will be generated from .gp file
 //
-//GOGP_IGNORE_END////////////////////////////////GOGPCommentDummyGoFile
+//#GOGP_IGNORE_END////////////////////////////////GOGPCommentDummyGoFile
 
-//GOGPShowCommentimport show_bytes "bytes"
+//#GOGP_IFDEF GOGP_Show
+import show_bytes "bytes" //#GOGP_ENDIF
 
-//GOGP_IGNORE_BEGIN//////////////////////////////GOGPDummyDefine
+//#GOGP_IGNORE_BEGIN//////////////////////////////GOGPDummyDefine
 //
 //these defines is used to make sure this dummy go file can be compiled correctlly
 //and they will be removed from real go files
@@ -32,7 +33,7 @@ func (me GOGPStackElem) Show() string {
 }
 
 //
-//GOGP_IGNORE_END////////////////////////////////GOGPDummyDefine
+//#GOGP_IGNORE_END////////////////////////////////GOGPDummyDefine
 
 //stack object
 type GOGPStackNamePrefixStack []GOGPStackElem
@@ -70,21 +71,24 @@ func (this *GOGPStackNamePrefixStack) Depth() int {
 	return len(*this)
 }
 
-//GOGPShowComment//show
-//GOGPShowCommentfunc (this *GOGPStackNamePrefixStack) Show() string {
-//GOGPShowComment	var b show_bytes.Buffer
-//GOGPShowComment	b.WriteByte('[')
-//GOGPShowComment	for _, v := range *this {
-//GOGPShowComment		b.WriteString(v.Show())
-//GOGPShowComment		b.WriteByte(',')
-//GOGPShowComment	}
-//GOGPShowComment	if this.Depth() > 0 {
-//GOGPShowComment		b.Truncate(b.Len() - 1) //remove last ','
-//GOGPShowComment	}
-//GOGPShowComment	b.WriteByte(']')
-//GOGPShowComment	return b.String()
-//GOGPShowComment}
+//#GOGP_IFDEF GOGP_Show
+//show
+func (this *GOGPStackNamePrefixStack) Show() string {
+	var b show_bytes.Buffer
+	b.WriteByte('[')
+	for _, v := range *this {
+		b.WriteString(v.Show())
+		b.WriteByte(',')
+	}
+	if this.Depth() > 0 {
+		b.Truncate(b.Len() - 1) //remove last ','
+	}
+	b.WriteByte(']')
+	return b.String()
+}
 
-//GOGP_IGNORE_BEGIN//////////////////////////////GOGPCommentDummyGoFile
+//#GOGP_ENDIF
+
+//#GOGP_IGNORE_BEGIN//////////////////////////////GOGPCommentDummyGoFile
 //*/
-//GOGP_IGNORE_END////////////////////////////////GOGPCommentDummyGoFile_END
+//#GOGP_IGNORE_END////////////////////////////////GOGPCommentDummyGoFile_END

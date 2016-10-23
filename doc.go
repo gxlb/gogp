@@ -55,7 +55,7 @@ Detail desctription:
       Sample: https://github.com/vipally/gogp/blob/master/examples/stack.go
       This is a "normal" go file with WELL-DESIGNED structure.
       Texts that matches
-            "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END ...\n"
+            "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END ...\n"
     case will be ingored by gogp tool when loading.
       Any identifier who wants to be replaced with is defines as unique dummy
     word(eg: GOGPStackElem), which is similar to template parameter T in C++.
@@ -103,7 +103,7 @@ More gogp details:
 
             This is a "normal" go file with WELL-DESIGNED structure.
             Texts that matches
-                 "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END ...\n"
+                 "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END ...\n"
         case will be ingored by gogp tool when loading.
             From line 3~14, we add some help info about this DummyGoFile, and that will
         not exists in products.
@@ -144,5 +144,6 @@ More gogp details:
 */
 package gogp
 
-//20161016: match "//#if cd==cdv ... //#else ... //#endif" case
+//20161016: match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
+//20161023: match "//#GOGP_REQUIRE(gpPath)" case
 //todo: #define Macro(xxx) yyyy

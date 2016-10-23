@@ -10,27 +10,33 @@ import (
 	"testing"
 )
 
-func init() {
-	WorkOnGoPath() //run gogp tool to auto-generate go file(s) in test process
-}
+//func init() {
+//	WorkOnGoPath() //run gogp tool to auto-generate go file(s) in test process
+//}
 
-func TestCallGogp(t *testing.T) {
-	//	r := regexp.MustCompile("hello|he")
-	//	s := r.FindAllString("I think he is say hello to HE hehe", -1)
-	//fmt.Printf("%#v\n", os.Environ())
-	//fmt.Println(os.Getenv("GOPATH"))
+//func TestCallGogp(t *testing.T) {
+//	//	r := regexp.MustCompile("hello|he")
+//	//	s := r.FindAllString("I think he is say hello to HE hehe", -1)
+//	//fmt.Printf("%#v\n", os.Environ())
+//	//fmt.Println(os.Getenv("GOPATH"))
 
-	s := `package stl
+//}
 
-//GOGP_IGNORE_BEGIN //GOGPCommentDummyGoFile
+func TestRegExps(t *testing.T) {
+	s := `
+	package stl
+	
+//#GOGP_IGNORE_BEGIN  oneline_ignore1 online_ignore2 #GOGP_IGNORE_END
+
+//#GOGP_IGNORE_BEGIN //GOGPCommentDummyGoFile
 ///*
-//GOGP_IGNORE_END //GOGPCommentDummyGoFile
+  //#GOGP_IGNORE_END //GOGPCommentDummyGoFile
 
 import (
 	"sort"
 )
 
-//GOGP_IGNORE_BEGIN   //GOGPDummyDefine
+//#GOGP_IGNORE_BEGIN   //GOGPDummyDefine
 //these defines will never exists in real go files
 type GOGPTreeNodeData int
 
@@ -38,94 +44,69 @@ func (this GOGPTreeNodeData) Less(o GOGPTreeNodeData) bool {
 	return this < o
 }
 
-//GOGP_IGNORE_END   //GOGPDummyDefine
+ 	//#GOGP_IGNORE_END   //GOGPDummyDefine
 
 //tree node
 type GOGPTreeNamePrefixTreeNode struct {
 	GOGPTreeNodeData
 	Children GOGPTreeNamePrefixSortSlice
 }
-`
-	check := `package stl
 
-import (
-	"sort"
-)
+//#GOGP_REQUIRE(this_is_required.xxx)
+//#GOGP_REQUIRE(this_is_
+//required2.xxx)
 
-//tree node
-type GOGPTreeNamePrefixTreeNode struct {
-	GOGPTreeNodeData
-	Children GOGPTreeNamePrefixSortSlice
-}
-`
-	tt := gGogpIgnoreExp.ReplaceAllString(s, "\n\n")
-	if tt != check {
-		t.Error(tt)
-	}
-}
+//#GOGP_IFDEF online_cd online_t1 online_t2 #GOGP_ELSE online_f1 online_f2 #GOGP_ENDIF
 
-func TestChoiceExp(t *testing.T) {
-	s := `
 ////////////////////////////////
 	
-	
-	
-     //#if a == 5 //if a
+     //#GOGP_IFDEF a //if a
+//#GOGP_REQUIRE(this_is_required3.xxx)
+	true1
 
-true1
 
-//#else //else
+//#GOGP_ELSE //else
 
  false1
 
-//#endif    //end
+
+//#GOGP_ENDIF    //end
 
 ////////////////////////////////
 
 
-//#if a2  5 //if a2
+//#GOGP_IFDEF a2   //if a2
 
 	true2
 
-//#endif //end
+//#GOGP_ENDIF //end
 
-   //#if a3
 
-	true3
-
-//#endif //end
 
 
 ////////////////////////////////
 	    
 `
 	sCheck := `
-////////////////////////////////
-a 5
-
-true1
-
-
-
- false1
-
-
-////////////////////////////////
-a2 5
-
-	true2
-
-
-
-a3 
-
-	true3
-
-
+	package stl   
+   
+import (
+	"sort"
+)   
+//tree node
+type GOGPTreeNamePrefixTreeNode struct {
+	GOGPTreeNodeData
+	Children GOGPTreeNamePrefixSortSlice
+}this_is_required.xxx   
+//#GOGP_REQUIRE(this_is_
+//required2.xxx) online_cd  online_t1 online_t2  online_f1 online_f2
+//////////////////////////////// a //#GOGP_REQUIRE(this_is_required3.xxx)
+	true1  false1
+//////////////////////////////// a2 	true2 
 ////////////////////////////////
 	    
 `
-	//	ss := gGogpChoiceExp.FindAllStringSubmatch(s, -1)
+	//	ss := gGogpExpPretreatAll.FindAllStringSubmatch(s, -1)
 	//	for _, v := range ss {
 	//		fmt.Printf("[%s]\n", v[0])
 	//		for j, vv := range v[1:] {
@@ -133,9 +114,12 @@ a3
 	//		}
 	//	}
 
-	tt := gGogpChoiceExp.ReplaceAllString(s, "\n$CONDK $CONDV$T$F\n")
+	tt := gGogpExpPretreatAll.ReplaceAllString(s, "$REQP $CONDK $T $F\n")
 	if tt != sCheck {
-		t.Error(tt)
+		t.Errorf("\n%#v\n%#v\n%#v\n", s, sCheck, tt)
+		fmt.Printf("[%s\n]", tt)
 	}
-	//fmt.Printf("[%s]", tt)
+
+	//	fmt.Printf("[%#v\n]", gGogpExpPretreatAll.SubexpNames())
+	//	fmt.Printf("[%s\n]", gGogpExpPretreatAll.String())
 }

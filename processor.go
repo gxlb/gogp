@@ -150,8 +150,8 @@ func (this *gopgProcessor) reverseProcess() (err error) {
 		return
 	}
 
-	//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
-	this.codeContent = gGogpIgnoreExp.ReplaceAllString(this.codeContent, "\n\n")
+	//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
+	this.codeContent = gGogpExpIgnore.ReplaceAllString(this.codeContent, "\n\n")
 
 	if this.buildMatches(true) {
 		sort.Sort(&this.matches)
@@ -290,27 +290,33 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 			}
 		}
 
-		// match "//#if cd==cdv ... //#else ... //#endif" case
-		replacedGp := gGogpChoiceExp.ReplaceAllStringFunc(this.gpContent, func(src string) (rep string) {
-			elem := gGogpChoiceExp.FindAllStringSubmatch(src, -1)[0]
-			cd, cdv, t, f := elem[1], elem[2], elem[3], elem[4]
-			if cdv == "" {
-				cdv = gTrue
+		// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
+		replacedGp := gGogpExpPretreatAll.ReplaceAllStringFunc(this.gpContent, func(src string) (rep string) {
+			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQP", "CONDK", "T", "F"}
+			ignore, reqp, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5]
+			switch {
+			case condk != "":
+				cfg := this.gpgContent.GetString(this.impName, condk, gFalse)
+				if cfg == gFalse || cfg == "0" {
+					rep = fmt.Sprintf("\n\n%s\n\n", f)
+				} else {
+					rep = fmt.Sprintf("\n\n%s\n\n", t)
+				}
+			case reqp != "":
+				//requlre process
+				fmt.Println("[gogp]todo:", this.gpPath, "require", reqp)
+				fallthrough
+			case ignore != "":
+				rep = "\n\n"
+			default:
+				panic("")
 			}
-			cfg := this.gpgContent.GetString(this.impName, cd, gFalse)
 
-			if cfg == cdv {
-				rep = fmt.Sprintf("\n\n%s\n\n", t)
-			} else {
-				rep = fmt.Sprintf("\n\n%s\n\n", f)
-			}
-			//fmt.Printf("[%#v]\n", src)
-			//fmt.Printf("[%#v][%#v]\n", t, f)
 			return
 		})
 
 		//gen code file content
-		replacedGp = gReplaceExp.ReplaceAllStringFunc(replacedGp, func(src string) (rep string) {
+		replacedGp = gGogpExpReplace.ReplaceAllStringFunc(replacedGp, func(src string) (rep string) {
 			if v, ok := this.getMatch(src); ok {
 				rep = v
 			} else {
@@ -345,8 +351,8 @@ func (this *gopgProcessor) loadGpFile(file string) (err error) {
 		//deal with new line
 		this.gpContent = strings.Replace(this.gpContent, "\r\n", "\n", -1)
 
-		//ignore text format like "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END"
-		this.gpContent = gGogpIgnoreExp.ReplaceAllString(this.gpContent, "")
+		//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
+		this.gpContent = gGogpExpIgnore.ReplaceAllString(this.gpContent, "")
 	}
 	return
 }
@@ -425,8 +431,8 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	defer fout.Close()
 
 	wt := bufio.NewWriter(fout)
-	h := fmt.Sprintf(`//GOGP_IGNORE_BEGIN
-%s//GOGP_IGNORE_END
+	h := fmt.Sprintf(`//#GOGP_IGNORE_BEGIN
+%s//#GOGP_IGNORE_END
 
 `, this.fileHead(false))
 	wt.WriteString(h)

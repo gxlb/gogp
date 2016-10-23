@@ -32,7 +32,7 @@ func main() {
 	  Sample: https://github.com/vipally/gogp/blob/master/examples/stack.go
 	  This is a "normal" go file with WELL-DESIGNED structure.
 	  Texts that matches 
-	        "//GOGP_IGNORE_BEGIN ... //GOGP_IGNORE_END ...\n"
+	        "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END ...\n"
 	case will be ingored by gogp tool when loading.
 	  Any identifier who wants to be replaced with is defines as unique dummy 
 	word(eg: GOGPStackElem), which is similar to template parameter T in C++.
