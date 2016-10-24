@@ -80,7 +80,6 @@ func main() {
 	cmdline.BoolVar(&removeProductsOnly, "remove", "remove", removeProductsOnly, false, "Only remove all products.")
 
 	cmdline.AnotherName("ext", "e")
-	//cmdline.AnotherName("reverse", "r")
 	cmdline.AnotherName("force", "f")
 	cmdline.AnotherName("more", "m")
 	cmdline.Parse()
@@ -89,11 +88,6 @@ func main() {
 	gogp.Silence(!moreInfo)
 	gogp.ForceUpdate(forceUpdate)
 	gogp.CodeExtName(codeExt)
-	//	if reverseWork {
-	//		gogp.ReverseWork(filePath)
-	//	} else {
-	//		gogp.Work(filePath)
-	//	}
 	gogp.Work(filePath)
 
 	cmdline.Exit(exit_code)

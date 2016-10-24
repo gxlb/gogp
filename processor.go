@@ -31,6 +31,10 @@ type replaceList struct {
 	match map[string]string
 }
 
+func (this *replaceList) sort() {
+	sort.Sort(this)
+}
+
 func (this *replaceList) insert(k, v string, reverse bool) int {
 	return this.push(&replaceCase{key: k, value: v}, reverse)
 }
@@ -109,25 +113,25 @@ type gopgProcessor struct {
 	impName           string
 }
 
-func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
-
-	if !strings.HasSuffix(gpgFilePath, gGpgExt) { //must .gpg file
-		err = fmt.Errorf("[gogp]error:[%s] must be %s file at reverse mode", relateGoPath(gpgFilePath), gGpgExt)
-		return
-	}
-
-	gpgFullPath := expadGoPath(gpgFilePath) //make full path
-
-	if err = this.procGpg(gpgFullPath, true); err != nil {
-		return
-	}
-
-	if this.nCodeFile+this.nSkipCodeFile <= 0 { //no reverse tasks
-		err = fmt.Errorf("[gogp]error:[%s] must has %s leaded sections", relateGoPath(gpgFilePath), gSectionReverse)
-	}
-
-	return
-}
+//func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
+//
+//	if !strings.HasSuffix(gpgFilePath, gGpgExt) { //must .gpg file
+//		err = fmt.Errorf("[gogp]error:[%s] must be %s file at reverse mode", relateGoPath(gpgFilePath), gGpgExt)
+//		return
+//	}
+//
+//	gpgFullPath := expadGoPath(gpgFilePath) //make full path
+//
+//	if err = this.procGpg(gpgFullPath, true); err != nil {
+//		return
+//	}
+//
+//	if this.nCodeFile+this.nSkipCodeFile <= 0 { //no reverse tasks
+//		err = fmt.Errorf("[gogp]error:[%s] must has %s leaded sections", relateGoPath(gpgFilePath), gSectionReverse)
+//	}
+//
+//	return
+//}
 
 //if has set key GOGP_Name, use it, else use section name
 func (this *gopgProcessor) getGpName() (r string) {
@@ -139,52 +143,10 @@ func (this *gopgProcessor) getGpName() (r string) {
 	return
 }
 
-func (this *gopgProcessor) reverseProcess() (err error) {
-	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
-	gpFilePath := pathWithName + gGpExt
-	codeFilePath := pathWithName + gCodeExt
-	this.codePath = codeFilePath
-	this.gpPath = gpFilePath
-
-	if err = this.loadCodeFile(this.codePath); err != nil { //load code file
-		return
-	}
-
-	//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
-	this.codeContent = gGogpExpIgnore.ReplaceAllString(this.codeContent, "\n\n")
-
-	if this.buildMatches(true) {
-		sort.Sort(&this.matches)
-		exp := this.matches.expString()
-		reg := regexp.MustCompile(exp)
-		replacedCode := reg.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
-			if v, ok := this.getMatch(src); ok {
-				rep = v
-			} else {
-				fmt.Printf("[gogp]error: %s has no replacing\n", src)
-				rep = src
-				this.nNoReplaceMathNum++
-			}
-			return
-		})
-		if this.nNoReplaceMathNum > 0 { //report error
-			s := fmt.Sprintf("[gogp]error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
-			fmt.Println(s)
-			err = fmt.Errorf(s)
-		}
-		if err = this.saveGpFile(replacedCode, this.gpPath); err != nil { //save code to file
-			return
-		}
-	} else {
-		err = fmt.Errorf("[gogp]error:[%s] must have [%s] section", relateGoPath(this.gpgPath), gSectionReverse)
-	}
-	return
-}
-
-func (this *gopgProcessor) hasTask(reverse bool) bool {
+func (this *gopgProcessor) hasTask(step gogp_proc_step) bool {
 	for _, imp := range this.gpgContent.Sections() {
 		if !strings.HasPrefix(imp, gSectionIgnore) {
-			if checkReverse := strings.HasPrefix(imp, gSectionReverse); checkReverse == reverse {
+			if checkReverse := strings.HasPrefix(imp, gSectionReverse); checkReverse == step.IsReverse() {
 				return true
 			}
 		}
@@ -192,18 +154,11 @@ func (this *gopgProcessor) hasTask(reverse bool) bool {
 	return false
 }
 
-func (this *gopgProcessor) procGpg(file string, reverse bool) (err error) {
+func (this *gopgProcessor) procGpg(file string, step gogp_proc_step) (err error) {
 	this.gpContent = "" //clear gp content
-	if err = this.loadGpgFile(file); err == nil && this.hasTask(reverse) {
-		if !gSilence {
-			if reverse {
-				fmt.Printf("[gogp]ReverseWork:[%s]\n", relateGoPath(this.gpgPath))
-			} else {
-				fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(file))
-			}
-		}
-		for _, imp := range this.gpgContent.Sections() {
-			if err = this.genProduct(imp, reverse); err != nil {
+	if err = this.loadGpgFile(file); err == nil && this.hasTask(step) {
+		for i, imp := range this.gpgContent.Sections() {
+			if err = this.genProduct(i, imp, step); err != nil {
 				return
 			}
 		}
@@ -244,26 +199,80 @@ func (this *gopgProcessor) buildMatches(reverse bool) (ok bool) {
 	return
 }
 
-func (this *gopgProcessor) genRequiredProduct(gpPath, codeSuffix string) (replaceCode string, err error) {
+//require a gp file
+func (this *gopgProcessor) procDoRequire(cmd string) (rep string, err error) {
+	//	elem := gGogpExpRequire.FindAllStringSubmatch(cmd, -1)[0] //{"", "REQH", "REQP", "REQN",}
+	//	reqh, reqp, reqn := elem[1], elem[2], elem[3]
+	//	switch reqh {
+	//	case "#":
+	//		//rep, _ = this.procDoRequire(cmd, reqp, reqn)
+	//	case "##":
+	//	}
+
 	return
 }
 
-//gen code or gp file
-func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) {
-	if strings.HasPrefix(impName, gSectionIgnore) { //never deal with this section
+func (this *gopgProcessor) procStepRequire() (err error) {
+	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
+	gpFilePath := pathWithName + gGpExt
+	codeFilePath := pathWithName + gCodeExt
+	this.codePath = codeFilePath
+	this.gpPath = gpFilePath
+
+	if err = this.loadCodeFile(this.codePath); err != nil { //load code file
 		return
 	}
-	checkReverse := strings.HasPrefix(impName, gSectionReverse)
-	if checkReverse != reverse { //not proper section, do nothing
+
+	// match "//#GOGP_REQUIRE(path [, nameSuffix])"
+	//	replacedGp := gGogpExpRequire.ReplaceAllStringFunc(this.gpContent, func(src string) (rep string) {
+
+	//		return
+	//	})
+	return
+}
+
+func (this *gopgProcessor) procStepReverse() (err error) {
+	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
+	gpFilePath := pathWithName + gGpExt
+	codeFilePath := pathWithName + gCodeExt
+	this.codePath = codeFilePath
+	this.gpPath = gpFilePath
+
+	if err = this.loadCodeFile(this.codePath); err != nil { //load code file
 		return
 	}
 
-	this.impName = impName
+	//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
+	this.codeContent = gGogpExpIgnore.ReplaceAllString(this.codeContent, "\n\n")
 
-	if reverse { //reverse section
-		return this.reverseProcess()
+	if this.buildMatches(true) {
+		this.matches.sort()
+		exp := this.matches.expString()
+		reg := regexp.MustCompile(exp)
+		replacedCode := reg.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
+			if v, ok := this.getMatch(src); ok {
+				rep = v
+			} else {
+				fmt.Printf("[gogp]error: %s has no replacing\n", src)
+				rep = src
+				this.nNoReplaceMathNum++
+			}
+			return
+		})
+		if this.nNoReplaceMathNum > 0 { //report error
+			s := fmt.Sprintf("[gogp]error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
+			fmt.Println(s)
+			err = fmt.Errorf(s)
+		}
+		if err = this.saveGpFile(replacedCode, this.gpPath); err != nil { //save code to file
+			return
+		}
+	} else {
+		err = fmt.Errorf("[gogp]error:[%s] must have [%s] section", relateGoPath(this.gpgPath), gSectionReverse)
 	}
-
+	return
+}
+func (this *gopgProcessor) procStepNormal() (err error) {
 	//normal process
 	if this.buildMatches(false) {
 		gpPath := ""
@@ -296,8 +305,8 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 
 		// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 		replacedGp := gGogpExpPretreatAll.ReplaceAllStringFunc(this.gpContent, func(src string) (rep string) {
-			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQP", "REQN", "CONDK", "T", "F"}
-			ignore, reqp, reqn, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6]
+			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQH", "REQP", "REQN", "CONDK", "T", "F"}
+			ignore, reqh, reqp, reqn, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7]
 			switch {
 			case condk != "":
 				cfg := this.gpgContent.GetString(this.impName, condk, gFalse)
@@ -309,11 +318,12 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 			case reqp != "":
 				//requlre process
 				fmt.Println("[gogp]todo:", this.gpPath, "require", reqp)
-				if r, err := this.genRequiredProduct(reqp, reqn); err == nil {
+				if r, err := this.procDoRequire(src); err == nil {
 					rep = r
 				} else {
 					panic(err)
 				}
+				reqh, reqn = reqn, reqh //never use
 			case ignore != "":
 				rep = "\n\n"
 			default:
@@ -338,7 +348,7 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 		replacedGp = gGogpExpEmptyLine.ReplaceAllString(replacedGp, "\n\n")
 
 		if this.nNoReplaceMathNum > 0 { //report error
-			s := fmt.Sprintf("[gogp]error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), impName)
+			s := fmt.Sprintf("[gogp]error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
 			fmt.Println(s)
 			err = fmt.Errorf(s)
 		}
@@ -346,6 +356,39 @@ func (this *gopgProcessor) genProduct(impName string, reverse bool) (err error) 
 			return
 		}
 	}
+	return
+}
+
+//gen code or gp file
+func (this *gopgProcessor) genProduct(id int, impName string, step gogp_proc_step) (err error) {
+	if 0 == id && !gSilence {
+		if step.IsReverse() {
+			fmt.Printf("[gogp]ReverseWork:[%s]\n", relateGoPath(this.gpgPath))
+		} else {
+			fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(this.gpgPath))
+		}
+	}
+
+	if strings.HasPrefix(impName, gSectionIgnore) { //never deal with this section
+		return
+	}
+
+	checkReverse := strings.HasPrefix(impName, gSectionReverse)
+	if checkReverse != step.IsReverse() { //not proper section, do nothing
+		return
+	}
+
+	this.impName = impName
+
+	switch step {
+	case gogp_step_REQUIRE:
+		err = this.procStepRequire()
+	case gogp_step_REVERSE:
+		err = this.procStepReverse()
+	case gogp_step_PRODUCE:
+		err = this.procStepNormal()
+	}
+
 	return
 }
 

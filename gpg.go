@@ -37,12 +37,13 @@ const (
 	//generic-programming flag <XXX>
 	gsExpTxtReplace = `\<[[:alpha:]][[:word:]]{0,}\>`
 
-	//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
+	//ignore text format like "//#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END"
 	gsExpTxtIgnore = "(?sm:\\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
-	// match "//#GOGP_IFDEF cd ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
+	// match "//#GOGP_IFDEF cd <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF" case
 	gsExpTxtChoice = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
 	//require another gp file, gpg config use current cases
-	gsExpTxtRequire   = "(?sm:\\s*//#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\).*?$[\\r|\\n]*))"
+	// "//#GOGP_REQUIRE(path [, nameSuffix])"
+	gsExpTxtRequire   = "(?sm:\\s*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\).*?$[\\r|\\n]*))"
 	gsExpTxtEmptyLine = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 
 	gFalse = "false"
@@ -57,8 +58,8 @@ var (
 	gGogpExpPretreatAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice))
 	gGogpExpIgnore      = regexp.MustCompile(gsExpTxtIgnore)
 	gGogpExpEmptyLine   = regexp.MustCompile(gsExpTxtEmptyLine)
+	gGogpExpRequire     = regexp.MustCompile(gsExpTxtRequire)
 	//	gGogpExpChoice      = regexp.MustCompile(gsExpTxtChoice)
-	//	gGogpExpRequire     = regexp.MustCompile(gsExpTxtRequire)
 
 	gGoPath             = "" //GoPath
 	gCopyRightCode      = ""
@@ -66,6 +67,19 @@ var (
 	gForceUpdate        = false //force update all products
 	gSilence            = true  //work silencely
 	gRemoveProductsOnly = false //remove products only
+)
+
+type gogp_proc_step int
+
+func (me gogp_proc_step) IsReverse() bool {
+	return me >= gogp_step_REQUIRE && me <= gogp_step_REVERSE
+}
+
+const (
+	gogp_step_REQUIRE gogp_proc_step = iota //require replace in fake go file
+	gogp_step_REVERSE                       //gen gp file from fake go file
+	gogp_step_PRODUCE                       //gen go file from gp file
+	_gogp_step_CNT
 )
 
 func init() {
@@ -139,15 +153,16 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 		if !gSilence && len(list) > 0 {
 			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
 		}
-		reverses := []bool{true, false} //reverse work first
+
+		steps := []gogp_proc_step{gogp_step_REQUIRE, gogp_step_REVERSE, gogp_step_PRODUCE} //reverse work first
 		if gRemoveProductsOnly {
-			reverses = []bool{false, true} //normal work first
+			steps = []gogp_proc_step{gogp_step_PRODUCE, gogp_step_REVERSE} //normal work first
 		}
 		nGpg = len(list)
-		for _, reverse := range reverses {
-			for _, gpg := range list { //reverse work
+		for _, step := range steps {
+			for _, gpg := range list {
 				var p gopgProcessor
-				if err = p.procGpg(gpg, reverse); err != nil {
+				if err = p.procGpg(gpg, step); err != nil {
 					return
 				}
 				nCode += p.nCodeFile
@@ -166,21 +181,21 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 
 // reverse work, gen .gp file from code and .gpg file
 // gpgFilePath must related from GoPath
-func ReverseWork(gpgFilePath string) (err error) {
-	defer func() {
-		if err != nil {
-			fmt.Println(err)
-		}
-		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
-	}()
+//func ReverseWork(gpgFilePath string) (err error) {
+//	defer func() {
+//		if err != nil {
+//			fmt.Println(err)
+//		}
+//		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
+//	}()
 
-	var p gopgProcessor
-	if err = p.reverseWork(gpgFilePath); err != nil {
-		return
-	}
+//	var p gopgProcessor
+//	if err = p.reverseWork(gpgFilePath); err != nil {
+//		return
+//	}
 
-	return
-}
+//	return
+//}
 
 //get version of this gogp lib
 func Version() string {
