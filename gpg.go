@@ -236,3 +236,7 @@ func deepCollectSubFiles(_dir string, ext string) (subfiles []string, err error)
 	})
 	return
 }
+
+func get_hash(string) string {
+	return ""
+}
