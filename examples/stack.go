@@ -16,8 +16,11 @@ package examples
 //#GOGP_IFDEF GOGP_Show
 import show_bytes "bytes" //#GOGP_ENDIF
 
-//#GOGP_REQUIRE(./comparer)
+//##GOGP_REQUIRE(github.com/vipally/gx/stl/gp/comparer)
 
+//#GOGP_IGNORE_BEGIN
+
+//#GOGP_IGNORE_END
 //#GOGP_IGNORE_BEGIN//////////////////////////////GOGPDummyDefine
 //
 //these defines is used to make sure this dummy go file can be compiled correctlly
@@ -28,9 +31,9 @@ import (
 	dumy_fmt "fmt"
 )
 
-type GOGPStackElem int
+type GOGPValueType int
 
-func (me GOGPStackElem) Show() string {
+func (me GOGPValueType) Show() string {
 	return dumy_fmt.Sprintf("%d", me)
 }
 
@@ -38,7 +41,7 @@ func (me GOGPStackElem) Show() string {
 //#GOGP_IGNORE_END////////////////////////////////GOGPDummyDefine
 
 //stack object
-type GOGPStackNamePrefixStack []GOGPStackElem
+type GOGPStackNamePrefixStack []GOGPValueType
 
 //new object
 func NewGOGPStackNamePrefixStack() *GOGPStackNamePrefixStack {
@@ -46,12 +49,12 @@ func NewGOGPStackNamePrefixStack() *GOGPStackNamePrefixStack {
 }
 
 //push
-func (this *GOGPStackNamePrefixStack) Push(v GOGPStackElem) {
+func (this *GOGPStackNamePrefixStack) Push(v GOGPValueType) {
 	*this = append(*this, v)
 }
 
 //pop
-func (this *GOGPStackNamePrefixStack) Pop() (top GOGPStackElem, ok bool) {
+func (this *GOGPStackNamePrefixStack) Pop() (top GOGPValueType, ok bool) {
 	if top, ok = this.Top(); ok {
 		*this = (*this)[:this.Depth()-1]
 	}
@@ -59,7 +62,7 @@ func (this *GOGPStackNamePrefixStack) Pop() (top GOGPStackElem, ok bool) {
 }
 
 //top
-func (this *GOGPStackNamePrefixStack) Top() (top GOGPStackElem, ok bool) {
+func (this *GOGPStackNamePrefixStack) Top() (top GOGPValueType, ok bool) {
 	if this.Depth() > 0 {
 		top = (*this)[this.Depth()-1]
 		ok = true
