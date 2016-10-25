@@ -267,9 +267,10 @@ func (this *gopgProcessor) rawSaveFile(file, content string) (err error) {
 
 //require a gp file, maybe recursive
 func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) (rep string, replaced bool, err error) {
-	if nDepth >= 5 {
-		panic(fmt.Sprintf("maybe loop recursive of require, %d", nDepth))
+	if nDepth >= 10 {
+		panic(fmt.Sprintf("[%s:%s]maybe loop recursive of require, %d", relateGoPath(this.gpgPath), this.impName, nDepth))
 	}
+
 	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQH", "REQP", "REQN",}
 	reqh, reqp, reqn := elem[1], elem[2], elem[3]
 
@@ -296,16 +297,35 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 						}
 						codeFileSuffix = l
 					}
+					if codeFileSuffix == "" {
+						codeFileSuffix = "unknown"
+					}
 				}
 
 				gpgDir := filepath.Dir(this.gpgPath)
 				gpName := strings.TrimSuffix(filepath.Base(gpFullPath), gGpExt)
 				codePath := fmt.Sprintf("%s/%s.%s_%s%s",
-					gpgDir, gpName, gGpCodeFileSuffix, this.getCodeSuffix(), gCodeExt)
-				if err = this.rawSaveFile(codePath, replacedGp); err == nil {
-					//todo
+					gpgDir, gpName, gGpCodeFileSuffix, codeFileSuffix, gCodeExt)
+				if gRemoveProductsOnly { //remove products only
+					this.nCodeFile++
+					os.Remove(this.codePath)
+					return
 				}
-
+				oldCode, _ := this.rawLoadFile(codePath)
+				if gForceUpdate || !strings.HasSuffix(oldCode, replacedGp) { //body change then save it,else skip it
+					codeContent := this.fileHead(false) + "\n" + replacedGp
+					if err = this.rawSaveFile(codePath, codeContent); err == nil {
+						this.nCodeFile++
+						if !gSilence {
+							fmt.Printf(">>[gogp][%s] ok\n", relateGoPath(this.codePath))
+						}
+					}
+				} else {
+					this.nSkipCodeFile++
+					if !gSilence {
+						fmt.Printf(">>[gogp][%s] skip\n", relateGoPath(this.codePath))
+					}
+				}
 			} else {
 				replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 				statement = strings.Replace(statement, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
