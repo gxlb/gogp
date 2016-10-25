@@ -435,9 +435,8 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 			gpPath = filepath.Join(gGoPath, gp)
 		}
 	} else {
-		panic(fmt.Sprintf("error:[gogp]missing %s in %s:%s", grawKeyGpFilePath, relateGoPath(this.gpgPath), this.impName))
+		fmt.Printf("error:[gogp]missing %s in %s:%s\n", grawKeyGpFilePath, relateGoPath(this.gpgPath), this.impName)
 	}
-
 	return gpPath
 }
 
@@ -460,7 +459,6 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (rep string, 
 			}
 		case reqp != "":
 			//require process
-			fmt.Println("[gogp]todo:", this.gpPath, "require", reqp)
 			if r, _, err := this.procRequireReplacement(src, nDepth+1); err == nil {
 				rep = r
 			} else {
