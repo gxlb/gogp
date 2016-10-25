@@ -14,22 +14,67 @@ package examples
 //#GOGP_IGNORE_END////////////////////////////////GOGPCommentDummyGoFile
 
 //#GOGP_IFDEF GOGP_Show
-import show_bytes "bytes" //#GOGP_ENDIF
+import show_bytes "bytes" //
+//#GOGP_ENDIF
+
+//#GOGP_IGNORE_BEGIN//ignored import
+import dumy_fmt "fmt" //
+//#GOGP_IGNORE_END//ignored import
 
 //##GOGP_REQUIRE(github.com/vipally/gx/stl/gp/comparer)
 
-//#GOGP_IGNORE_BEGIN
+//#GOGP_IGNORE_BEGIN //required from(github.com/vipally/gx/stl/gp/comparer)
+//this file is used to import by other gp files
+//it cannot use independently
+//simulation C++ stl functors
+//package examples
 
-//#GOGP_IGNORE_END
+type ComparerintPart interface {
+	F(left, right GOGPValueType) bool
+}
+
+type ComparerintCreator int
+
+const (
+	LESSER_int ComparerintCreator = iota
+	GREATER_int
+)
+
+func (me ComparerintCreator) Create() (cmp Comparerint) {
+	switch me {
+	case LESSER_int:
+		cmp = Lesserint(0)
+	case GREATER_int:
+		cmp = Greaterint(0)
+	}
+	return
+}
+
+type Lesserint byte
+
+func (this Lesserint) F(left, right GOGPValueType) (ok bool) {
+
+	ok = left < right
+
+	return
+}
+
+type Greaterint byte
+
+func (this Greaterint) F(left, right GOGPValueType) (ok bool) {
+
+	ok = left > right
+
+	return
+}
+
+//#GOGP_IGNORE_END//required from(github.com/vipally/gx/stl/gp/comparer)
+
 //#GOGP_IGNORE_BEGIN//////////////////////////////GOGPDummyDefine
 //
 //these defines is used to make sure this dummy go file can be compiled correctlly
 //and they will be removed from real go files
-//
-
-import (
-	dumy_fmt "fmt"
-)
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 type GOGPValueType int
 
@@ -37,7 +82,7 @@ func (me GOGPValueType) Show() string {
 	return dumy_fmt.Sprintf("%d", me)
 }
 
-//
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //#GOGP_IGNORE_END////////////////////////////////GOGPDummyDefine
 
 //stack object

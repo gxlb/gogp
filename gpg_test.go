@@ -122,6 +122,6 @@ this_is_required 2.xxx integer
 		fmt.Printf("[%s\n]", tt)
 	}
 
-	//fmt.Printf("[%#v\n]", gGogpExpPretreatAll.SubexpNames())
-	//	fmt.Printf("[%s\n]", gGogpExpPretreatAll.String())
+	fmt.Printf("[%#v\n]", gGogpExpPretreatAll.SubexpNames())
+	//fmt.Printf("[%s\n]", gGogpExpPretreatAll.String())
 }

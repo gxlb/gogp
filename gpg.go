@@ -7,6 +7,7 @@ package gogp
 
 import (
 	"fmt"
+	"go/format"
 	"hash/crc32"
 	"time"
 
@@ -44,8 +45,8 @@ const (
 	gsExpTxtChoice = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
 	//require another gp file, gpg config use current cases
 	// "//#GOGP_REQUIRE(path [, nameSuffix])"
-	gsExpTxtRequire   = "(?sm:\\s*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\).*?$[\\r|\\n]*))"
-	gsExpTxtEmptyLine = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
+	gsExpTxtRequire = "(?sm:\\s*(?P<REQ>^[ |\\t]*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\)).*?$[\\r|\\n]*))"
+	//gsExpTxtEmptyLine = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 
 	gFalse = "false"
 	gTrue  = "true"
@@ -58,8 +59,8 @@ var (
 	gGogpExpReplace     = regexp.MustCompile(gsExpTxtReplace)
 	gGogpExpPretreatAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice))
 	gGogpExpIgnore      = regexp.MustCompile(gsExpTxtIgnore)
-	gGogpExpEmptyLine   = regexp.MustCompile(gsExpTxtEmptyLine)
-	gGogpExpRequire     = regexp.MustCompile(gsExpTxtRequire)
+	//gGogpExpEmptyLine   = regexp.MustCompile(gsExpTxtEmptyLine)
+	gGogpExpRequire = regexp.MustCompile(gsExpTxtRequire)
 	//	gGogpExpChoice      = regexp.MustCompile(gsExpTxtChoice)
 
 	gGoPath             = "" //GoPath
@@ -243,4 +244,14 @@ func get_hash(s string) string {
 	h.Write([]byte(s))
 	r := fmt.Sprintf("%04x", (h.Sum32() & 0xFFFF))
 	return r
+}
+
+func goFmt(s, file string) (r string) {
+	if b, e := format.Source([]byte(s)); e != nil {
+		fmt.Println(relateGoPath(file), e)
+		return
+	} else {
+		r = string(b)
+	}
+	return
 }
