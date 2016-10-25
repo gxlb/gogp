@@ -333,6 +333,10 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 				rep = gGogpExpEmptyLine.ReplaceAllString(rep, "\n\n") //remove more empty lines
 			}
 		}
+	} else {
+		fmt.Printf("[gogp][error][%s:%s] [%s]:%s\n", relateGoPath(this.gpgPath), this.impName, statement, err.Error())
+		err = nil
+		rep = statement
 	}
 	return
 
