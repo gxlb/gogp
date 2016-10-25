@@ -111,6 +111,7 @@ type gopgProcessor struct {
 	gpContent         string
 	codeContent       string
 	impName           string
+	step              gogp_proc_step
 }
 
 //func (this *gopgProcessor) reverseWork(gpgFilePath string) (err error) {
@@ -156,9 +157,10 @@ func (this *gopgProcessor) hasTask(step gogp_proc_step) bool {
 
 func (this *gopgProcessor) procGpg(file string, step gogp_proc_step) (err error) {
 	this.gpContent = "" //clear gp content
+	this.step = step
 	if err = this.loadGpgFile(file); err == nil && this.hasTask(step) {
 		for i, imp := range this.gpgContent.Sections() {
-			if err = this.genProduct(i, imp, step); err != nil {
+			if err = this.genProduct(i, imp); err != nil {
 				return
 			}
 		}
@@ -221,13 +223,70 @@ func (this *gopgProcessor) rawSaveFile(file, content string) (err error) {
 	return
 }
 
-func (this *gopgProcessor) procRequireOp(statement, reqGpPath, codeFileSuffix string, save bool, nDepth int) (rep string, err error) {
-	gpFullPath := this.getGpFullPath(reqGpPath)
+//func (this *gopgProcessor) procRequireOp(statement, reqHead, reqGpPath, codeFileSuffix string, save bool, nDepth int) (rep string, err error) {
+//	if this.step == gogp_step_REQUIRE && reqHead == "##" {
+//		rep = statement
+//		return
+//	}
+
+//	gpFullPath := this.getGpFullPath(reqGpPath)
+//	gpContent := ""
+//	if gpContent, err = this.rawLoadFile(gpFullPath); err == nil {
+//		replacedGp := ""
+//		if replacedGp, err = this.doGpReplace(gpContent, nDepth); err == nil {
+//			if save {
+//				rep = "\n\n"
+//				if codeFileSuffix == "" {
+//					if v, ok := this.getMatch("<VALUE_TYPE>"); ok {
+//						l := strings.ToLower(v)
+//						if l != v {
+//							l = fmt.Sprintf("%s_%s", l, get_hash(v))
+//						}
+//						codeFileSuffix = l
+//					}
+//				}
+
+//				gpgDir := filepath.Dir(this.gpgPath)
+//				gpName := strings.TrimSuffix(filepath.Base(gpFullPath), gGpExt)
+//				codePath := fmt.Sprintf("%s/%s.%s_%s%s",
+//					gpgDir, gpName, gGpCodeFileSuffix, this.getCodeSuffix(), gCodeExt)
+//				if err = this.rawSaveFile(codePath, replacedGp); err == nil {
+//					//todo
+//				}
+
+//			} else {
+//				replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
+//				statement = strings.Replace(statement, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
+//				rep = fmt.Sprintf("%s\n//#GOGP_IGNORE_BEGIN\n%s\n//#GOGP_IGNORE_END\n", statement, replacedGp)
+//				rep = gGogpExpEmptyLine.ReplaceAllString(rep, "\n\n") //remove more empty lines
+//			}
+//		}
+//	}
+//	return
+//}
+
+//require a gp file, maybe recursive
+func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) (rep string, replaced bool, err error) {
+	if nDepth >= 5 {
+		panic(fmt.Sprintf("maybe loop recursive of require, %d", nDepth))
+	}
+	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQH", "REQP", "REQN",}
+	reqh, reqp, reqn := elem[1], elem[2], elem[3]
+
+	if this.step == gogp_step_REQUIRE && reqh == "##" { //ignore replaced require
+		rep = statement
+		return
+	} else {
+		replaced = true
+	}
+
+	codeFileSuffix := reqn
+	gpFullPath := this.getGpFullPath(reqp)
 	gpContent := ""
 	if gpContent, err = this.rawLoadFile(gpFullPath); err == nil {
 		replacedGp := ""
 		if replacedGp, err = this.doGpReplace(gpContent, nDepth); err == nil {
-			if save {
+			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
 				if codeFileSuffix == "" {
 					if v, ok := this.getMatch("<VALUE_TYPE>"); ok {
@@ -256,22 +315,14 @@ func (this *gopgProcessor) procRequireOp(statement, reqGpPath, codeFileSuffix st
 		}
 	}
 	return
-}
 
-//require a gp file, maybe recursive
-func (this *gopgProcessor) procRequire(statement string, nDepth int) (rep string, err error) {
-	if nDepth >= 5 {
-		panic(fmt.Sprintf("maybe loop recursive of require, %d", nDepth))
-	}
-	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQH", "REQP", "REQN",}
-	reqh, reqp, reqn := elem[1], elem[2], elem[3]
-	switch reqh {
-	case "#":
-		rep, err = this.procRequireOp(statement, reqp, reqn, false, nDepth)
-	case "##":
-		rep, err = this.procRequireOp(statement, reqp, reqn, true, nDepth)
-	}
-	return
+	//	switch reqh {
+	//	case "#":
+	//		rep, err = this.procRequireOp(statement, reqp, reqn, false, nDepth)
+	//	case "##":
+	//		rep, err = this.procRequireOp(statement, reqp, reqn, true, nDepth)
+	//	}
+	//	return
 }
 
 func (this *gopgProcessor) procStepRequire() (err error) {
@@ -283,17 +334,25 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 		return
 	}
 
+	replcaceCnt := 0
+
 	//match "//#GOGP_REQUIRE(path [, nameSuffix])"
 	replacedCode := gGogpExpRequire.ReplaceAllStringFunc(this.gpContent, func(src string) (rep string) {
 		var err error
-		if rep, err = this.procRequire(src, 0); err != nil {
+		var replaced bool
+		if rep, replaced, err = this.procRequireReplacement(src, 0); err != nil {
 			fmt.Println(err)
+		}
+		if replaced {
+			replcaceCnt++
 		}
 		return
 	})
 
-	if err = this.rawSaveFile(this.codePath, replacedCode); err != nil {
-		fmt.Println(err)
+	if replcaceCnt > 0 {
+		if err = this.rawSaveFile(this.codePath, replacedCode); err != nil {
+			fmt.Println(err)
+		}
 	}
 	return
 }
@@ -362,7 +421,7 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 	return gpPath
 }
 
-func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replaced string, err error) {
+func (this *gopgProcessor) doGpReplace(content string, nDepth int) (rep string, err error) {
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, nameSuffix])"
@@ -382,7 +441,7 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replaced str
 		case reqp != "":
 			//require process
 			fmt.Println("[gogp]todo:", this.gpPath, "require", reqp)
-			if r, err := this.procRequire(src, nDepth+1); err == nil {
+			if r, _, err := this.procRequireReplacement(src, nDepth+1); err == nil {
 				rep = r
 			} else {
 				fmt.Println(err)
@@ -416,7 +475,6 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replaced str
 		err = fmt.Errorf(s)
 	}
 
-	replaced = replaced
 	return
 }
 
@@ -450,9 +508,9 @@ func (this *gopgProcessor) procStepNormal() (err error) {
 }
 
 //gen code or gp file
-func (this *gopgProcessor) genProduct(id int, impName string, step gogp_proc_step) (err error) {
+func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 	if 0 == id && !gSilence {
-		if step.IsReverse() {
+		if this.step.IsReverse() {
 			fmt.Printf("[gogp]ReverseWork:[%s]\n", relateGoPath(this.gpgPath))
 		} else {
 			fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(this.gpgPath))
@@ -464,13 +522,13 @@ func (this *gopgProcessor) genProduct(id int, impName string, step gogp_proc_ste
 	}
 
 	checkReverse := strings.HasPrefix(impName, gSectionReverse)
-	if checkReverse != step.IsReverse() { //not proper section, do nothing
+	if checkReverse != this.step.IsReverse() { //not proper section, do nothing
 		return
 	}
 
 	this.impName = impName
 
-	switch step {
+	switch this.step {
 	case gogp_step_REQUIRE:
 		err = this.procStepRequire()
 	case gogp_step_REVERSE:
@@ -488,6 +546,7 @@ func (this *gopgProcessor) getMatch(key string) (match string, ok bool) {
 }
 
 func (this *gopgProcessor) loadGpFile(file string) (err error) {
+	this.gpContent = ""
 	if this.gpContent, err = this.rawLoadFile(file); err == nil {
 		this.gpPath = file
 		//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
@@ -497,6 +556,7 @@ func (this *gopgProcessor) loadGpFile(file string) (err error) {
 }
 
 func (this *gopgProcessor) loadCodeFile(file string) (err error) {
+	this.codeContent = ""
 	if this.codeContent, err = this.rawLoadFile(file); err == nil {
 		this.codePath = file
 	}

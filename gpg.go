@@ -7,6 +7,7 @@ package gogp
 
 import (
 	"fmt"
+	"hash/crc32"
 	"time"
 
 	"os"
@@ -237,6 +238,9 @@ func deepCollectSubFiles(_dir string, ext string) (subfiles []string, err error)
 	return
 }
 
-func get_hash(string) string {
-	return ""
+func get_hash(s string) string {
+	h := crc32.NewIEEE()
+	h.Write([]byte(s))
+	r := fmt.Sprintf("%04x", (h.Sum32() & 0xFFFF))
+	return r
 }
