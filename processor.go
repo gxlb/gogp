@@ -93,7 +93,7 @@ func (this *replaceList) expString() (exp string) {
 		exp = b.String()
 	} else {
 		//avoid return "", which will match every byte
-		exp = "\\Q__GOGP_DO_NOT_HAVE_ANY_KEY__\\E"
+		exp = "\\QGOGP_DO_NOT_HAVE_ANY_KEY__\\E"
 	}
 
 	//fmt.Println(exp)
@@ -343,9 +343,9 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 				}
 			} else {
 				replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
-				reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
+				//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
 				reqResult := fmt.Sprintf(gsTxtRequireResultFmt, reqp, "$CONTENT", reqp)
-				out := fmt.Sprintf("\n\n%s\n%s\n\n", reqSave, reqResult)
+				out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
 				replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
 
 				rep = goFmt(replacedGp, this.gpPath)
