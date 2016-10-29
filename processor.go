@@ -81,18 +81,21 @@ func (this *replaceList) Less(i, j int) bool {
 func (this *replaceList) Swap(i, j int) {
 	this.list[i], this.list[j] = this.list[j], this.list[i]
 }
-func (this *replaceList) expString() string {
+func (this *replaceList) expString() (exp string) {
 	var b bytes.Buffer
-	for _, v := range this.list {
-		s := fmt.Sprintf("\\Q%s\\E", v.value) //match raw letter
-		b.WriteString(s)
-		b.WriteByte('|')
-	}
 	if this.Len() > 0 {
+		for _, v := range this.list {
+			s := fmt.Sprintf("\\Q%s\\E", v.value) //match raw letter
+			b.WriteString(s)
+			b.WriteByte('|')
+		}
 		b.Truncate(b.Len() - 1) //remove last '|'
+		exp = b.String()
+	} else {
+		//avoid return "", which will match every byte
+		exp = "\\Q__GOGP_DO_NOT_HAVE_ANY_KEY__\\E"
 	}
 
-	exp := b.String()
 	//fmt.Println(exp)
 	return exp
 }
@@ -293,46 +296,48 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 		if replacedGp, err = this.doGpReplace(gpContent, nDepth); err == nil {
 			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
-				if codeFileSuffix == "" {
-					if v := this.gpgContent.GetString(this.impName, "VALUE_TYPE", ""); v != "" {
-						l := strings.ToLower(v)
-						l = strings.Replace(l, "*", "_", -1)
-						if l != v {
-							l = fmt.Sprintf("%s_%s", l, get_hash(v))
-						}
-						codeFileSuffix = l
-					}
+				if codeFileSuffix != "_" { //codeFileSuffix=="_" will not generate this code file
 					if codeFileSuffix == "" {
-						codeFileSuffix = "unknown"
-					}
-				}
-
-				gpgDir := filepath.Dir(this.gpgPath)
-				gpName := strings.TrimSuffix(filepath.Base(gpFullPath), gGpExt)
-				codePath := fmt.Sprintf("%s/%s.%s_%s%s",
-					gpgDir, gpName, gGpCodeFileSuffix, codeFileSuffix, gCodeExt)
-
-				if gRemoveProductsOnly { //remove products only
-					this.nCodeFile++
-					os.Remove(codePath)
-					return
-				}
-
-				oldCode, _ := this.rawLoadFile(codePath)
-
-				if gForceUpdate || !strings.HasSuffix(oldCode, replacedGp) { //body change then save it,else skip it
-					codeContent := this.fileHead(false) + "\n" + replacedGp
-					codeContent = goFmt(codeContent, codePath)
-					if err = this.rawSaveFile(codePath, codeContent); err == nil {
-						this.nCodeFile++
-						if !gSilence {
-							fmt.Printf(">>[gogp][%s] require ok\n", relateGoPath(codePath))
+						if v := this.gpgContent.GetString(this.impName, "VALUE_TYPE", ""); v != "" {
+							l := strings.ToLower(v)
+							l = strings.Replace(l, "*", "_", -1)
+							if l != v {
+								l = fmt.Sprintf("%s_%s", l, get_hash(v))
+							}
+							codeFileSuffix = l
+						}
+						if codeFileSuffix == "" {
+							codeFileSuffix = "unknown"
 						}
 					}
-				} else {
-					this.nSkipCodeFile++
-					if !gSilence {
-						fmt.Printf(">>[gogp][%s] require skip\n", relateGoPath(codePath))
+
+					gpgDir := filepath.Dir(this.gpgPath)
+					gpName := strings.TrimSuffix(filepath.Base(gpFullPath), gGpExt)
+					codePath := fmt.Sprintf("%s/%s.%s_%s%s",
+						gpgDir, gpName, gGpCodeFileSuffix, codeFileSuffix, gCodeExt)
+
+					if gRemoveProductsOnly { //remove products only
+						this.nCodeFile++
+						os.Remove(codePath)
+						return
+					}
+
+					oldCode, _ := this.rawLoadFile(codePath)
+
+					if gForceUpdate || !strings.HasSuffix(oldCode, replacedGp) { //body change then save it,else skip it
+						codeContent := this.fileHead(false) + "\n" + replacedGp
+						codeContent = goFmt(codeContent, codePath)
+						if err = this.rawSaveFile(codePath, codeContent); err == nil {
+							this.nCodeFile++
+							if !gSilence {
+								fmt.Printf(">>[gogp][%s] require ok\n", relateGoPath(codePath))
+							}
+						}
+					} else {
+						this.nSkipCodeFile++
+						if !gSilence {
+							fmt.Printf(">>[gogp][%s] require skip\n", relateGoPath(codePath))
+						}
 					}
 				}
 			} else {
@@ -421,17 +426,21 @@ func (this *gopgProcessor) procStepReverse() (err error) {
 			if v, ok := this.getMatch(src); ok {
 				rep = v
 			} else {
-				fmt.Printf("[gogp]error: %s has no replacing\n", src)
+				fmt.Printf("[gogp] %d error: [%s] has no replacing\n", this.step, src)
 				rep = src
 				this.nNoReplaceMathNum++
 			}
 			return
 		})
+
+		replacedCode = gGogpExpEmptyLine.ReplaceAllString(replacedCode, "\n\n") //avoid multi empty lines
+
 		if this.nNoReplaceMathNum > 0 { //report error
 			s := fmt.Sprintf("[gogp]error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
 			//fmt.Println(s)
 			err = fmt.Errorf(s)
 		}
+
 		if err = this.saveGpFile(replacedCode, this.gpPath); err != nil { //save code to file
 			return
 		}
@@ -499,7 +508,7 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replacedGp s
 		if v, ok := this.getMatch(src); ok {
 			rep = v
 		} else {
-			fmt.Printf("[gogp]error: %s has no replacing\n", src)
+			fmt.Printf("[gogp] %d error: [%s] has no replacing\n", this.step, src)
 			rep = src
 			this.nNoReplaceMathNum++
 		}
