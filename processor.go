@@ -280,7 +280,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQH", "REQP", "REQN",}
 	req, reqh, reqp, reqn := elem[1], elem[2], elem[3], elem[4]
 
-	if this.step == gogp_step_REQUIRE && reqh == "##" { //ignore replaced require
+	if false && this.step == gogp_step_REQUIRE && reqh == "##" { //ignore replaced require
 		rep = statement
 		return
 	} else {
@@ -296,6 +296,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 		if replacedGp, err = this.doGpReplace(gpContent, nDepth); err == nil {
 			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
+				replaced = true
 				if codeFileSuffix != "_" { //codeFileSuffix=="_" will not generate this code file
 					if codeFileSuffix == "" {
 						if v := this.gpgContent.GetString(this.impName, "VALUE_TYPE", ""); v != "" {
@@ -343,11 +344,13 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 			} else {
 				replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 				reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
-				out := fmt.Sprintf("\n\n%s\n//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END//required from(%s)\n\n",
-					reqSave, reqp, "$CONTENT", reqp)
+				reqResult := fmt.Sprintf(gsTxtRequireResultFmt, reqp, "$CONTENT", reqp)
+				out := fmt.Sprintf("\n\n%s\n%s\n\n", reqSave, reqResult)
 				replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
 
-				rep = replacedGp //goFmt(replacedGp, this.gpPath)
+				rep = goFmt(replacedGp, this.gpPath)
+				replaced = rep != statement
+				//fmt.Printf("\n%#v\n%#v\n", rep, statement)
 			}
 		}
 	} else {
@@ -398,7 +401,8 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 			fmt.Println(err)
 		} else {
 			if !gSilence {
-				fmt.Printf(">>[gogp]%s updated require\n", relateGoPath(this.codePath))
+				this.nCodeFile++
+				fmt.Printf(">>[gogp]%s updated for require\n", relateGoPath(this.codePath))
 			}
 		}
 	}

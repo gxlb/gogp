@@ -22,6 +22,52 @@ import dumy_fmt "fmt" //
 //#GOGP_IGNORE_END//ignored import
 
 //##GOGP_REQUIRE(github.com/vipally/gx/stl/gp/comparer)
+//#GOGP_IGNORE_BEGIN //required from(github.com/vipally/gx/stl/gp/comparer)
+//this file is used to import by other gp files
+//it cannot use independently
+//simulation C++ stl functors
+//package examples
+
+type ComparerGOGPGlobalNamePart interface {
+	F(left, right GOGPValueType) bool
+}
+
+type ComparerGOGPGlobalNamePartCreator int
+
+const (
+	LESSER_GOGPGlobalNamePart ComparerGOGPGlobalNamePartCreator = iota
+	GREATER_GOGPGlobalNamePart
+)
+
+func (me ComparerGOGPGlobalNamePartCreator) Create() (cmp ComparerGOGPGlobalNamePart) {
+	switch me {
+	case LESSER_GOGPGlobalNamePart:
+		cmp = LesserGOGPGlobalNamePart(0)
+	case GREATER_GOGPGlobalNamePart:
+		cmp = GreaterGOGPGlobalNamePart(0)
+	}
+	return
+}
+
+type LesserGOGPGlobalNamePart byte
+
+func (this LesserGOGPGlobalNamePart) F(left, right GOGPValueType) (ok bool) {
+
+	ok = left < right
+
+	return
+}
+
+type GreaterGOGPGlobalNamePart byte
+
+func (this GreaterGOGPGlobalNamePart) F(left, right GOGPValueType) (ok bool) {
+
+	ok = left > right
+
+	return
+}
+
+//#GOGP_IGNORE_END //required from(github.com/vipally/gx/stl/gp/comparer)
 
 //#GOGP_IGNORE_BEGIN//////////////////////////////GOGPDummyDefine
 //
