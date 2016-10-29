@@ -343,9 +343,11 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 			} else {
 				replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 				reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
-				rep = fmt.Sprintf("\n\n%s//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END//required from(%s)\n\n",
-					reqSave, reqp, replacedGp, reqp)
-				rep = goFmt(rep, this.gpgPath)
+				out := fmt.Sprintf("\n\n%s\n//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END//required from(%s)\n\n",
+					reqSave, reqp, "$CONTENT", reqp)
+				replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
+
+				rep = replacedGp //goFmt(replacedGp, this.gpPath)
 			}
 		}
 	} else {
