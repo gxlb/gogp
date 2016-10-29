@@ -280,12 +280,14 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQH", "REQP", "REQN",}
 	req, reqh, reqp, reqn := elem[1], elem[2], elem[3], elem[4]
 
-	if false && this.step == gogp_step_REQUIRE && reqh == "##" { //ignore replaced require
-		rep = statement
-		return
-	} else {
-		replaced = true
-	}
+	reqh = reqh //never use
+
+	//	if false && this.step == gogp_step_REQUIRE && reqh == "##" { //ignore replaced require
+	//		rep = statement
+	//		return
+	//	} else {
+	//		replaced = true
+	//	}
 
 	codeFileSuffix := reqn
 	gpFullPath := this.getGpFullPath(reqp)
@@ -342,15 +344,26 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 					}
 				}
 			} else {
-				replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
-				//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
-				reqResult := fmt.Sprintf(gsTxtRequireResultFmt, reqp, "$CONTENT", reqp)
-				out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
-				replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
+				if gRemoveProductsOnly {
+					rep = fmt.Sprintf("\n\n%s\n\n", req)
+					replaced = true
+				} else {
+					if nDepth == 0 { //do not let require recursive
+						replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
+						//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
+						reqResult := fmt.Sprintf(gsTxtRequireResultFmt, reqp, "$CONTENT", reqp)
+						out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
+						replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
 
-				rep = goFmt(replacedGp, this.gpPath)
-				replaced = rep != statement
-				//fmt.Printf("\n%#v\n%#v\n", rep, statement)
+						rep = goFmt(replacedGp, this.gpPath)
+						replaced = rep != statement
+					} else {
+						rep = "\n\n"
+						replaced = true
+					}
+
+					//fmt.Printf("\n%#v\n%#v\n", rep, statement)
+				}
 			}
 		}
 	} else {
@@ -359,14 +372,6 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 		rep = statement
 	}
 	return
-
-	//	switch reqh {
-	//	case "#":
-	//		rep, err = this.procRequireOp(statement, reqp, reqn, false, nDepth)
-	//	case "##":
-	//		rep, err = this.procRequireOp(statement, reqp, reqn, true, nDepth)
-	//	}
-	//	return
 }
 
 func (this *gopgProcessor) procStepRequire() (err error) {
@@ -395,6 +400,8 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 		}
 		return
 	})
+
+	replacedCode = goFmt(replacedCode, this.gpPath)
 
 	if replcaceCnt > 0 {
 		if err = this.rawSaveFile(this.codePath, replacedCode); err != nil {
@@ -602,8 +609,8 @@ func (this *gopgProcessor) getMatch(key string) (match string, ok bool) {
 
 func (this *gopgProcessor) loadGpFile(file string) (err error) {
 	this.gpContent = ""
+	this.gpPath = file
 	if this.gpContent, err = this.rawLoadFile(file); err == nil {
-		this.gpPath = file
 		//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
 		this.gpContent = gGogpExpIgnore.ReplaceAllString(this.gpContent, "")
 	}
@@ -612,8 +619,9 @@ func (this *gopgProcessor) loadGpFile(file string) (err error) {
 
 func (this *gopgProcessor) loadCodeFile(file string) (err error) {
 	this.codeContent = ""
+	this.codePath = file
 	if this.codeContent, err = this.rawLoadFile(file); err == nil {
-		this.codePath = file
+
 	}
 	return
 }

@@ -165,7 +165,7 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 
 		steps := []gogp_proc_step{gogp_step_REVERSE, gogp_step_REQUIRE, gogp_step_REVERSE, gogp_step_PRODUCE} //reverse work first
 		if gRemoveProductsOnly {
-			steps = []gogp_proc_step{gogp_step_PRODUCE, gogp_step_REVERSE} //normal work first
+			steps = []gogp_proc_step{gogp_step_PRODUCE, gogp_step_REQUIRE, gogp_step_REVERSE} //normal work first
 		}
 		nGpg = len(list)
 		for _, step := range steps {
