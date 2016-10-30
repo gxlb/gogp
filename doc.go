@@ -145,5 +145,6 @@ More gogp details:
 package gogp
 
 //20161016: match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
-//20161023: match "//#GOGP_REQUIRE(gpPath)" case
+//20161023: match "//#GOGP_REQUIRE(gpPath[,codeNameSuffix])" case
+//20161030: match "#GOGP_GPGCFG(cfg)" case
 //todo: #define Macro(xxx) yyyy

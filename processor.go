@@ -234,7 +234,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 					if codeFileSuffix == "" {
 						if v := this.gpgContent.GetString(this.impName, "VALUE_TYPE", ""); v != "" {
 							l := strings.ToLower(v)
-							l = strings.Replace(l, "*", "_", -1)
+							l = strings.Replace(l, "*", "#", -1)
 							if l != v {
 								l = fmt.Sprintf("%s_%s", l, get_hash(v))
 							}
@@ -420,8 +420,8 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replacedGp s
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, nameSuffix])"
 	replacedGp = gGogpExpPretreatAll.ReplaceAllStringFunc(content, func(src string) (rep string) {
-		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQH", "REQP", "REQN", "CONDK", "T", "F"}
-		ignore, req, reqh, reqp, reqn, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8]
+		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQH", "REQP", "REQN", "CONDK", "T", "F","GPGCFG"}
+		ignore, req, reqh, reqp, reqn, condk, t, f, gpgcfg := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9]
 		switch {
 		case ignore != "":
 			rep = "\n\n"
@@ -440,6 +440,8 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replacedGp s
 				fmt.Println(err)
 			}
 			req, reqh, reqn = req, reqn, reqh //never use
+		case gpgcfg != "":
+			rep = this.gpgContent.GetString(this.impName, gpgcfg, "")
 
 		default:
 			fmt.Println("error:[gogp]invalid predef statement", src)

@@ -48,6 +48,8 @@ const (
 	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?//#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
+	//gpgCfg() string
+	gsExpTxtGetGpgCfg     = "(?-sm:#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
 
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
@@ -56,7 +58,7 @@ const (
 
 var (
 	gGogpExpReplace       = regexp.MustCompile(gsExpTxtReplace)
-	gGogpExpPretreatAll   = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice))
+	gGogpExpPretreatAll   = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg))
 	gGogpExpIgnore        = regexp.MustCompile(gsExpTxtIgnore)
 	gGogpExpEmptyLine     = regexp.MustCompile(gsExpTxtEmptyLine)
 	gGogpExpRequire       = regexp.MustCompile(gsExpTxtRequire)
