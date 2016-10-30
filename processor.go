@@ -145,6 +145,10 @@ func (this *gopgProcessor) getCodeFileSuffix() (r string) {
 	return
 }
 
+func (this *gopgProcessor) reportNoReplacing(key, gpfile string) {
+	fmt.Printf("[gogp] step%d error: [%s] has no replacing.[%s:%s %s]\n", this.step, key, relateGoPath(this.gpgPath), this.impName, gpfile)
+}
+
 //if has set key GOGP_Name, use it, else use section name
 func (this *gopgProcessor) getGpName() (r string) {
 	if name := this.gpgContent.GetString(this.impName, grawKeyName, ""); name != "" {
@@ -388,7 +392,7 @@ func (this *gopgProcessor) procStepReverse() (err error) {
 			if v, ok := this.getMatch(src); ok {
 				rep = v
 			} else {
-				fmt.Printf("[gogp] %d error: [%s] has no replacing\n", this.step, src)
+				this.reportNoReplacing(src, this.gpPath)
 				rep = src
 				this.nNoReplaceMathNum++
 			}
@@ -472,7 +476,7 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replacedGp s
 		if v, ok := this.getMatch(src); ok {
 			rep = v
 		} else {
-			fmt.Printf("[gogp] %d error: [%s] has no replacing\n", this.step, src)
+			this.reportNoReplacing(src, this.gpPath)
 			rep = src
 			this.nNoReplaceMathNum++
 		}
