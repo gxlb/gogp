@@ -117,6 +117,34 @@ type gopgProcessor struct {
 	step              gogp_proc_step
 }
 
+//get file suffix of code file
+func (this *gopgProcessor) getCodeFileSuffix() (r string) {
+	if v := this.gpgContent.GetString(this.impName, "KEY_TYPE", ""); v != "" {
+		l := strings.ToLower(v)
+		l = strings.Replace(l, "*", "#", -1)
+		if l != v {
+			l = fmt.Sprintf("%s%s", l, get_hash(v))
+		}
+		r = l
+	}
+	if v := this.gpgContent.GetString(this.impName, "VALUE_TYPE", ""); v != "" {
+		l := strings.ToLower(v)
+		l = strings.Replace(l, "*", "#", -1)
+		if l != v {
+			l = fmt.Sprintf("%s%s", l, get_hash(v))
+		}
+		if r == "" {
+			r = l
+		} else {
+			r = fmt.Sprintf("%s_%s", r, l)
+		}
+	}
+	if r == "" {
+		r = "unknown"
+	}
+	return
+}
+
 //if has set key GOGP_Name, use it, else use section name
 func (this *gopgProcessor) getGpName() (r string) {
 	if name := this.gpgContent.GetString(this.impName, grawKeyName, ""); name != "" {
@@ -160,14 +188,14 @@ func (this *gopgProcessor) loadGpgFile(file string) (err error) {
 }
 
 //if has set key GOGP_Name, use it, else use section name
-func (this *gopgProcessor) getCodeSuffix() (r string) {
-	if name := this.gpgContent.GetString(this.impName, grawKeyName, ""); name != "" {
-		r = name
-	} else {
-		r = this.impName
-	}
-	return
-}
+//func (this *gopgProcessor) getCodeSuffix() (r string) {
+//	if name := this.gpgContent.GetString(this.impName, grawKeyName, ""); name != "" {
+//		r = name
+//	} else {
+//		r = this.impName
+//	}
+//	return
+//}
 
 func (this *gopgProcessor) buildMatches(reverse bool) (ok bool) {
 	this.matches.clear() //clear matches
@@ -481,7 +509,7 @@ func (this *gopgProcessor) procStepNormal() (err error) {
 
 		gpName := strings.TrimSuffix(filepath.Base(gpPath), gGpExt)
 		codePath := fmt.Sprintf("%s/%s.%s_%s%s",
-			gpgDir, gpName, gGpCodeFileSuffix, this.getCodeSuffix(), gCodeExt)
+			gpgDir, gpName, gGpCodeFileSuffix, this.getCodeFileSuffix(), gCodeExt)
 
 		this.loadCodeFile(codePath) //load code file, ignore error
 		if this.gpPath != gpPath {  //load gp file if needed
