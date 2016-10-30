@@ -140,7 +140,7 @@ func (this *gopgProcessor) getCodeFileSuffix() (r string) {
 		}
 	}
 	if r == "" {
-		r = "unknown"
+		r = this.impName
 	}
 	return
 }
@@ -260,17 +260,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 				replaced = true
 				if codeFileSuffix != "_" { //codeFileSuffix=="_" will not generate this code file
 					if codeFileSuffix == "" {
-						if v := this.gpgContent.GetString(this.impName, "VALUE_TYPE", ""); v != "" {
-							l := strings.ToLower(v)
-							l = strings.Replace(l, "*", "#", -1)
-							if l != v {
-								l = fmt.Sprintf("%s_%s", l, get_hash(v))
-							}
-							codeFileSuffix = l
-						}
-						if codeFileSuffix == "" {
-							codeFileSuffix = "unknown"
-						}
+						codeFileSuffix = this.getCodeFileSuffix()
 					}
 
 					gpgDir := filepath.Dir(this.gpgPath)
@@ -558,6 +548,9 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 		err = this.procStepReverse()
 	case gogp_step_PRODUCE:
 		err = this.procStepNormal()
+	}
+	if err != nil {
+		fmt.Printf("[gogp] error:[%s:%s step%d] [%s]\n", relateGoPath(this.gpgPath), this.impName, this.step, err.Error())
 	}
 
 	return
