@@ -19,8 +19,6 @@ import (
 
 	"github.com/vipally/cmdline"
 	"github.com/vipally/cpright"
-
-	//xhash "github.com/vipally/gx/hash"
 )
 
 const (
@@ -41,18 +39,16 @@ const (
 
 	//ignore text format like "//#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END"
 	gsExpTxtIgnore = "(?sm:\\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
+
 	// match "//#GOGP_IFDEF cd <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF" case
 	gsExpTxtChoice = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
+
 	//require another gp file, gpg config use current cases
 	// "//#GOGP_REQUIRE(path [, nameSuffix])"
 	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?//#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
-	//"(?://#GOGP_IGNORE_BEGIN //required from\\([[:word:]]+\\).*?//#GOGP_IGNORE_END//required from\\([[:word:]]+\\)[\\r|\\n]*)"
-
-	gFalse = "false"
-	gTrue  = "true"
 
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
 	gLibVersion   = "3.0.0.final"
@@ -74,9 +70,6 @@ var (
 	gSilence            = true  //work silencely
 	gRemoveProductsOnly = false //remove products only
 )
-
-func init() {
-}
 
 type gogp_proc_step int
 
@@ -187,24 +180,6 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 
 	return
 }
-
-// reverse work, gen .gp file from code and .gpg file
-// gpgFilePath must related from GoPath
-//func ReverseWork(gpgFilePath string) (err error) {
-//	defer func() {
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		//fmt.Printf("[gogp]Work(%s) end: gpg=%d code=%d skip=%d\n", relateGoPath(dir), nGpg, nCode, nSkip)
-//	}()
-
-//	var p gopgProcessor
-//	if err = p.reverseWork(gpgFilePath); err != nil {
-//		return
-//	}
-
-//	return
-//}
 
 //get version of this gogp lib
 func Version() string {
