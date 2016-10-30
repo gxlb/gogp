@@ -121,7 +121,6 @@ type gopgProcessor struct {
 func (this *gopgProcessor) getCodeFileSuffix() (r string) {
 	if v := this.gpgContent.GetString(this.impName, "KEY_TYPE", ""); v != "" {
 		l := strings.ToLower(v)
-		l = strings.Replace(l, "*", "#", -1)
 		if l != v {
 			l = fmt.Sprintf("%s%s", l, get_hash(v))
 		}
@@ -129,7 +128,6 @@ func (this *gopgProcessor) getCodeFileSuffix() (r string) {
 	}
 	if v := this.gpgContent.GetString(this.impName, "VALUE_TYPE", ""); v != "" {
 		l := strings.ToLower(v)
-		l = strings.Replace(l, "*", "#", -1)
 		if l != v {
 			l = fmt.Sprintf("%s%s", l, get_hash(v))
 		}
@@ -141,7 +139,10 @@ func (this *gopgProcessor) getCodeFileSuffix() (r string) {
 	}
 	if r == "" {
 		r = this.impName
+	} else {
+		r = strings.Replace(r, "*", "#", -1)
 	}
+
 	return
 }
 
