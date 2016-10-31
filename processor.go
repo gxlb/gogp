@@ -259,7 +259,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 
 	if gpContent, err = this.rawLoadFile(gpFullPath); err == nil {
 		replacedGp := ""
-		if replacedGp, err = this.doGpReplace(gpContent, nDepth); err == nil {
+		if replacedGp, err = this.doGpReplace(gpFullPath, gpContent, nDepth); err == nil {
 			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
 				replaced = true
@@ -438,13 +438,16 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 	return gpPath
 }
 
-func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replacedGp string, err error) {
+func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int) (replacedGp string, err error) {
+	_path = fmt.Sprintf("%s|%s", _path, filepath.Dir(this.gpgPath)) //gp file+gpg path=unique
+	fmt.Println(_path)
+
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, nameSuffix])"
 	replacedGp = gGogpExpPretreatAll.ReplaceAllStringFunc(content, func(src string) (rep string) {
-		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQH", "REQP", "REQN", "CONDK", "T", "F","GPGCFG"}
-		ignore, req, reqh, reqp, reqn, condk, t, f, gpgcfg := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9]
+		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQH", "REQP", "REQN", "CONDK", "T", "F","GPGCFG","ONCE"}
+		ignore, req, reqh, reqp, reqn, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
 		switch {
 		case ignore != "":
 			rep = "\n\n"
@@ -465,6 +468,12 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replacedGp s
 			req, reqh, reqn = req, reqn, reqh //never use
 		case gpgcfg != "":
 			rep = this.gpgContent.GetString(this.impName, gpgcfg, "")
+		case once != "":
+			if _, ok := gOnceMap[_path]; ok { //check if has processed this file
+				rep = "\n\n"
+			} else {
+				rep = fmt.Sprintf("\n\n%s\n\n", once)
+			}
 
 		default:
 			fmt.Println("error:[gogp]invalid predef statement", src)
@@ -493,6 +502,8 @@ func (this *gopgProcessor) doGpReplace(content string, nDepth int) (replacedGp s
 		err = fmt.Errorf(s)
 	}
 
+	gOnceMap[_path] = true //record processed gp file
+
 	return
 }
 
@@ -514,7 +525,7 @@ func (this *gopgProcessor) procStepNormal() (err error) {
 		}
 
 		replacedGp := ""
-		if replacedGp, err = this.doGpReplace(this.gpContent, 0); err != nil {
+		if replacedGp, err = this.doGpReplace(this.gpPath, this.gpContent, 0); err != nil {
 			return
 		}
 

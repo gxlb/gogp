@@ -52,13 +52,16 @@ const (
 	gsExpTxtGetGpgCfg     = "(?-sm:#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
 
+	//#GOGP_ONCE ... //#GOGP_END_ONCE
+	gsExpTxtOnce = "(?sm:\\s*//#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
+
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
 	gLibVersion   = "3.0.0.final"
 )
 
 var (
 	gGogpExpReplace       = regexp.MustCompile(gsExpTxtReplace)
-	gGogpExpPretreatAll   = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg))
+	gGogpExpPretreatAll   = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce))
 	gGogpExpIgnore        = regexp.MustCompile(gsExpTxtIgnore)
 	gGogpExpEmptyLine     = regexp.MustCompile(gsExpTxtEmptyLine)
 	gGogpExpRequire       = regexp.MustCompile(gsExpTxtRequire)
@@ -71,6 +74,8 @@ var (
 	gForceUpdate        = false //force update all products
 	gSilence            = true  //work silencely
 	gRemoveProductsOnly = false //remove products only
+
+	gOnceMap map[string]bool //record once processed files
 )
 
 type gogp_proc_step int
@@ -96,6 +101,7 @@ func init() {
 	if ss := strings.Split(s, ";"); ss != nil && len(ss) > 0 {
 		gGoPath = formatPath(ss[0]) + "/src/"
 	}
+	gOnceMap = make(map[string]bool)
 }
 
 // enable/disable work mode RemoveProductsOnly.
