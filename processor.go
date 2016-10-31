@@ -440,7 +440,6 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 
 func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int) (replacedGp string, err error) {
 	_path = fmt.Sprintf("%s|%s", _path, filepath.Dir(this.gpgPath)) //gp file+gpg path=unique
-	fmt.Println(_path)
 
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
