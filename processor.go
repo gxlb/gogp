@@ -308,9 +308,14 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 						reqResult := fmt.Sprintf(gsTxtRequireResultFmt, reqp, "$CONTENT", reqp)
 						out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
 						replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
+						content := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$CONTENT")
 
 						rep = goFmt(replacedGp, this.gpPath)
-						replaced = rep != statement
+						replaced = !strings.Contains(rep, content) //check if content changed
+						//						if replaced {
+						//							fmt.Printf("\n%#v\n%#v\n", rep, statement)
+						//						}
+
 					} else {
 						rep = "\n\n"
 						replaced = true
