@@ -115,6 +115,7 @@ type gopgProcessor struct {
 	codeContent       string
 	impName           string
 	step              gogp_proc_step
+	kvset             replaceList //cases that need replacing
 }
 
 //get file suffix of code file
@@ -248,8 +249,8 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 		panic(fmt.Sprintf("[%s:%s]maybe loop recursive of #GOGP_REQUIRE(...), %d", relateGoPath(this.gpgPath), this.impName, nDepth))
 	}
 
-	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQH", "REQP", "REQN",}
-	req, reqh, reqp, reqn := elem[1], elem[2], elem[3], elem[4]
+	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQH", "REQP", "REQN","REQT"}
+	req, reqh, reqp, reqn, reqt := elem[1], elem[2], elem[3], elem[4], elem[5]
 
 	reqh = reqh //never use
 
@@ -305,6 +306,26 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 					if nDepth == 0 { //do not let require recursive
 						replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 						replacedGp = strings.Replace(replacedGp, "import", "//import", -1)
+						if reqt != "" {
+							this.kvset.clear()
+							rs := strings.Split(reqt, "|")
+							fmt.Println(reqt)
+							for _, v := range rs {
+								rp := strings.Split(v, ":")
+								this.kvset.insert(rp[0], rp[1], false)
+							}
+							exp := this.kvset.expString()
+							reg := regexp.MustCompile(exp)
+							replacedGp = reg.ReplaceAllStringFunc(replacedGp, func(src string) (rep string) {
+								if v, ok := this.kvset.getMatch(src); ok {
+									rep = v
+								} else {
+									this.reportNoReplacing(src, this.gpPath)
+									rep = src
+								}
+								return
+							})
+						}
 						//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
 						reqResult := fmt.Sprintf(gsTxtRequireResultFmt, reqp, "$CONTENT", reqp)
 						out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
@@ -313,9 +334,9 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 
 						rep = goFmt(replacedGp, this.gpPath)
 						replaced = !strings.Contains(rep, content) //check if content changed
-						//						if replaced {
-						//							fmt.Printf("\n%#v\n%#v\n", rep, statement)
-						//						}
+						//if replaced {
+						//	fmt.Printf("\n%#v\n%#v\n", rep, statement)
+						//}
 
 					} else {
 						rep = "\n\n"
@@ -452,7 +473,7 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int) (repla
 	// "//#GOGP_REQUIRE(path [, nameSuffix])"
 	replacedGp = gGogpExpPretreatAll.ReplaceAllStringFunc(content, func(src string) (rep string) {
 		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQH", "REQP", "REQN", "CONDK", "T", "F","GPGCFG","ONCE"}
-		ignore, req, reqh, reqp, reqn, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
+		ignore, req, reqh, reqp, reqn, reqt, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11]
 		switch {
 		case ignore != "":
 			rep = "\n\n"
@@ -470,7 +491,7 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int) (repla
 			} else {
 				fmt.Println(err)
 			}
-			req, reqh, reqn = req, reqn, reqh //never use
+			req, reqh, reqn, reqt = req, reqh, reqn, reqt //never use
 		case gpgcfg != "":
 			rep = this.gpgContent.GetString(this.impName, gpgcfg, "")
 		case once != "":

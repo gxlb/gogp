@@ -45,7 +45,7 @@ const (
 
 	//require another gp file, gpg config use current cases
 	// "//#GOGP_REQUIRE(path [, nameSuffix])"
-	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?//#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
+	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?,[ |\\t]*?(?P<REQT>[^ \\t,]+))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?//#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 	//gpgCfg() string
