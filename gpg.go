@@ -52,7 +52,7 @@ const (
 	gsExpTxtGetGpgCfg     = "(?-sm:#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
 
-	//#GOGP_ONCE ... //#GOGP_END_ONCE
+	//"//#GOGP_ONCE ... //#GOGP_END_ONCE"
 	gsExpTxtOnce = "(?sm:\\s*//#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
 
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
