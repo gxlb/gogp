@@ -304,6 +304,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 				} else {
 					if nDepth == 0 { //do not let require recursive
 						replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
+						replacedGp = strings.Replace(replacedGp, "import", "//import", -1)
 						//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
 						reqResult := fmt.Sprintf(gsTxtRequireResultFmt, reqp, "$CONTENT", reqp)
 						out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)

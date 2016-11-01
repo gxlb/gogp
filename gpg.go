@@ -239,6 +239,7 @@ func get_hash(s string) string {
 func goFmt(s, file string) (r string) {
 	if b, e := format.Source([]byte(s)); e != nil {
 		fmt.Println(relateGoPath(file), e)
+		r = s
 		return
 	} else {
 		r = string(b)
