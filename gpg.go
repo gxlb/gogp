@@ -49,7 +49,9 @@ const (
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 	//gpgCfg() string
-	gsExpTxtGetGpgCfg     = "(?-sm:#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
+	gsExpTxtGetGpgCfg = "(?-sm:#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
+
+	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
 	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
 
 	//"//#GOGP_ONCE ... //#GOGP_END_ONCE"
@@ -239,7 +241,7 @@ func get_hash(s string) string {
 func goFmt(s, file string) (r string) {
 	if b, e := format.Source([]byte(s)); e != nil {
 		fmt.Println(relateGoPath(file), e)
-		return
+		r = s
 	} else {
 		r = string(b)
 	}
