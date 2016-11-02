@@ -100,6 +100,31 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
           So run gogp tool any times on GoPath is harmless, unless there are indeed changes.
           So any manually modification will be restored by this tool.
           Take care of that.
+		
+		5. Predefined
+			gpg file
+			"GOGP_xxx" format keys are reserved by gogp tool, who will not be replaced
+			"GOGP_Ignore"      		//ignore this section
+			"GOGP_CodeFileName"		//code file name part
+			"GOGP_GpFilePathName" 	//gp file path and name
+			"KEY_TYPE"         		//key_type
+			"VALUE_TYPE"       		//value_type
+			
+			some predefined gogp grammar
+			ignore all text format:
+			//#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
+			
+			select by condition <cd> defines in gpg file:
+			//#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
+			
+			require another gp file:
+			//#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
+			
+			get gpgp config string:
+			#GOGP_GPGCFG(<cfgName>)
+			
+			generate <content> once from a gp file:
+			//#GOGP_ONCE <content> //#GOGP_END_ONCE
 
 ----		
 ## More gogp details:

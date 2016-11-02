@@ -29,32 +29,36 @@ const (
 	gSectionReverse   = "GOGP_REVERSE" //gpg section prefix that for gogp reverse only
 	gSectionIgnore    = "GOGP_IGNORE"  //gpg section prefix that for gogp never process
 
-	gKeyReservePrefix  = "<GOGP_"           //reserved key, who will not use repalce action
-	grawKeyIgnore      = "GOGP_Ignore"      //ignore this section
-	grawKeyProductName = "GOGP_ProductName" //product name part
-	grawKeySrcPathName = "GOGP_SrcPathName" //source file path and name
-	grawKeyKeyType     = "KEY_TYPE"         //key_type
-	grawKeyValueType   = "VALUE_TYPE"       //value_type
+	gKeyReservePrefix  = "<GOGP_"              //reserved key, who will not use repalce action
+	grawKeyIgnore      = "GOGP_Ignore"         //ignore this section
+	grawKeyProductName = "GOGP_CodeFileName"   //code file name part
+	grawKeySrcPathName = "GOGP_GpFilePathName" //gp file path and name
+	grawKeyKeyType     = "KEY_TYPE"            //key_type
+	grawKeyValueType   = "VALUE_TYPE"          //value_type
 
 	//generic-programming flag <XXX>
 	gsExpTxtReplace = `\<[[:alpha:]][[:word:]]*\>`
 
-	//ignore text format like "//#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END"
+	// ignore all text format:
+	// //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
 	gsExpTxtIgnore = "(?sm:\\s*(?://)?#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
 
-	// match "//#GOGP_IFDEF cd <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF" case
+	// select by condition <cd> defines in gpg file:
+	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
 	gsExpTxtChoice = "(?sm:\\s*(?://)?#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
 
-	//require another gp file, gpg config use current cases
-	// "//#GOGP_REQUIRE(path [, gpgSection])"
+	// require another gp file:
+	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
 	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?(?://)?#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 
-	//gpgCfg() string
+	// get gpgp config string:
+	// #GOGP_GPGCFG(<cfgName>)
 	gsExpTxtGetGpgCfg = "(?-sm:(?://)?#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 
-	//"//#GOGP_ONCE ... //#GOGP_END_ONCE"
+	// generate <content> once from a gp file:
+	// //#GOGP_ONCE <content> //#GOGP_END_ONCE
 	gsExpTxtOnce = "(?sm:\\s*(?://)?#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
 
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
