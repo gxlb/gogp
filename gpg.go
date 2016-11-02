@@ -30,10 +30,11 @@ const (
 	gSectionIgnore    = "GOGP_IGNORE"  //gpg section prefix that for gogp never process
 
 	//key that set a gp name in a reverse process, and code suffix in normal work
-	grawKeyName        = "GOGP_Name"
-	grawKeyGpFilePath  = "GOGP_GpFilePath"  //read gp file from another path
+	//grawKeyName        = "GOGP_Name"
+	//grawKeyGpFilePath  = "GOGP_GpFilePath"  //read gp file from another path
 	grawKeyIgnore      = "GOGP_Ignore"      //ignore this section
 	grawKeyProductName = "GOGP_ProductName" //product name part
+	grawKeySrcPathName = "GOGP_SrcPathName" //source file path and name
 	gKeyReservePrefix  = "<GOGP_"           //reserved key,do not use repalce action
 
 	//generic-programming flag <XXX>

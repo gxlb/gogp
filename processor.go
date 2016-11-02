@@ -179,10 +179,10 @@ func (this *gopgProcessor) reportNoReplacing(key, gpfile string) {
 
 //if has set key GOGP_Name, use it, else use section name
 func (this *gopgProcessor) getGpName() (r string) {
-	if name := this.gpgContent.GetString(this.impName, grawKeyName, ""); name != "" {
-		r = strings.TrimSuffix(name, gGpgExt)
+	if name := this.gpgContent.GetString(this.impName, grawKeySrcPathName, ""); name != "" {
+		r = strings.TrimSuffix(filepath.Base(name), gGpgExt)
 	} else {
-		r = strings.TrimSuffix(filepath.Base(this.gpgPath), gGpgExt)
+		fmt.Printf("error:[gogp]missing %s in %s:%s\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
 	}
 	return
 }
@@ -485,7 +485,7 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 	gpPath := ""
 	gpgDir := filepath.Dir(this.gpgPath)
 	if "" == gp {
-		gp = this.gpgContent.GetString(this.impName, grawKeyGpFilePath, "") //read gp file from another path or name
+		gp = this.gpgContent.GetString(this.impName, grawKeySrcPathName, "") //read gp file from another path or name
 	}
 	if gp != "" { //read gp file from another path or name
 		if !strings.HasPrefix(gp, gGpExt) {
@@ -497,7 +497,7 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 			gpPath = filepath.Join(gGoPath, gp)
 		}
 	} else {
-		fmt.Printf("error:[gogp]missing %s in %s:%s\n", grawKeyGpFilePath, relateGoPath(this.gpgPath), this.impName)
+		fmt.Printf("error:[gogp]missing %s in %s:%s\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
 	}
 	return gpPath
 }
