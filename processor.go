@@ -228,16 +228,6 @@ func (this *gopgProcessor) loadGpgFile(file string) (err error) {
 	return
 }
 
-//if has set key GOGP_Name, use it, else use section name
-//func (this *gopgProcessor) getCodeSuffix() (r string) {
-//	if name := this.gpgContent.GetString(this.impName, grawKeyName, ""); name != "" {
-//		r = name
-//	} else {
-//		r = this.impName
-//	}
-//	return
-//}
-
 func (this *gopgProcessor) getReplist(second bool) *replaceList {
 	pmatch := &this.matches
 	if second {
@@ -267,21 +257,6 @@ func (this *gopgProcessor) buildMatches(section string, reverse, second bool) (o
 	}
 	return
 }
-
-//func (this *gopgProcessor) buildMatches(reverse bool) (ok bool) {
-//	this.matches.clear() //clear matches
-//	this.nNoReplaceMathNum = 0
-//	if replaceList := this.gpgContent.Keys(this.impName); replaceList != nil {
-//		//make replace map
-//		for _, key := range replaceList {
-//			replace := this.gpgContent.GetString(this.impName, key, "")
-//			match := fmt.Sprintf(gReplaceKeyFmt, key)
-//			this.matches.insert(match, replace, reverse)
-//		}
-//		ok = true
-//	}
-//	return
-//}
 
 func (this *gopgProcessor) rawLoadFile(file string) (content string, err error) {
 	var b []byte
@@ -389,7 +364,6 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 						rep = "\n\n"
 						replaced = true
 					}
-
 					//fmt.Printf("\n%#v\n%#v\n", rep, statement)
 				}
 			}
@@ -415,7 +389,7 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 
 	replcaceCnt := 0
 
-	//match "//#GOGP_REQUIRE(path [, nameSuffix])"
+	//match "//#GOGP_REQUIRE(path [, gpgSection])"
 	replacedCode := gGogpExpRequire.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
 		var err error
 		var replaced bool
@@ -508,7 +482,7 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
-	// "//#GOGP_REQUIRE(path [, nameSuffix])"
+	// "//#GOGP_REQUIRE(path [, gpgSection])"
 	replacedGp = gGogpExpPretreatAll.ReplaceAllStringFunc(content, func(src string) (rep string) {
 		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQH", "REQP", "REQN", "CONDK", "T", "F","GPGCFG","ONCE"}
 		ignore, req, reqh, reqp, reqn, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
@@ -548,16 +522,6 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 	norep := 0
 	replacedGp, norep = replist.doReplacing(replacedGp, _path)
 	this.nNoReplaceMathNum += norep
-	//	replacedGp = gGogpExpReplace.ReplaceAllStringFunc(replacedGp, func(src string) (rep string) {
-	//		if v, ok := this.getMatch(src); ok {
-	//			rep = v
-	//		} else {
-	//			this.reportNoReplacing(src, this.gpPath)
-	//			rep = src
-	//			this.nNoReplaceMathNum++
-	//		}
-	//		return
-	//	})
 
 	//remove more empty line
 	replacedGp = goFmt(replacedGp, this.gpgPath)
@@ -633,11 +597,6 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 	return
 }
 
-//func (this *gopgProcessor) getMatch(key string) (match string, ok bool) {
-//	match, ok = this.matches.getMatch(key)
-//	return
-//}
-
 func (this *gopgProcessor) loadGpFile(file string) (err error) {
 	this.gpContent = ""
 	this.gpPath = file
@@ -652,7 +611,7 @@ func (this *gopgProcessor) loadCodeFile(file string) (err error) {
 	this.codeContent = ""
 	this.codePath = file
 	if this.codeContent, err = this.rawLoadFile(file); err == nil {
-
+		//do nothing
 	}
 	return
 }
@@ -706,9 +665,9 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 			}
 			return
 		} else {
-			//			fmt.Println("[%s]", xhash.MD5.StringHash(this.gpContent))
-			//			fmt.Println("[%s]", xhash.MD5.StringHash(body))
-			//			fmt.Println("[%s]", xhash.MD5.StringHash(strings.TrimSuffix(this.gpContent, body)))
+			//fmt.Println("[%s]", xhash.MD5.StringHash(this.gpContent))
+			//fmt.Println("[%s]", xhash.MD5.StringHash(body))
+			//fmt.Println("[%s]", xhash.MD5.StringHash(strings.TrimSuffix(this.gpContent, body)))
 		}
 	}
 
@@ -743,9 +702,9 @@ func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 		return
 	}
 	if gForceUpdate || !strings.HasSuffix(this.codeContent, body) { //body change then save it,else skip it
-		//		fmt.Printf("[%#v]\n", this.gpContent)
-		//		fmt.Printf("[%#v]\n", this.codeContent)
-		//		fmt.Printf("[%#v]\n", body)
+		//fmt.Printf("[%#v]\n", this.gpContent)
+		//fmt.Printf("[%#v]\n", this.codeContent)
+		//fmt.Printf("[%#v]\n", body)
 
 		var fout *os.File
 		if fout, err = os.OpenFile(this.codePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {

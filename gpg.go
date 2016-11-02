@@ -30,8 +30,6 @@ const (
 	gSectionIgnore    = "GOGP_IGNORE"  //gpg section prefix that for gogp never process
 
 	//key that set a gp name in a reverse process, and code suffix in normal work
-	//grawKeyName        = "GOGP_Name"
-	//grawKeyGpFilePath  = "GOGP_GpFilePath"  //read gp file from another path
 	grawKeyIgnore      = "GOGP_Ignore"      //ignore this section
 	grawKeyProductName = "GOGP_ProductName" //product name part
 	grawKeySrcPathName = "GOGP_SrcPathName" //source file path and name
@@ -47,7 +45,7 @@ const (
 	gsExpTxtChoice = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
 
 	//require another gp file, gpg config use current cases
-	// "//#GOGP_REQUIRE(path [, nameSuffix])"
+	// "//#GOGP_REQUIRE(path [, gpgSection])"
 	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?//#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
