@@ -26,13 +26,15 @@ const (
 	gGpExt            = ".gp"
 	gGpCodeFileSuffix = "gp"
 	gReplaceKeyFmt    = "<%s>"
-	gSectionReverse   = "GOGP_REVERSE" //gpg section that for gogp reverse only
-	gSectionIgnore    = "GOGP_IGNORE"  //gpg section that for gogp never process
+	gSectionReverse   = "GOGP_REVERSE" //gpg section prefix that for gogp reverse only
+	gSectionIgnore    = "GOGP_IGNORE"  //gpg section prefix that for gogp never process
 
 	//key that set a gp name in a reverse process, and code suffix in normal work
-	grawKeyName       = "GOGP_Name"
-	grawKeyGpFilePath = "GOGP_GpFilePath" //read gp file from another path
-	gKeyReservePrefix = "<GOGP_"          //reserved key,do not use repalce action
+	grawKeyName        = "GOGP_Name"
+	grawKeyGpFilePath  = "GOGP_GpFilePath"  //read gp file from another path
+	grawKeyIgnore      = "GOGP_Ignore"      //ignore this section
+	grawKeyProductName = "GOGP_ProductName" //product name part
+	gKeyReservePrefix  = "<GOGP_"           //reserved key,do not use repalce action
 
 	//generic-programming flag <XXX>
 	gsExpTxtReplace = `\<[[:alpha:]][[:word:]]{0,}\>`
