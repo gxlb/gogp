@@ -101,10 +101,12 @@ func (this *replaceList) expString() (exp string) {
 	return exp
 }
 
-func (this *replaceList) doReplacing(content, _path string) (rep string, noRep int) {
-	exp := this.expString()
-	reg := regexp.MustCompile(exp)
-
+func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep string, noRep int) {
+	reg := gGogpExpReplace
+	if reverse {
+		exp := this.expString()
+		reg = regexp.MustCompile(exp)
+	}
 	rep = reg.ReplaceAllStringFunc(content, func(src string) (r string) {
 		if v, ok := this.getMatch(src); ok {
 			r = v
@@ -312,7 +314,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 
 	if gpContent, err = this.rawLoadFile(gpFullPath); err == nil {
 		replacedGp := ""
-		this.buildMatches(replaceSection, this.step.IsReverse(), true)
+		this.buildMatches(replaceSection, false, true)
 		if replacedGp, err = this.doGpReplace(gpFullPath, gpContent, nDepth, true); err == nil {
 			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
@@ -444,7 +446,7 @@ func (this *gopgProcessor) procStepReverse() (err error) {
 
 	if this.buildMatches(this.impName, true, false) {
 		this.matches.sort()
-		replacedCode, norep := this.matches.doReplacing(this.codeContent, this.codePath)
+		replacedCode, norep := this.matches.doReplacing(this.codeContent, this.codePath, true)
 		this.nNoReplaceMathNum += norep
 
 		replacedCode = gGogpExpEmptyLine.ReplaceAllString(replacedCode, "\n\n") //avoid multi empty lines
@@ -529,7 +531,7 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 
 	//gen code file content
 	norep := 0
-	replacedGp, norep = replist.doReplacing(replacedGp, _path)
+	replacedGp, norep = replist.doReplacing(replacedGp, _path, false)
 	this.nNoReplaceMathNum += norep
 
 	//remove more empty line
