@@ -53,11 +53,11 @@ const (
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 
-	// get gpgp config string:
+	// get gpg config string:
 	// #GOGP_GPGCFG(<cfgName>)
 	gsExpTxtGetGpgCfg = "(?-sm:(?://)?#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 
-	// generate <content> once from a gp file:
+	// only generate <content> once from a gp file:
 	// //#GOGP_ONCE <content> //#GOGP_END_ONCE
 	gsExpTxtOnce = "(?sm:\\s*(?://)?#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
 
