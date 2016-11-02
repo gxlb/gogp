@@ -107,6 +107,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 			"GOGP_IGNORE"			//gpg section prefix that for gogp never process
 			"GOGP_xxx" 				//format keys are reserved by gogp tool, who will not be replaced
 			"GOGP_Ignore"      		//ignore this section
+			"GOGP_DontSave"       	//do not save
 			"GOGP_CodeFileName"		//code file name part
 			"GOGP_GpFilePathName" 	//gp file path and name
 			"KEY_TYPE"         		//key_type
