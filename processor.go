@@ -104,6 +104,7 @@ func (this *replaceList) expString() (exp string) {
 func (this *replaceList) doReplacing(content, _path string) (rep string, noRep int) {
 	exp := this.expString()
 	reg := regexp.MustCompile(exp)
+
 	rep = reg.ReplaceAllStringFunc(content, func(src string) (r string) {
 		if v, ok := this.getMatch(src); ok {
 			r = v
@@ -115,6 +116,7 @@ func (this *replaceList) doReplacing(content, _path string) (rep string, noRep i
 		}
 		return
 	})
+
 	return
 }
 
@@ -182,6 +184,7 @@ func (this *gopgProcessor) getGpName() (r string) {
 	if name := this.gpgContent.GetString(this.impName, grawKeySrcPathName, ""); name != "" {
 		r = strings.TrimSuffix(filepath.Base(name), gGpgExt)
 	} else {
+		r = "missing"
 		fmt.Printf("error:[gogp]missing %s in %s:%s\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
 	}
 	return
@@ -297,10 +300,8 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 		panic(fmt.Sprintf("[%s:%s]maybe loop recursive of #GOGP_REQUIRE(...), %d", relateGoPath(this.gpgPath), this.impName, nDepth))
 	}
 
-	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQH", "REQP", "REQN"}
-	req, reqh, reqp, reqn := elem[1], elem[2], elem[3], elem[4]
-
-	reqh = reqh //never use
+	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQP", "REQN"}
+	req, reqp, reqn := elem[1], elem[2], elem[3]
 
 	replaceSection := reqn
 	if replaceSection == "" || replaceSection == "_" {
@@ -311,7 +312,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 
 	if gpContent, err = this.rawLoadFile(gpFullPath); err == nil {
 		replacedGp := ""
-		this.buildMatches(replaceSection, false, true)
+		this.buildMatches(replaceSection, this.step.IsReverse(), true)
 		if replacedGp, err = this.doGpReplace(gpFullPath, gpContent, nDepth, true); err == nil {
 			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
@@ -492,8 +493,8 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
 	replacedGp = gGogpExpPretreatAll.ReplaceAllStringFunc(content, func(src string) (rep string) {
-		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQH", "REQP", "REQN", "CONDK", "T", "F","GPGCFG","ONCE"}
-		ignore, req, reqh, reqp, reqn, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
+		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "CONDK", "T", "F","GPGCFG","ONCE"}
+		ignore, req, reqp, reqn, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9]
 		switch {
 		case ignore != "":
 			rep = "\n\n"
@@ -511,7 +512,7 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 			} else {
 				fmt.Println(err)
 			}
-			req, reqh, reqn = req, reqh, reqn //never use
+			req, reqn = req, reqn //never use
 		case gpgcfg != "":
 			rep = this.gpgContent.GetString(replist.sectionName, gpgcfg, "")
 		case once != "":

@@ -29,13 +29,13 @@ const (
 	gSectionReverse   = "GOGP_REVERSE" //gpg section prefix that for gogp reverse only
 	gSectionIgnore    = "GOGP_IGNORE"  //gpg section prefix that for gogp never process
 
-	gKeyReservePrefix  = "<GOGP_"              //reserved key, who will not use repalce action
-	grawKeyIgnore      = "GOGP_Ignore"         //ignore this section
-	grawKeyProductName = "GOGP_CodeFileName"   //code file name part
-	grawKeySrcPathName = "GOGP_GpFilePathName" //gp file path and name
-	grawKeyDontSave    = "GOGP_DontSave"       //do not save
-	grawKeyKeyType     = "KEY_TYPE"            //key_type
-	grawKeyValueType   = "VALUE_TYPE"          //value_type
+	gKeyReservePrefix  = "<GOGP_"            //reserved key, who will not use repalce action
+	grawKeyIgnore      = "GOGP_Ignore"       //ignore this section
+	grawKeyProductName = "GOGP_CodeFileName" //code file name part
+	grawKeySrcPathName = "GOGP_GpFilePath"   //gp file path and name
+	grawKeyDontSave    = "GOGP_DontSave"     //do not save
+	grawKeyKeyType     = "KEY_TYPE"          //key_type
+	grawKeyValueType   = "VALUE_TYPE"        //value_type
 
 	//generic-programming flag <XXX>
 	gsExpTxtReplace = `\<[[:alpha:]][[:word:]]*\>`
