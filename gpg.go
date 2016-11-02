@@ -29,14 +29,15 @@ const (
 	gSectionReverse   = "GOGP_REVERSE" //gpg section prefix that for gogp reverse only
 	gSectionIgnore    = "GOGP_IGNORE"  //gpg section prefix that for gogp never process
 
-	//key that set a gp name in a reverse process, and code suffix in normal work
+	gKeyReservePrefix  = "<GOGP_"           //reserved key, who will not use repalce action
 	grawKeyIgnore      = "GOGP_Ignore"      //ignore this section
 	grawKeyProductName = "GOGP_ProductName" //product name part
 	grawKeySrcPathName = "GOGP_SrcPathName" //source file path and name
-	gKeyReservePrefix  = "<GOGP_"           //reserved key,do not use repalce action
+	grawKeyKeyType     = "KEY_TYPE"         //key_type
+	grawKeyValueType   = "VALUE_TYPE"       //value_type
 
 	//generic-programming flag <XXX>
-	gsExpTxtReplace = `\<[[:alpha:]][[:word:]]{0,}\>`
+	gsExpTxtReplace = `\<[[:alpha:]][[:word:]]*\>`
 
 	//ignore text format like "//#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END"
 	gsExpTxtIgnore = "(?sm:\\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
@@ -49,14 +50,15 @@ const (
 	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*//(?P<REQH>#{1,2})GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?//#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
+
 	//gpgCfg() string
 	gsExpTxtGetGpgCfg = "(?-sm:#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 
-	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
-	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
-
 	//"//#GOGP_ONCE ... //#GOGP_END_ONCE"
 	gsExpTxtOnce = "(?sm:\\s*//#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
+
+	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
+	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
 
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
 	gLibVersion   = "3.0.0.final"

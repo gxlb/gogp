@@ -128,12 +128,12 @@ type gopgProcessor struct {
 	nNoReplaceMathNum int //number of math that has no replace string
 	nCodeFile         int
 	nSkipCodeFile     int
-	gpgContent        *ini.IniFile
+	gpgContent        *ini.IniFile //gpg file content
 	gpContent         string
 	codeContent       string
-	impName           string
-	step              gogp_proc_step
-	matches2          replaceList //cases that need replacing
+	impName           string         //current gpg section name
+	step              gogp_proc_step //current processing step
+	matches2          replaceList    //cases that need replacing, secondary
 }
 
 //get file suffix of code file
@@ -141,17 +141,17 @@ func (this *gopgProcessor) getCodeFileSuffix(section string) (r string) {
 	if section == "" {
 		section = this.impName
 	}
-	if v := this.gpgContent.GetString(section, "GOGP_ProductName", ""); v != "" {
+	if v := this.gpgContent.GetString(section, grawKeyProductName, ""); v != "" {
 		r = v
 	} else {
-		if v := this.gpgContent.GetString(section, "KEY_TYPE", ""); v != "" {
+		if v := this.gpgContent.GetString(section, grawKeyKeyType, ""); v != "" {
 			l := strings.ToLower(v)
 			if l != v {
 				l = fmt.Sprintf("%s%s", l, get_hash(v))
 			}
 			r = l
 		}
-		if v := this.gpgContent.GetString(section, "VALUE_TYPE", ""); v != "" {
+		if v := this.gpgContent.GetString(section, grawKeyValueType, ""); v != "" {
 			l := strings.ToLower(v)
 			if l != v {
 				l = fmt.Sprintf("%s%s", l, get_hash(v))
@@ -187,6 +187,7 @@ func (this *gopgProcessor) getGpName() (r string) {
 	return
 }
 
+//check if a section is a valid task of step
 func (this *gopgProcessor) isValidSection(section string, step gogp_proc_step) (ok bool) {
 	if !strings.HasPrefix(section, gSectionIgnore) { //not an ignore section
 		if checkReverse := strings.HasPrefix(section, gSectionReverse); checkReverse == step.IsReverse() { //if a proper section
