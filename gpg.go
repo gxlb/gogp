@@ -33,6 +33,7 @@ const (
 	grawKeyIgnore      = "GOGP_Ignore"         //ignore this section
 	grawKeyProductName = "GOGP_CodeFileName"   //code file name part
 	grawKeySrcPathName = "GOGP_GpFilePathName" //gp file path and name
+	grawKeyDontSave    = "GOGP_DontSave"       //do not save
 	grawKeyKeyType     = "KEY_TYPE"            //key_type
 	grawKeyValueType   = "VALUE_TYPE"          //value_type
 

@@ -187,11 +187,18 @@ func (this *gopgProcessor) getGpName() (r string) {
 	return
 }
 
+func (this *gopgProcessor) checkGpgCfg(section, key string) (ok bool) {
+	if v := this.gpgContent.GetString(section, key, ""); v == "true" || v == "1" { //if has ignore key
+		ok = true
+	}
+	return
+}
+
 //check if a section is a valid task of step
 func (this *gopgProcessor) isValidSection(section string, step gogp_proc_step) (ok bool) {
 	if !strings.HasPrefix(section, gSectionIgnore) { //not an ignore section
 		if checkReverse := strings.HasPrefix(section, gSectionReverse); checkReverse == step.IsReverse() { //if a proper section
-			if v := this.gpgContent.GetString(section, grawKeyIgnore, ""); v != "true" && v != "1" { //if has ignore key
+			if !this.checkGpgCfg(section, grawKeyIgnore) { //if has ignore key
 				ok = true
 			}
 		}
@@ -309,7 +316,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
 				replaced = true
-				if reqn != "_" { //reqn=="_" will not generate this code file
+				if reqn != "_" && !this.checkGpgCfg(replaceSection, grawKeyDontSave) { //reqn=="_" will not generate this code file
 					codeFileSuffix := this.getCodeFileSuffix(replaceSection)
 
 					gpgDir := filepath.Dir(this.gpgPath)
