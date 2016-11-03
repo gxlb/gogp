@@ -193,7 +193,7 @@ func (this *gopgProcessor) getGpName() (r string) {
 }
 
 func (this *gopgProcessor) checkGpgCfg(section, key string) (ok bool) {
-	if v := this.gpgContent.GetString(section, key, ""); v == "true" || v == "1" { //if has ignore key
+	if v := this.gpgContent.GetString(section, key, ""); v != "" && v != "false" && v != "0" {
 		ok = true
 	}
 	return
@@ -581,7 +581,7 @@ func (this *gopgProcessor) procStepNormal() (err error) {
 func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 	if 0 == id && !gSilence {
 		if this.step.IsReverse() {
-			fmt.Printf("[gogp]ReverseWork %d:[%s]\n", this.step, relateGoPath(this.gpgPath))
+			fmt.Printf(">[gogp]ReverseWork %d:[%s]\n", this.step, relateGoPath(this.gpgPath))
 		} else {
 			fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(this.gpgPath))
 		}
@@ -592,6 +592,10 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 	}
 
 	this.impName = impName
+
+	if !gSilence {
+		fmt.Printf(">[gogp] step%d [%s:%s] \n", this.step, relateGoPath(this.gpgPath), this.impName)
+	}
 
 	switch this.step {
 	case gogp_step_REQUIRE:
