@@ -107,6 +107,13 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 		exp := this.expString()
 		reg = regexp.MustCompile(exp)
 	}
+	//	if gDebug {
+	//		if this.sectionName == "tree_sort_slice" {
+	//			for i, v := range this.list {
+	//				fmt.Printf("%d %#v\n", i, v)
+	//			}
+	//		}
+	//	}
 	rep = reg.ReplaceAllStringFunc(content, func(src string) (r string) {
 		if v, ok := this.getMatch(src); ok {
 			r = v
@@ -318,8 +325,7 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 
 	if gpContent, err = this.rawLoadFile(gpFullPath); err == nil {
 		replacedGp := ""
-		this.buildMatches(replaceSection, false, true)
-		if replacedGp, err = this.doGpReplace(gpFullPath, gpContent, nDepth, true); err == nil {
+		if replacedGp, err = this.doGpReplace(gpFullPath, gpContent, replaceSection, nDepth, true); err == nil {
 			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
 				replaced = true
@@ -496,8 +502,7 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 	return gpPath
 }
 
-func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second bool) (replacedGp string, err error) {
-	replist := this.getReplist(second)
+func (this *gopgProcessor) doGpReplace(_path, content, section string, nDepth int, second bool) (replacedGp string, err error) {
 	_path = fmt.Sprintf("%s|%s", _path, filepath.Dir(this.gpgPath)) //gp file+gpg path=unique
 
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
@@ -510,7 +515,7 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 		case ignore != "":
 			rep = "\n\n"
 		case condk != "":
-			cfg := this.gpgContent.GetString(replist.sectionName, condk, "")
+			cfg := this.gpgContent.GetString(section, condk, "")
 			if cfg == "" || cfg == "false" || cfg == "0" {
 				rep = fmt.Sprintf("\n\n%s\n\n", f)
 			} else {
@@ -525,7 +530,7 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 			}
 			req, reqn = req, reqn //never use
 		case gpgcfg != "":
-			rep = this.gpgContent.GetString(replist.sectionName, gpgcfg, "")
+			rep = this.gpgContent.GetString(section, gpgcfg, "")
 		case once != "":
 			if _, ok := gOnceMap[_path]; ok { //check if has processed this file
 				rep = "\n\n"
@@ -539,6 +544,8 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 	})
 
 	//gen code file content
+	this.buildMatches(section, false, second)
+	replist := this.getReplist(second)
 	norep := 0
 	replacedGp, norep = replist.doReplacing(replacedGp, _path, false)
 	this.nNoReplaceMathNum += norep
@@ -559,30 +566,29 @@ func (this *gopgProcessor) doGpReplace(_path, content string, nDepth int, second
 
 func (this *gopgProcessor) procStepNormal() (err error) {
 	//normal process
-	if this.buildMatches(this.impName, false, false) {
-		gpPath := this.getGpFullPath("")
-		gpgDir := filepath.Dir(this.gpgPath)
+	gpPath := this.getGpFullPath("")
+	gpgDir := filepath.Dir(this.gpgPath)
 
-		gpName := strings.TrimSuffix(filepath.Base(gpPath), gGpExt)
-		codePath := fmt.Sprintf("%s/%s.%s_%s%s",
-			gpgDir, gpName, gGpCodeFileSuffix, this.getCodeFileSuffix(this.impName), gCodeExt)
+	gpName := strings.TrimSuffix(filepath.Base(gpPath), gGpExt)
+	codePath := fmt.Sprintf("%s/%s.%s_%s%s",
+		gpgDir, gpName, gGpCodeFileSuffix, this.getCodeFileSuffix(this.impName), gCodeExt)
 
-		this.loadCodeFile(codePath) //load code file, ignore error
-		if this.gpPath != gpPath {  //load gp file if needed
-			if err = this.loadGpFile(gpPath); err != nil {
-				return
-			}
-		}
-
-		replacedGp := ""
-		if replacedGp, err = this.doGpReplace(this.gpPath, this.gpContent, 0, false); err != nil {
-			return
-		}
-
-		if err = this.saveCodeFile(replacedGp); err != nil { //save code to file
+	this.loadCodeFile(codePath) //load code file, ignore error
+	if this.gpPath != gpPath {  //load gp file if needed
+		if err = this.loadGpFile(gpPath); err != nil {
 			return
 		}
 	}
+
+	replacedGp := ""
+	if replacedGp, err = this.doGpReplace(this.gpPath, this.gpContent, this.impName, 0, false); err != nil {
+		return
+	}
+
+	if err = this.saveCodeFile(replacedGp); err != nil { //save code to file
+		return
+	}
+
 	return
 }
 
