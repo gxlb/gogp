@@ -86,7 +86,7 @@ var (
 	gRemoveProductsOnly = false //remove products only
 
 	gOnceMap map[string]bool //record once processed files
-	gDebug   false           //debug switch
+	gDebug   = false         //debug switch
 )
 
 type gogp_proc_step int
