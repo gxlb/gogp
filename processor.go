@@ -305,6 +305,10 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQP", "REQN"}
 	req, reqp, reqn := elem[1], elem[2], elem[3]
 
+	if gDebug {
+		fmt.Println(req, reqp, reqn)
+	}
+
 	replaceSection := reqn
 	if replaceSection == "" || replaceSection == "_" {
 		replaceSection = this.impName
