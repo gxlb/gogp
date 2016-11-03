@@ -370,16 +370,18 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 						oldContent := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$CONTENT")
 
 						rep = goFmt(replacedGp, this.gpPath)
-						replaced = !strings.Contains(rep, oldContent) //check if content changed
-						//if replaced {
-						//	fmt.Printf("\n%#v\n%#v\n", rep, statement)
+						replaced = !strings.Contains(oldContent, "//#GOGP_IGNORE_BEGIN") || !strings.Contains(rep, oldContent) //check if content changed
+						//if !replaced {
+						//	fmt.Printf("\n[%#v]\n[%#v]\n", rep, oldContent)
 						//}
 
 					} else {
 						rep = "\n\n"
 						replaced = true
 					}
-					//fmt.Printf("\n%#v\n%#v\n", rep, statement)
+					//if gDebug {
+					//	fmt.Printf("%#v %d\n%#v\n%#v\n", replaced, nDepth, statement, rep)
+					//}
 				}
 			}
 		}
@@ -388,6 +390,9 @@ func (this *gopgProcessor) procRequireReplacement(statement string, nDepth int) 
 		err = nil
 		rep = statement
 	}
+	//if gDebug {
+	//	//fmt.Printf("%#v %d\n[%#v]\n[%#v]\n", replaced, nDepth, statement, rep)
+	//}
 	return
 }
 
