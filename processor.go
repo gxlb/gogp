@@ -359,12 +359,17 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 						return
 					}
 
+					if _, ok := gSavedCodeFile[codePath]; ok { //skip saved file
+						return
+					}
+
 					oldCode, _ := this.rawLoadFile(codePath)
 
 					if gForceUpdate || !strings.HasSuffix(oldCode, replacedGp) { //body change then save it,else skip it
 						codeContent := this.fileHead(false) + "\n" + replacedGp
 						codeContent = goFmt(codeContent, codePath)
 						if err = this.rawSaveFile(codePath, codeContent); err == nil {
+							gSavedCodeFile[codePath] = true
 							this.nCodeFile++
 							if !gSilence {
 								fmt.Printf(">>[gogp][%s] require ok\n", relateGoPath(codePath))

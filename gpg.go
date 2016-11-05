@@ -85,8 +85,9 @@ var (
 	gSilence            = true  //work silencely
 	gRemoveProductsOnly = false //remove products only
 
-	gOnceMap map[string]bool //record once processed files
-	gDebug   = false         //debug switch
+	gOnceMap       map[string]bool //record once processed files
+	gSavedCodeFile map[string]bool //record saved code files
+	gDebug         = false         //debug switch
 )
 
 type gogp_proc_step int
@@ -113,6 +114,7 @@ func init() {
 		gGoPath = formatPath(ss[0]) + "/src/"
 	}
 	gOnceMap = make(map[string]bool)
+	gSavedCodeFile = make(map[string]bool)
 }
 
 // enable/disable work mode RemoveProductsOnly.
