@@ -56,13 +56,16 @@ type GOGPTreeNamePrefixTreeNode struct {
 //#GOGP_REQUIRE(this_is_required 2.xxx , integer)
 //#GOGP_REQUIRE(this_is_unchtched
 //required3.xxx)
+//#GOGP_REQUIRE(this_is_required4.xxx)
+//#GOGP_REQUIRE(this_is_required5.xxx,section)
+//#GOGP_REQUIRE(this_is_required6.xxx,#GOGP_GPGCFG(cfg))
 
 //#GOGP_IFDEF online_cd online_t1 online_t2 #GOGP_ELSE online_f1 online_f2 #GOGP_ENDIF
 
 ////////////////////////////////
 	
      //#GOGP_IFDEF a //if a
-//#GOGP_REQUIRE(this_is_required3.xxx)
+
 	true1
 
 
@@ -74,6 +77,15 @@ type GOGPTreeNamePrefixTreeNode struct {
 //#GOGP_ENDIF    //end
 
 ////////////////////////////////
+
+//#GOGP_ONCE one-line once #GOGP_END_ONCE
+
+//#GOGP_ONCE 
+	multi-line 
+	once 
+//#GOGP_END_ONCE
+
+//#GOGP_GPGCFG(gpgCfg)
 
 
 //#GOGP_IFDEF a2   //if a2
@@ -89,22 +101,29 @@ type GOGPTreeNamePrefixTreeNode struct {
 	    
 `
 	sCheck := `
-	package stl    
-    
+	package stl       
+       
 import (
 	"sort"
-)    
+)       
 //tree node
 type GOGPTreeNamePrefixTreeNode struct {
 	GOGPTreeNodeData
 	Children GOGPTreeNamePrefixSortSlice
-}this_is_required.xxx    
-this_is_required 2.xxx integer   
+}this_is_required.xxx       
+this_is_required 2.xxx integer      
 //#GOGP_REQUIRE(this_is_unchtched
-//required3.xxx)  online_cd  online_t1 online_t2  online_f1 online_f2
-////////////////////////////////  a //#GOGP_REQUIRE(this_is_required3.xxx)
-	true1  false1
-////////////////////////////////  a2 	true2 
+//required3.xxx)this_is_required4.xxx       
+this_is_required5.xxx section      
+this_is_required6.xxx  cfg     
+   online_cd  online_t1 online_t2  online_f1 online_f2  
+////////////////////////////////   a 	true1  false1  
+////////////////////////////////        one-line once
+        
+	multi-line 
+	once 
+      gpgCfg 
+   a2 	true2   
 ////////////////////////////////
 	    
 `
@@ -116,12 +135,12 @@ this_is_required 2.xxx integer
 	//		}
 	//	}
 
-	tt := gGogpExpPretreatAll.ReplaceAllString(s, "$REQP $REQN $CONDK $T $F\n")
+	tt := gGogpExpPretreatAll.ReplaceAllString(s, "$REQP $REQN $REQGPG $CONDK $T $F $GPGCFG $ONCE\n")
 	if tt != sCheck {
 		t.Errorf("\n%#v\n%#v\n%#v\n", s, sCheck, tt)
 		fmt.Printf("[%s\n]", tt)
+		fmt.Printf("[%#v\n]", gGogpExpPretreatAll.SubexpNames())
 	}
 
-	fmt.Printf("[%#v\n]", gGogpExpPretreatAll.SubexpNames())
 	//fmt.Printf("[%s\n]", gGogpExpPretreatAll.String())
 }
