@@ -366,7 +366,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 					oldCode, _ := this.rawLoadFile(codePath)
 
 					if gForceUpdate || !strings.HasSuffix(oldCode, replacedGp) { //body change then save it,else skip it
-						codeContent := this.fileHead(false) + "\n" + replacedGp
+						codeContent := this.fileHead(gpFullPath, this.gpgPath, replaceSection) + "\n" + replacedGp
 						codeContent = goFmt(codeContent, codePath)
 						if err = this.rawSaveFile(codePath, codeContent); err == nil {
 							gSavedCodeFile[codePath] = true
@@ -679,7 +679,7 @@ func (this *gopgProcessor) getSrcFile(gp bool) string {
 	return this.codePath
 }
 
-func (this *gopgProcessor) fileHead(gp bool) (h string) {
+func (this *gopgProcessor) fileHead(srcFile, gpgFile, section string) (h string) {
 	tool := filepath.ToSlash(filepath.Dir(gThisFilePath))
 	h = fmt.Sprintf(`///////////////////////////////////////////////////////////////////
 //
@@ -697,9 +697,9 @@ func (this *gopgProcessor) fileHead(gp bool) (h string) {
 `,
 		tool,
 		time.Now().Format("Mon Jan 02 2006 15:04:05"),
-		relateGoPath(this.getSrcFile(gp)),
-		relateGoPath(this.gpgPath),
-		this.impName,
+		relateGoPath(srcFile),
+		relateGoPath(gpgFile),
+		section,
 		tool,
 		gCopyRightCode,
 	)
@@ -737,7 +737,7 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	h := fmt.Sprintf(`//#GOGP_IGNORE_BEGIN
 %s//#GOGP_IGNORE_END
 
-`, this.fileHead(false))
+`, this.fileHead(this.codePath, this.gpgPath, this.impName))
 	wt.WriteString(h)
 	wt.WriteString(body)
 	if err = wt.Flush(); err != nil {
@@ -769,7 +769,7 @@ func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 		defer fout.Close()
 		wt := bufio.NewWriter(fout)
 
-		wt.WriteString(this.fileHead(true))
+		wt.WriteString(this.fileHead(this.gpPath, this.gpgPath, this.impName))
 		wt.WriteByte('\n')
 		wt.WriteString(body)
 
