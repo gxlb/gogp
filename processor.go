@@ -154,17 +154,17 @@ func (this *gopgProcessor) getCodeFileSuffix(section string) (r string) {
 	if section == "" {
 		section = this.impName
 	}
-	if v := this.gpgContent.GetString(section, grawKeyProductName, ""); v != "" {
+	if v := this.getGpgCfg(section, grawKeyProductName, false); v != "" {
 		r = v
 	} else {
-		if v := this.gpgContent.GetString(section, grawKeyKeyType, ""); v != "" {
+		if v := this.getGpgCfg(section, grawKeyKeyType, false); v != "" {
 			l := strings.ToLower(v)
 			if l != v {
 				l = fmt.Sprintf("%s%s", l, get_hash(v))
 			}
 			r = l
 		}
-		if v := this.gpgContent.GetString(section, grawKeyValueType, ""); v != "" {
+		if v := this.getGpgCfg(section, grawKeyValueType, false); v != "" {
 			l := strings.ToLower(v)
 			if l != v {
 				l = fmt.Sprintf("%s%s", l, get_hash(v))
@@ -192,7 +192,7 @@ func (this *gopgProcessor) reportNoReplacing(key, gpfile string) {
 
 //if has set key GOGP_Name, use it, else use section name
 func (this *gopgProcessor) getGpName() (r string) {
-	if name := this.gpgContent.GetString(this.impName, grawKeySrcPathName, ""); name != "" {
+	if name := this.getGpgCfg(this.impName, grawKeySrcPathName, true); name != "" {
 		r = strings.TrimSuffix(filepath.Base(name), gGpgExt)
 	} else {
 		r = "missing"
@@ -202,7 +202,7 @@ func (this *gopgProcessor) getGpName() (r string) {
 }
 
 func (this *gopgProcessor) checkGpgCfg(section, key string) (ok bool) {
-	if v := this.gpgContent.GetString(section, key, ""); v != "" && v != "false" && v != "0" {
+	if v := this.getGpgCfg(section, key, false); v != "" && v != "false" && v != "0" {
 		ok = true
 	}
 	return
@@ -273,7 +273,7 @@ func (this *gopgProcessor) buildMatches(section, gpPath string, reverse, second 
 	if replaceList := this.gpgContent.Keys(section); replaceList != nil {
 		//make replace map
 		for _, key := range replaceList {
-			replace := this.gpgContent.GetString(section, key, "")
+			replace := this.getGpgCfg(section, key, false)
 			match := fmt.Sprintf(gReplaceKeyFmt, key)
 			pmatch.insert(match, replace, reverse)
 		}
@@ -304,6 +304,14 @@ func (this *gopgProcessor) rawSaveFile(file, content string) (err error) {
 	return
 }
 
+func (this *gopgProcessor) getGpgCfg(section, key string, warnEmpty bool) (val string) {
+	val = this.gpgContent.GetString(section, key, "")
+	if val == "" && warnEmpty {
+		fmt.Printf("[gogp]warn:[%s:%s] maybe lost key [%s]\n", relateGoPath(this.gpgPath), section, key)
+	}
+	return
+}
+
 //require a gp file, maybe recursive
 func (this *gopgProcessor) procRequireReplacement(statement, section string, nDepth int) (rep string, replaced bool, err error) {
 
@@ -321,7 +329,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 	}
 
 	if reqgpg != "" && reqn == "" { //section name is config from gpg file
-		reqn = this.gpgContent.GetString(section, reqgpg, "")
+		reqn = this.getGpgCfg(section, reqgpg, true)
 	}
 
 	replaceSection := reqn
@@ -493,7 +501,7 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 	gpPath := ""
 	gpgDir := filepath.Dir(this.gpgPath)
 	if "" == gp {
-		gp = this.gpgContent.GetString(this.impName, grawKeySrcPathName, "") //read gp file from another path or name
+		gp = this.getGpgCfg(this.impName, grawKeySrcPathName, false) //read gp file from another path or name
 	}
 	if gp != "" { //read gp file from another path or name
 		if !strings.HasPrefix(gp, gGpExt) {
@@ -521,14 +529,14 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 		ignore, req, reqp, reqn, reqgpg, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
 
 		if reqgpg != "" && reqn == "" { //section name is config from gpg file
-			reqn = this.gpgContent.GetString(section, reqgpg, "")
+			reqn = this.getGpgCfg(section, reqgpg, true)
 		}
 
 		switch {
 		case ignore != "":
 			rep = "\n\n"
 		case condk != "":
-			cfg := this.gpgContent.GetString(section, condk, "")
+			cfg := this.getGpgCfg(section, condk, false)
 			if cfg == "" || cfg == "false" || cfg == "0" {
 				rep = fmt.Sprintf("\n\n%s\n\n", f)
 			} else {
@@ -543,7 +551,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 			}
 			req, reqn = req, reqn //never use
 		case gpgcfg != "":
-			rep = this.gpgContent.GetString(section, gpgcfg, "")
+			rep = this.getGpgCfg(section, gpgcfg, true)
 		case once != "":
 			if _, ok := gOnceMap[_path]; ok { //check if has processed this file
 				rep = "\n\n"
