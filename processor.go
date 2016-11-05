@@ -360,6 +360,9 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 					}
 
 					if _, ok := gSavedCodeFile[codePath]; ok { //skip saved file
+						//						if gDebug {
+						//							fmt.Printf("[gogp]GOGP_ONCE skip %s\n", codePath)
+						//						}
 						return
 					}
 
@@ -585,7 +588,9 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 		err = fmt.Errorf(s)
 	}
 
-	gOnceMap[_path] = true //record processed gp file
+	if this.step == gogp_step_PRODUCE { //prevent gen #GOGP_ONCE code twice when gen code
+		gOnceMap[_path] = true //record processed gp file
+	}
 
 	return
 }
