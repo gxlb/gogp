@@ -50,7 +50,7 @@ const (
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]+))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?(?://)?#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
+	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?P<REQN>[[:word:]]*)|#GOGP_GPGCFG\\((?P<REQGPG>[[:word:]]+)\\))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN //required from\\([^\\n\\r,]*?\\).*?(?://)?#GOGP_IGNORE_END //required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 
@@ -86,7 +86,7 @@ var (
 	gRemoveProductsOnly = false //remove products only
 
 	gOnceMap map[string]bool //record once processed files
-	gDebug   = false         //debug switch
+	gDebug   = true          //debug switch
 )
 
 type gogp_proc_step int

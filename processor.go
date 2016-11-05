@@ -313,11 +313,15 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 		panic(fmt.Sprintf("[%s:%s]maybe loop recursive of #GOGP_REQUIRE(...), %d", relateGoPath(this.gpgPath), section, nDepth))
 	}
 
-	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQP", "REQN"}
-	req, reqp, reqn := elem[1], elem[2], elem[3]
+	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQP", "REQN","REQGPG"}
+	req, reqp, reqn, reqgpg := elem[1], elem[2], elem[3], elem[4]
 
 	if gDebug {
 		fmt.Println(req, reqp, reqn)
+	}
+
+	if reqgpg != "" && reqn == "" { //section name is config from gpg file
+		reqn = this.gpgContent.GetString(section, reqgpg, "")
 	}
 
 	replaceSection := reqn
@@ -514,7 +518,12 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
 	replacedGp = gGogpExpPretreatAll.ReplaceAllStringFunc(content, func(src string) (rep string) {
 		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "CONDK", "T", "F","GPGCFG","ONCE"}
-		ignore, req, reqp, reqn, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9]
+		ignore, req, reqp, reqn, reqgpg, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
+
+		if reqgpg != "" && reqn == "" { //section name is config from gpg file
+			reqn = this.gpgContent.GetString(section, reqgpg, "")
+		}
+
 		switch {
 		case ignore != "":
 			rep = "\n\n"
