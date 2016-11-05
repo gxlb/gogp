@@ -15,6 +15,7 @@ func main() {
 		forceUpdate        = false
 		moreInfo           = false
 		removeProductsOnly = false
+		debug              = false
 		exit_code          = 0
 	)
 
@@ -77,17 +78,20 @@ func main() {
 	cmdline.BoolVar(&forceUpdate, "f", "force", forceUpdate, false, "Force update all products.")
 	cmdline.StringVar(&codeExt, "e", "Ext", codeExt, false, "Code file ext name. [.go] is default. [.gp] and [.gpg] is not allowed.")
 	cmdline.BoolVar(&moreInfo, "m", "more", moreInfo, false, "More information in working process.")
+	cmdline.BoolVar(&debug, "d", "debug", debug, false, "Debug mode.")
 	cmdline.BoolVar(&removeProductsOnly, "remove", "remove", removeProductsOnly, false, "Only remove all products.")
 
 	cmdline.AnotherName("ext", "e")
 	cmdline.AnotherName("force", "f")
 	cmdline.AnotherName("more", "m")
+	cmdline.AnotherName("debug", "d")
 	cmdline.Parse()
 
 	gogp.RemoveProductsOnly(removeProductsOnly)
 	gogp.Silence(!moreInfo)
 	gogp.ForceUpdate(forceUpdate)
 	gogp.CodeExtName(codeExt)
+	gogp.Debug(debug)
 	gogp.Work(filePath)
 
 	cmdline.Exit(exit_code)
