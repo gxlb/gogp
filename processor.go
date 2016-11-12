@@ -312,6 +312,11 @@ func (this *gopgProcessor) getGpgCfg(section, key string, warnEmpty bool) (val s
 	return
 }
 
+func (this *gopgProcessor) remove(file string) {
+	fmt.Printf(">>[gogp]: [%s] removed.\n", relateGoPath(file))
+	os.Remove(file)
+}
+
 //require a gp file, maybe recursive
 func (this *gopgProcessor) procRequireReplacement(statement, section string, nDepth int) (rep string, replaced bool, err error) {
 
@@ -355,7 +360,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 
 					if gRemoveProductsOnly { //remove products only
 						this.nCodeFile++
-						os.Remove(codePath)
+						this.remove(codePath)
 						return
 					}
 
@@ -461,9 +466,9 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 
 	if replcaceCnt > 0 {
 		if err = this.rawSaveFile(this.codePath, replacedCode); err == nil {
+			this.nCodeFile++
 			if !gSilence {
-				this.nCodeFile++
-				fmt.Printf(">>[gogp] %s updated for require\n", relateGoPath(this.codePath))
+				fmt.Printf(">>[gogp] %s updated for #GOGP_REQUIRE\n", relateGoPath(this.codePath))
 			}
 		} else {
 			fmt.Println(err)
@@ -722,7 +727,7 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	this.gpPath = gpFilePath
 	if gRemoveProductsOnly { //remove products only
 		this.nCodeFile++
-		os.Remove(this.gpPath)
+		this.remove(this.gpPath)
 		return
 	}
 	if !gForceUpdate && this.loadGpFile(gpFilePath) == nil { //check if need update
@@ -766,7 +771,7 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 	if gRemoveProductsOnly { //remove products only
 		this.nCodeFile++
-		os.Remove(this.codePath)
+		this.remove(this.codePath)
 		return
 	}
 	if gForceUpdate || !strings.HasSuffix(this.codeContent, body) { //body change then save it,else skip it
