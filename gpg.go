@@ -96,11 +96,24 @@ func (me gogp_proc_step) IsReverse() bool {
 	return me >= gogp_step_REQUIRE && me <= gogp_step_REVERSE
 }
 
+func (me gogp_proc_step) String() (s string) {
+	switch me {
+	case gogp_step_REQUIRE:
+		s = "Step=[1RequireReplace]"
+	case gogp_step_REVERSE:
+		s = "Step=[2ReverseWork]"
+	case gogp_step_PRODUCE:
+		s = "Step=[3NormalProduce]"
+	default:
+		s = "Step=Unknown"
+	}
+	return
+}
+
 const (
-	gogp_step_REQUIRE gogp_proc_step = iota //require replace in fake go file
-	gogp_step_REVERSE                       //gen gp file from fake go file
-	gogp_step_PRODUCE                       //gen go file from gp file
-	_gogp_step_CNT
+	gogp_step_REQUIRE gogp_proc_step = iota + 1 //require replace in fake go file
+	gogp_step_REVERSE                           //gen gp file from fake go file
+	gogp_step_PRODUCE                           //gen go file from gp file
 )
 
 func init() {

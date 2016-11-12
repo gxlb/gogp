@@ -187,7 +187,7 @@ func (this *gopgProcessor) getCodeFileSuffix(section string) (r string) {
 }
 
 func (this *gopgProcessor) reportNoReplacing(key, gpfile string) {
-	fmt.Printf("[gogp] step%d error: [%s] has no replacing.[%s:%s %s]\n", this.step, key, relateGoPath(this.gpgPath), this.impName, gpfile)
+	fmt.Printf("[gogp] %s error: [%s] has no replacing.[%s:%s %s]\n", this.step, key, relateGoPath(this.gpgPath), this.impName, gpfile)
 }
 
 //if has set key GOGP_Name, use it, else use section name
@@ -637,11 +637,7 @@ func (this *gopgProcessor) procStepNormal() (err error) {
 //gen code or gp file
 func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 	if 0 == id && !gSilence {
-		if this.step.IsReverse() {
-			fmt.Printf(">[gogp]ReverseWork %d:[%s]\n", this.step, relateGoPath(this.gpgPath))
-		} else {
-			fmt.Printf(">[gogp]Processing:[%s]\n", relateGoPath(this.gpgPath))
-		}
+		fmt.Printf(">[gogp] %s: [%s]\n", this.step, relateGoPath(this.gpgPath))
 	}
 
 	if !this.isValidSection(impName, this.step) { //not a valid section for this step, do nothing
@@ -651,7 +647,7 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 	this.impName = impName
 
 	if !gSilence {
-		fmt.Printf(">[gogp] step%d [%s:%s] \n", this.step, relateGoPath(this.gpgPath), this.impName)
+		fmt.Printf(">[gogp] %s [%s:%s] \n", this.step, relateGoPath(this.gpgPath), this.impName)
 	}
 
 	switch this.step {
@@ -663,7 +659,7 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 		err = this.procStepNormal()
 	}
 	if err != nil {
-		fmt.Printf("[gogp] error:[%s:%s step%d] [%s]\n", relateGoPath(this.gpgPath), this.impName, this.step, err.Error())
+		fmt.Printf("[gogp] error: %s [%s:%s] [%s]\n", this.step, relateGoPath(this.gpgPath), this.impName, err.Error())
 	}
 
 	return
