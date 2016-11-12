@@ -360,10 +360,15 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 					}
 
 					if _, ok := gSavedCodeFile[codePath]; ok { //skip saved file
-						//						if gDebug {
-						//							fmt.Printf("[gogp]GOGP_ONCE skip %s\n", codePath)
-						//						}
+						//if gDebug {
+						//	fmt.Printf("[gogp] debug: step%d Required file [%s] skip\n", this.step, codePath)
+						//}
 						return
+					} else {
+						gSavedCodeFile[codePath] = true //to prevent rewrite this file no matter it chages or not
+						//if gDebug {
+						//	fmt.Printf("[gogp] debug: step%d Required file [%s] save ok\n", this.step, codePath)
+						//}
 					}
 
 					oldCode, _ := this.rawLoadFile(codePath)
@@ -372,7 +377,6 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 						codeContent := this.fileHead(gpFullPath, this.gpgPath, replaceSection) + "\n" + replacedGp
 						codeContent = goFmt(codeContent, codePath)
 						if err = this.rawSaveFile(codePath, codeContent); err == nil {
-							gSavedCodeFile[codePath] = true
 							this.nCodeFile++
 							if !gSilence {
 								fmt.Printf(">>[gogp][%s] require ok\n", relateGoPath(codePath))
@@ -563,8 +567,15 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 		case once != "":
 			if _, ok := gOnceMap[_path]; ok { //check if has processed this file
 				rep = "\n\n"
+				//if gDebug {
+				//	fmt.Printf("[gogp] debug: step%d GOGP_ONCE(%s,%s) [%#v] fail\n", this.step, _path, section, once)
+				//}
+
 			} else {
 				rep = fmt.Sprintf("\n\n%s\n\n", once)
+				//if gDebug {
+				//	fmt.Printf("[gogp] debug: step%d GOGP_ONCE(%s,%s) [%#v] ok\n", this.step, _path, section, once)
+				//}
 			}
 		default:
 			fmt.Println("error:[gogp]invalid predef statement", src)
