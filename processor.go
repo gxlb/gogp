@@ -120,7 +120,7 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 		if v, ok := this.getMatch(src); ok {
 			r = v
 		} else {
-			fmt.Printf("[gogp]  error: [%s] has no replacing.[%s] [%s : %s]\n", src, relateGoPath(this.gpPath), relateGoPath(this.gpgPath), this.sectionName)
+			fmt.Printf("[gogp error]: [%s] has no replacing.[%s] [%s : %s]\n", src, relateGoPath(this.gpPath), relateGoPath(this.gpgPath), this.sectionName)
 			//this.reportNoReplacing(src, _path)
 			r = src
 			noRep++
@@ -187,7 +187,7 @@ func (this *gopgProcessor) getCodeFileSuffix(section string) (r string) {
 }
 
 func (this *gopgProcessor) reportNoReplacing(key, gpfile string) {
-	fmt.Printf("[gogp] %s error: [%s] has no replacing.[%s:%s %s]\n", this.step, key, relateGoPath(this.gpgPath), this.impName, gpfile)
+	fmt.Printf("[gogp error]: %s [%s] has no replacing. [%s:%s %s]\n", this.step, key, relateGoPath(this.gpgPath), this.impName, gpfile)
 }
 
 //if has set key GOGP_Name, use it, else use section name
@@ -196,7 +196,7 @@ func (this *gopgProcessor) getGpName() (r string) {
 		r = strings.TrimSuffix(filepath.Base(name), gGpgExt)
 	} else {
 		r = "missing"
-		fmt.Printf("error:[gogp]missing %s in %s:%s\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
+		fmt.Printf("[gogp error]: missing %s in %s:%s\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
 	}
 	return
 }
@@ -307,7 +307,7 @@ func (this *gopgProcessor) rawSaveFile(file, content string) (err error) {
 func (this *gopgProcessor) getGpgCfg(section, key string, warnEmpty bool) (val string) {
 	val = this.gpgContent.GetString(section, key, "")
 	if val == "" && warnEmpty {
-		fmt.Printf("[gogp]warn:[%s:%s] maybe lost key [%s]\n", relateGoPath(this.gpgPath), section, key)
+		fmt.Printf("[gogp warn]: [%s:%s] maybe lost key [%s]\n", relateGoPath(this.gpgPath), section, key)
 	}
 	return
 }
@@ -318,14 +318,14 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 	rep = statement
 
 	if nDepth >= 10 {
-		panic(fmt.Sprintf("[%s:%s]maybe loop recursive of #GOGP_REQUIRE(...), %d", relateGoPath(this.gpgPath), section, nDepth))
+		panic(fmt.Sprintf("[gogp error] [%s:%s]maybe loop recursive of #GOGP_REQUIRE(...), %d", relateGoPath(this.gpgPath), section, nDepth))
 	}
 
 	elem := gGogpExpRequire.FindAllStringSubmatch(statement, -1)[0] //{"", "REQ", "REQP", "REQN","REQGPG"}
 	req, reqp, reqn, reqgpg := elem[1], elem[2], elem[3], elem[4]
 
 	if gDebug {
-		fmt.Println(req, reqp, reqn)
+		fmt.Printf("[gogp debug] #GOGP_REQUIRE: [%s][%s]\n", reqp, reqn)
 	}
 
 	if reqgpg != "" && reqn == "" { //section name is config from gpg file
@@ -379,13 +379,13 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 						if err = this.rawSaveFile(codePath, codeContent); err == nil {
 							this.nCodeFile++
 							if !gSilence {
-								fmt.Printf(">>[gogp][%s] require ok\n", relateGoPath(codePath))
+								fmt.Printf(">>[gogp] #GOGP_REQUIRE [%s:%s -> %s] ok\n", relateGoPath(gpFullPath), replaceSection, relateGoPath(codePath))
 							}
 						}
 					} else {
 						this.nSkipCodeFile++
 						if !gSilence {
-							fmt.Printf(">>[gogp][%s] require skip\n", relateGoPath(codePath))
+							fmt.Printf(">>[gogp] #GOGP_REQUIRE [%s:%s -> %s] skip\n", relateGoPath(gpFullPath), replaceSection, relateGoPath(codePath))
 						}
 					}
 				}
@@ -420,7 +420,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 			}
 		}
 	} else {
-		fmt.Printf("[gogp][error][%s:%s] #GOGP_REQULRE(%s) : %s\n", relateGoPath(this.gpgPath), section, reqp, err.Error())
+		fmt.Printf("[gogp error]: [%s:%s] #GOGP_REQULRE(%s) : %s\n", relateGoPath(this.gpgPath), section, reqp, err.Error())
 		err = nil
 		rep = statement
 	}
@@ -460,13 +460,13 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 	replacedCode = goFmt(replacedCode, this.gpPath)
 
 	if replcaceCnt > 0 {
-		if err = this.rawSaveFile(this.codePath, replacedCode); err != nil {
-			fmt.Println(err)
-		} else {
+		if err = this.rawSaveFile(this.codePath, replacedCode); err == nil {
 			if !gSilence {
 				this.nCodeFile++
-				fmt.Printf(">>[gogp]%s updated for require\n", relateGoPath(this.codePath))
+				fmt.Printf(">>[gogp] %s updated for require\n", relateGoPath(this.codePath))
 			}
+		} else {
+			fmt.Println(err)
 		}
 	}
 
@@ -495,7 +495,7 @@ func (this *gopgProcessor) procStepReverse() (err error) {
 		replacedCode = gGogpExpEmptyLine.ReplaceAllString(replacedCode, "\n\n") //avoid multi empty lines
 
 		if this.nNoReplaceMathNum > 0 { //report error
-			s := fmt.Sprintf("[gogp]error:[%s].[%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
+			s := fmt.Sprintf("[gogp error]: [%s:%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
 			//fmt.Println(s)
 			err = fmt.Errorf(s)
 		}
@@ -504,7 +504,7 @@ func (this *gopgProcessor) procStepReverse() (err error) {
 			return
 		}
 	} else {
-		err = fmt.Errorf("[gogp]error:[%s] must have [%s] section", relateGoPath(this.gpgPath), gSectionReverse)
+		err = fmt.Errorf("[gogp error]: [%s] must have [%s] section", relateGoPath(this.gpgPath), gSectionReverse)
 	}
 	return
 }
@@ -525,13 +525,13 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 			gpPath = filepath.Join(gGoPath, gp)
 		}
 	} else {
-		fmt.Printf("error:[gogp]missing %s in %s:%s\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
+		fmt.Printf("[gogp error]: missing [%s] in [%s:%s]\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
 	}
 	return gpPath
 }
 
 func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth int, second bool) (replacedGp string, err error) {
-	_path := fmt.Sprintf("%s|%s", gpPath, filepath.Dir(this.gpgPath)) //gp file+gpg path=unique
+	_path := fmt.Sprintf("%s|%s", relateGoPath(gpPath), relateGoPath(filepath.Dir(this.gpgPath))) //gp file+gpg path=unique
 
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
@@ -567,18 +567,18 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 		case once != "":
 			if _, ok := gOnceMap[_path]; ok { //check if has processed this file
 				rep = "\n\n"
-				//if gDebug {
-				//	fmt.Printf("[gogp] debug: step%d GOGP_ONCE(%s,%s) [%#v] fail\n", this.step, _path, section, once)
-				//}
+				if gDebug {
+					fmt.Printf("[gogp debug]: %s GOGP_ONCE(%s:%s) ignore [%#v]\n", this.step, _path, section, once)
+				}
 
 			} else {
 				rep = fmt.Sprintf("\n\n%s\n\n", once)
-				//if gDebug {
-				//	fmt.Printf("[gogp] debug: step%d GOGP_ONCE(%s,%s) [%#v] ok\n", this.step, _path, section, once)
-				//}
+				if gDebug {
+					fmt.Printf("[gogp debug]: %s GOGP_ONCE(%s:%s) ok [%#v]\n", this.step, _path, section, once)
+				}
 			}
 		default:
-			fmt.Println("error:[gogp]invalid predef statement", src)
+			fmt.Printf("[gogp error]: %s invalid predef statement [%#v]\n", this.step, src)
 		}
 		return
 	})
@@ -594,7 +594,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	replacedGp = goFmt(replacedGp, this.gpgPath)
 
 	if this.nNoReplaceMathNum > 0 { //report error
-		s := fmt.Sprintf("[gogp]error:[%s:%s %s depth=%d] not every gp have been replaced\n", relateGoPath(this.gpgPath), relateGoPath(_path), replist.sectionName, nDepth)
+		s := fmt.Sprintf("[gogp error]: [%s:%s %s depth=%d] not every gp have been replaced\n", relateGoPath(this.gpgPath), relateGoPath(_path), replist.sectionName, nDepth)
 		//fmt.Println(s)
 		err = fmt.Errorf(s)
 	}
@@ -659,7 +659,7 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 		err = this.procStepNormal()
 	}
 	if err != nil {
-		fmt.Printf("[gogp] error: %s [%s:%s] [%s]\n", this.step, relateGoPath(this.gpgPath), this.impName, err.Error())
+		fmt.Printf("[gogp error]: %s [%s:%s] [%s]\n", this.step, relateGoPath(this.gpgPath), this.impName, err.Error())
 	}
 
 	return
