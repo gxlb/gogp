@@ -356,12 +356,9 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 				rep = "\n\n"
 				replaced = true
 				if reqn != "_" && !this.checkGpgCfg(replaceSection, grawKeyDontSave) { //reqn=="_" will not generate this code file
-					codeFileSuffix := this.getCodeFileSuffix(replaceSection)
-
 					gpgDir := filepath.Dir(this.gpgPath)
 					gpName := strings.TrimSuffix(filepath.Base(gpFullPath), gGpExt)
-					codePath := fmt.Sprintf("%s/%s.%s_%s%s",
-						gpgDir, gpName, gGpCodeFileSuffix, codeFileSuffix, gCodeExt)
+					codePath := this.getProductFilePath(gpgDir, gpName, this.getCodeFileSuffix(replaceSection))
 
 					if gRemoveProductsOnly { //remove products only
 						this.nCodeFile++
@@ -442,7 +439,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 
 func (this *gopgProcessor) procStepRequire() (err error) {
 	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
-	codeFilePath := this.getFakeSrcFile(pathWithName)
+	codeFilePath := this.getFakeSrcFilePath(pathWithName)
 	this.codePath = codeFilePath
 
 	this.buildMatches(this.impName, "", false, false)
@@ -483,14 +480,19 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 	return
 }
 
-func (this *gopgProcessor) getFakeSrcFile(pathWithName string) string {
+func (this *gopgProcessor) getFakeSrcFilePath(pathWithName string) string {
 	return fmt.Sprintf("%s.%s%s", pathWithName, gGpCodeFileSuffix, gCodeExt)
+}
+
+func (this *gopgProcessor) getProductFilePath(gpgDir, gpName, codeFileSuffix string) string {
+	return fmt.Sprintf("%s/%s.%s_%s%s", gpgDir, gpName, gGpCodeFileSuffix, codeFileSuffix, gCodeExt)
+
 }
 
 func (this *gopgProcessor) procStepReverse() (err error) {
 	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
 	gpFilePath := pathWithName + gGpExt
-	codeFilePath := this.getFakeSrcFile(pathWithName)
+	codeFilePath := this.getFakeSrcFilePath(pathWithName)
 	this.codePath = codeFilePath
 	this.gpPath = gpFilePath
 
@@ -626,8 +628,7 @@ func (this *gopgProcessor) procStepNormal() (err error) {
 	gpgDir := filepath.Dir(this.gpgPath)
 
 	gpName := strings.TrimSuffix(filepath.Base(gpPath), gGpExt)
-	codePath := fmt.Sprintf("%s/%s.%s_%s%s",
-		gpgDir, gpName, gGpCodeFileSuffix, this.getCodeFileSuffix(this.impName), gCodeExt)
+	codePath := this.getProductFilePath(gpgDir, gpName, this.getCodeFileSuffix(this.impName))
 
 	this.loadCodeFile(codePath) //load code file, ignore error
 	if this.gpPath != gpPath {  //load gp file if needed
