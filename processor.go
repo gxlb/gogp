@@ -193,12 +193,12 @@ func (this *gopgProcessor) reportNoReplacing(key, gpfile string) {
 //if has set key GOGP_Name, use it, else use section name
 func (this *gopgProcessor) getGpName() (r string) {
 	if name := this.getGpgCfg(this.impName, grawKeySrcPathName, true); name != "" {
-		p, n := filepath.Split(name)
+		n := filepath.Base(name)
 		idx := 0
 		if idx = strings.Index(n, "."); idx < 0 { //split by first '.'
 			idx = len(n)
 		}
-		r = p + "/" + n[:idx]
+		r = n[:idx]
 	} else {
 		r = "missing"
 		fmt.Printf("[gogp error]: missing %s in %s:%s\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
