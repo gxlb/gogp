@@ -193,7 +193,12 @@ func (this *gopgProcessor) reportNoReplacing(key, gpfile string) {
 //if has set key GOGP_Name, use it, else use section name
 func (this *gopgProcessor) getGpName() (r string) {
 	if name := this.getGpgCfg(this.impName, grawKeySrcPathName, true); name != "" {
-		r = strings.TrimSuffix(filepath.Base(name), gGpgExt)
+		p, n := filepath.Split(name)
+		idx := 0
+		if idx = strings.Index(n, "."); idx < 0 { //split by first '.'
+			idx = len(n)
+		}
+		r = p + "/" + n[:idx]
 	} else {
 		r = "missing"
 		fmt.Printf("[gogp error]: missing %s in %s:%s\n", grawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
@@ -437,7 +442,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 
 func (this *gopgProcessor) procStepRequire() (err error) {
 	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
-	codeFilePath := pathWithName + gCodeExt
+	codeFilePath := this.getFakeSrcFile(pathWithName)
 	this.codePath = codeFilePath
 
 	this.buildMatches(this.impName, "", false, false)
@@ -478,10 +483,14 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 	return
 }
 
+func (this *gopgProcessor) getFakeSrcFile(pathWithName string) string {
+	return fmt.Sprintf("%s.%s%s", pathWithName, gGpCodeFileSuffix, gCodeExt)
+}
+
 func (this *gopgProcessor) procStepReverse() (err error) {
 	pathWithName := filepath.Join(filepath.Dir(this.gpgPath), this.getGpName())
 	gpFilePath := pathWithName + gGpExt
-	codeFilePath := pathWithName + gCodeExt
+	codeFilePath := this.getFakeSrcFile(pathWithName)
 	this.codePath = codeFilePath
 	this.gpPath = gpFilePath
 
