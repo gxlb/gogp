@@ -62,6 +62,9 @@ const (
 	// //#GOGP_ONCE <content> //#GOGP_END_ONCE
 	gsExpTxtOnce = "(?sm:\\s*(?://)?#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
 
+	gsExpTxtFileBegin = "(?sm:\\s*(?://)?#GOGP_FILE_BEGIN(?:[ |\\t]+(?P<OPEN>[[:word:]]+))?.*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN.*?(?://)?#GOGP_IGNORE_END)"
+	gsExpTxtFileEnd   = "(?sm:\\s*(?://)?#GOGP_FILE_END.*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN.*?(?://)?#GOGP_IGNORE_END)"
+
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
 	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
 
