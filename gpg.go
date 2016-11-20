@@ -74,13 +74,14 @@ const (
 )
 
 var (
-	gGogpExpReplace       = regexp.MustCompile(gsExpTxtReplace)
-	gGogpExpPretreatAll   = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce))
-	gGogpExpIgnore        = regexp.MustCompile(gsExpTxtIgnore)
-	gGogpExpEmptyLine     = regexp.MustCompile(gsExpTxtEmptyLine)
-	gGogpExpTrimEmptyLine = regexp.MustCompile(gsExpTxtTrimEmptyLine)
-	gGogpExpRequire       = regexp.MustCompile(gsExpTxtRequire)
-	gGogpExpRequireAll    = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtRequire, gsExpTxtFileBegin, gsExpTxtFileEnd))
+	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
+	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce))
+	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
+	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
+	gGogpExpTrimEmptyLine    = regexp.MustCompile(gsExpTxtTrimEmptyLine)
+	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)
+	gGogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtRequire, gsExpTxtFileBegin, gsExpTxtFileEnd))
+	gGogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtFileBegin, gsExpTxtFileEnd, gGogpExpIgnore))
 	//	gGogpExpChoice      = regexp.MustCompile(gsExpTxtChoice)
 
 	gGoPath             = "" //GoPath

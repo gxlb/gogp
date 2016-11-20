@@ -518,7 +518,7 @@ func (this *gopgProcessor) procStepReverse() (err error) {
 	}
 
 	//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
-	this.codeContent = gGogpExpIgnore.ReplaceAllString(this.codeContent, "\n\n")
+	this.codeContent = gGogpExpReverseIgnoreAll.ReplaceAllString(this.codeContent, "\n\n")
 
 	if this.buildMatches(this.impName, this.gpPath, true, false) {
 		this.matches.sort()
