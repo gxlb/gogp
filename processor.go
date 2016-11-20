@@ -451,13 +451,30 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 	replcaceCnt := 0
 
 	//match "//#GOGP_REQUIRE(path [, gpgSection])"
-	replacedCode := gGogpExpRequire.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
+	replacedCode := gGogpExpRequireAll.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
+		elem := gGogpExpRequireAll.FindAllStringSubmatch(src, -1)[0] //{"","REQ", "REQP", "REQN","REQGPG","FILEB","OPEN","FILEE"}
+		req, reqp, reqn, reqgpg, fileb, open, filee := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7]
+
+		reqp, reqn, reqgpg = reqp, reqn, reqgpg //avoid compile error
+
 		var err error
 		var replaced bool
-		if rep, replaced, err = this.procRequireReplacement(src, this.impName, 0); err != nil {
-			fmt.Println(err)
+		switch {
+		case req != "":
+			if rep, replaced, err = this.procRequireReplacement(src, this.impName, 0); err != nil {
+				fmt.Println(err)
+			}
+		case fileb != "":
+			repContent := fmt.Sprintf(gsTxtGogpIgnoreFmt, " ///gogp_file_begin\n", gGetTxtFileBeginContent(open != ""), " ///gogp_file_begin\n\n")
+			if rep, replaced = src, !strings.HasSuffix(src, repContent); replaced {
+				rep = fmt.Sprintf("\n\n%s\n%s", fileb, repContent)
+			}
+		case filee != "":
+			repContent := fmt.Sprintf(gsTxtGogpIgnoreFmt, " ///gogp_file_end\n", gsTxtFileEndContent, " ///gogp_file_end\n\n")
+			if rep, replaced = src, !strings.HasSuffix(src, repContent); replaced {
+				rep = fmt.Sprintf("\n\n%s\n%s", filee, repContent)
+			}
 		}
-
 		if replaced {
 			replcaceCnt++
 		}
@@ -553,7 +570,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
 	replacedGp = gGogpExpPretreatAll.ReplaceAllStringFunc(content, func(src string) (rep string) {
-		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "CONDK", "T", "F","GPGCFG","ONCE"}
+		elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
 		ignore, req, reqp, reqn, reqgpg, condk, t, f, gpgcfg, once := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
 
 		if reqgpg != "" && reqn == "" { //section name is config from gpg file

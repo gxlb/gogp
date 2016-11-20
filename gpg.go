@@ -42,11 +42,11 @@ const (
 
 	// ignore all text format:
 	// //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
-	gsExpTxtIgnore = "(?sm:\\s*(?://)?#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
+	gsExpTxtIgnore = "(?sm:\\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
 
 	// select by condition <cd> defines in gpg file:
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
-	gsExpTxtChoice = "(?sm:\\s*(?://)?#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
+	gsExpTxtChoice = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
@@ -60,13 +60,14 @@ const (
 
 	// only generate <content> once from a gp file:
 	// //#GOGP_ONCE <content> //#GOGP_END_ONCE
-	gsExpTxtOnce = "(?sm:\\s*(?://)?#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
+	gsExpTxtOnce = "(?sm:\\s*//#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
 
-	gsExpTxtFileBegin = "(?sm:\\s*(?://)?#GOGP_FILE_BEGIN(?:[ |\\t]+(?P<OPEN>[[:word:]]+))?.*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN.*?(?://)?#GOGP_IGNORE_END)"
-	gsExpTxtFileEnd   = "(?sm:\\s*(?://)?#GOGP_FILE_END.*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN.*?(?://)?#GOGP_IGNORE_END)"
+	gsExpTxtFileBegin = "(?sm:\\s*(?P<FILEB>//#GOGP_FILE_BEGIN(?:[ |\\t]+(?P<OPEN>[[:word:]]+))?).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\\r|\\n]*)"
+	gsExpTxtFileEnd   = "(?sm:\\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\\r|\\n]*)"
 
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
 	gsTxtRequireResultFmt = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
+	gsTxtGogpIgnoreFmt    = "//#GOGP_IGNORE_BEGIN%s%s//#GOGP_IGNORE_END%s"
 
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
 	gLibVersion   = "3.0.0.final"
@@ -77,8 +78,9 @@ var (
 	gGogpExpPretreatAll   = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce))
 	gGogpExpIgnore        = regexp.MustCompile(gsExpTxtIgnore)
 	gGogpExpEmptyLine     = regexp.MustCompile(gsExpTxtEmptyLine)
-	gGogpExpRequire       = regexp.MustCompile(gsExpTxtRequire)
 	gGogpExpTrimEmptyLine = regexp.MustCompile(gsExpTxtTrimEmptyLine)
+	gGogpExpRequire       = regexp.MustCompile(gsExpTxtRequire)
+	gGogpExpRequireAll    = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtRequire, gsExpTxtFileBegin, gsExpTxtFileEnd))
 	//	gGogpExpChoice      = regexp.MustCompile(gsExpTxtChoice)
 
 	gGoPath             = "" //GoPath
@@ -88,10 +90,31 @@ var (
 	gSilence            = true  //work silencely
 	gRemoveProductsOnly = false //remove products only
 
+	gsTxtFileBeginContent = `//
+/*   //This line can be uncommented to disable all this file, and it doesn't effect to the .gp file
+//	 //If test or change .gp file required, comment it to modify and cmomile as normal go file
+//
+// This is a fake go code file
+// It is used to generate .gp file by gogp tool
+// Real go code file will be generated from .gp file
+//
+`
+	gsTxtFileBeginContentOpen = strings.Replace(gsTxtFileBeginContent, "/*", "///*", 1)
+	gsTxtFileEndContent       = "//*/\n"
+
 	gOnceMap       map[string]bool //record once processed files
 	gSavedCodeFile map[string]bool //record saved code files
 	gDebug         = false         //debug switch
 )
+
+func gGetTxtFileBeginContent(open bool) (r string) {
+	if open {
+		r = gsTxtFileBeginContentOpen
+	} else {
+		r = gsTxtFileBeginContent
+	}
+	return
+}
 
 type gogp_proc_step int
 
