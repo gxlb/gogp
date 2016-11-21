@@ -470,7 +470,7 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 				break
 			}
 			repContent := fmt.Sprintf(gsTxtGogpIgnoreFmt, " ///gogp_file_begin\n", gGetTxtFileBeginContent(open != ""), " ///gogp_file_begin\n\n")
-			if rep, replaced = src, !strings.Contains(src, gGogpExpTrimEmptyLine.ReplaceAllString(repContent, "")); replaced {
+			if rep, replaced = src, !strings.Contains(src, gGogpExpTrimEmptyLine.ReplaceAllString(repContent, "$CONTENT")); replaced {
 				rep = fmt.Sprintf("\n\n%s\n%s", fileb, repContent)
 			}
 		case filee != "":
@@ -479,7 +479,7 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 				break
 			}
 			repContent := fmt.Sprintf(gsTxtGogpIgnoreFmt, " ///gogp_file_end\n", gsTxtFileEndContent, " ///gogp_file_end\n\n")
-			if rep, replaced = src, !strings.Contains(src, gGogpExpTrimEmptyLine.ReplaceAllString(repContent, "")); replaced {
+			if rep, replaced = src, !strings.Contains(src, gGogpExpTrimEmptyLine.ReplaceAllString(repContent, "$CONTENT")); replaced {
 				rep = fmt.Sprintf("\n\n%s\n%s", filee, repContent)
 			}
 		}
