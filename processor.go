@@ -465,11 +465,19 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 				fmt.Println(err)
 			}
 		case fileb != "":
+			if gRemoveProductsOnly {
+				rep, replaced = fmt.Sprintf("\n\n%s\n\n", fileb), true
+				break
+			}
 			repContent := fmt.Sprintf(gsTxtGogpIgnoreFmt, " ///gogp_file_begin\n", gGetTxtFileBeginContent(open != ""), " ///gogp_file_begin\n\n")
 			if rep, replaced = src, !strings.HasSuffix(src, repContent); replaced {
 				rep = fmt.Sprintf("\n\n%s\n%s", fileb, repContent)
 			}
 		case filee != "":
+			if gRemoveProductsOnly {
+				rep, replaced = fmt.Sprintf("\n\n%s\n\n", filee), true
+				break
+			}
 			repContent := fmt.Sprintf(gsTxtGogpIgnoreFmt, " ///gogp_file_end\n", gsTxtFileEndContent, " ///gogp_file_end\n\n")
 			if rep, replaced = src, !strings.HasSuffix(src, repContent); replaced {
 				rep = fmt.Sprintf("\n\n%s\n%s", filee, repContent)
