@@ -2,7 +2,7 @@ package sample
 
 //#GOGP_FILE_BEGIN 1
 
-//#GOGP_REQUIRE(github.com/vipally/gx/stl/gp/fakedef,_)
+//#GOGP_REQUIRE(github.com/vipally/gogp/lib/fakedef,_)
 
 //#GOGP_IGNORE_BEGIN
 //# GOGP_REQUIRE(github.com/vipally/gx/stl/gp/functorcmp,#GOGP_GPGCFG(GOGP_SectionSortSlice))

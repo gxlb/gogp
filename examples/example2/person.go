@@ -16,7 +16,3 @@ func (this *Person) Show() string {
 func (this *Person) Less(o *Person) bool {
 	return this.Name < o.Name
 }
-
-func (this *Person) Great(o *Person) bool {
-	return this.Name > o.Name
-}
