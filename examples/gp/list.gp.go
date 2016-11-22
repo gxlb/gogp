@@ -140,7 +140,7 @@ type GOGPGlobalNamePrefixListNode struct {
 }
 
 func (this *GOGPGlobalNamePrefixListNode) Get() GOGPValueType {
-	return this.GOGPValueType
+	return this.#GOGP_RAWNAME(GOGPValueType)
 }
 
 func (this *GOGPGlobalNamePrefixListNode) Set(v GOGPValueType) (old GOGPValueType) {

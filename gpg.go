@@ -58,6 +58,10 @@ const (
 	// #GOGP_GPGCFG(<cfgName>)
 	gsExpTxtGetGpgCfg = "(?-sm:(?://)?#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 
+	//remove "*" from value type such as "*string -> string"
+	// #GOGP_RAWNAME(<strValueType>)
+	gsExpTxtRawName = "(?-sm:(?://)?#GOGP_RAWNAME\\((?P<RAWNAME>\\S+)\\))"
+
 	// only generate <content> once from a gp file:
 	// //#GOGP_ONCE <content> //#GOGP_END_ONCE
 	gsExpTxtOnce = "(?sm:\\s*//#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
@@ -75,13 +79,14 @@ const (
 
 var (
 	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
-	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce))
+	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtRawName))
 	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
 	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
 	gGogpExpTrimEmptyLine    = regexp.MustCompile(gsExpTxtTrimEmptyLine)
 	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)
 	gGogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtRequire, gsExpTxtFileBegin, gsExpTxtFileEnd))
 	gGogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtFileBegin, gsExpTxtFileEnd, gGogpExpIgnore))
+	gGogpExpRawName          = regexp.MustCompile(gsExpTxtRawName)
 	//	gGogpExpChoice      = regexp.MustCompile(gsExpTxtChoice)
 
 	gGoPath             = "" //GoPath
