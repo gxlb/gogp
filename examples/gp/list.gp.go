@@ -12,6 +12,8 @@ package gp
 //
 //#GOGP_IGNORE_END ///gogp_file_begin
 
+
+
 //#GOGP_REQUIRE(github.com/vipally/gogp/lib/fakedef,_)
 //#GOGP_IGNORE_BEGIN //required from(github.com/vipally/gogp/lib/fakedef)
 //these defines are used to make sure this fake go file can be compiled correctlly
@@ -23,6 +25,8 @@ func (this GOGPValueType) Less(o GOGPValueType) bool { return this < o }
 func (this GOGPValueType) Show() string              { return "" } //
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //#GOGP_IGNORE_END //required from(github.com/vipally/gogp/lib/fakedef)
+
+
 
 //#GOGP_REQUIRE(github.com/vipally/gogp/examples/gp/functorcmp)
 //#GOGP_IGNORE_BEGIN //required from(github.com/vipally/gogp/examples/gp/functorcmp)
@@ -144,7 +148,7 @@ func (this *GOGPGlobalNamePrefixListNode) Get() GOGPValueType {
 }
 
 func (this *GOGPGlobalNamePrefixListNode) Set(v GOGPValueType) (old GOGPValueType) {
-	old, this.GOGPValueType = this.GOGPValueType, v
+	old, this.#GOGP_RAWNAME(GOGPValueType) = this.#GOGP_RAWNAME(GOGPValueType), v
 	return
 }
 
@@ -162,15 +166,15 @@ func (this *GOGPGlobalNamePrefixListNode) Prev() (r *GOGPGlobalNamePrefixListNod
 	return
 }
 
-type GOGGlobalNamePrefixListNodeVisitor struct {
+type GOGPGlobalNamePrefixListNodeVisitor struct {
 	node, head *GOGPGlobalNamePrefixListNode
 }
 
-func (this *GOGGlobalNamePrefixListNodeVisitor) Reset() {
+func (this *GOGPGlobalNamePrefixListNodeVisitor) Reset() {
 	this.node = nil
 }
 
-func (this *GOGGlobalNamePrefixListNodeVisitor) Next() (ok bool) {
+func (this *GOGPGlobalNamePrefixListNodeVisitor) Next() (ok bool) {
 	if this.node == nil {
 		if ok = this.head != nil; ok {
 			this.node = this.head
@@ -182,7 +186,7 @@ func (this *GOGGlobalNamePrefixListNodeVisitor) Next() (ok bool) {
 	return
 }
 
-func (this *GOGGlobalNamePrefixListNodeVisitor) Prev() (ok bool) {
+func (this *GOGPGlobalNamePrefixListNodeVisitor) Prev() (ok bool) {
 	if this.node == nil {
 		if ok = this.head != nil; ok {
 			this.node = this.head.prev
@@ -194,12 +198,12 @@ func (this *GOGGlobalNamePrefixListNodeVisitor) Prev() (ok bool) {
 	return
 }
 
-func (this *GOGGlobalNamePrefixListNodeVisitor) Get() *GOGPGlobalNamePrefixListNode {
+func (this *GOGPGlobalNamePrefixListNodeVisitor) Get() *GOGPGlobalNamePrefixListNode {
 	return this.node
 }
 
-func (this *GOGPGlobalNamePrefixList) Visitor() *GOGGlobalNamePrefixListNodeVisitor {
-	n := &GOGGlobalNamePrefixListNodeVisitor{node: nil, head: this.head}
+func (this *GOGPGlobalNamePrefixList) Visitor() *GOGPGlobalNamePrefixListNodeVisitor {
+	n := &GOGPGlobalNamePrefixListNodeVisitor{node: nil, head: this.head}
 	return n
 }
 
@@ -243,12 +247,12 @@ func (this *GOGPGlobalNamePrefixList) RotateBackward() {
 }
 
 func (this *GOGPGlobalNamePrefixList) PushFront(v GOGPValueType) *GOGPGlobalNamePrefixListNode {
-	n := &GOGPGlobalNamePrefixListNode{GOGPValueType: v}
+	n := &GOGPGlobalNamePrefixListNode{#GOGP_RAWNAME(GOGPValueType): v}
 	return this.InsertFront(n)
 }
 
 func (this *GOGPGlobalNamePrefixList) PushBack(v GOGPValueType) *GOGPGlobalNamePrefixListNode {
-	n := &GOGPGlobalNamePrefixListNode{GOGPValueType: v}
+	n := &GOGPGlobalNamePrefixListNode{#GOGP_RAWNAME(GOGPValueType): v}
 	return this.InsertBack(n)
 }
 
@@ -311,7 +315,7 @@ func (this *GOGPGlobalNamePrefixList) InsertBackList(other *GOGPGlobalNamePrefix
 
 func (this *GOGPGlobalNamePrefixList) PushBefore(v GOGPValueType, mark *GOGPGlobalNamePrefixListNode) (n *GOGPGlobalNamePrefixListNode) {
 	if mark != nil {
-		n = &GOGPGlobalNamePrefixListNode{GOGPValueType: v}
+		n = &GOGPGlobalNamePrefixListNode{#GOGP_RAWNAME(GOGPValueType): v}
 		n = this.InsertBefore(n, mark)
 	}
 	return
@@ -319,7 +323,7 @@ func (this *GOGPGlobalNamePrefixList) PushBefore(v GOGPValueType, mark *GOGPGlob
 
 func (this *GOGPGlobalNamePrefixList) PushAfter(v GOGPValueType, mark *GOGPGlobalNamePrefixListNode) (n *GOGPGlobalNamePrefixListNode) {
 	if mark != nil {
-		n = &GOGPGlobalNamePrefixListNode{GOGPValueType: v}
+		n = &GOGPGlobalNamePrefixListNode{#GOGP_RAWNAME(GOGPValueType): v}
 		n = this.InsertAfter(n, mark)
 	}
 	return
@@ -485,7 +489,7 @@ func (this *GOGPGlobalNamePrefixList) merge(other *GOGPGlobalNamePrefixList) {
 
 	p, po := this.Front(), other.Front()
 	for p != nil && po != nil {
-		if gGOGPGlobalNamePrefixListGbl.cmp.F(po.GOGPValueType, p.GOGPValueType) {
+		if gGOGPGlobalNamePrefixListGbl.cmp.F(po.#GOGP_RAWNAME(GOGPValueType), p.#GOGP_RAWNAME(GOGPValueType)) {
 			n := other.RemoveFront()
 			po = other.Front()
 			p = this.InsertBefore(n, p)
