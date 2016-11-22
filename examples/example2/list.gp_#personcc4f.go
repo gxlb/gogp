@@ -15,12 +15,10 @@
 // Site    : https://github.com/vipally
 // BuildAt : [Oct  8 2016 10:34:35]
 // Version : 3.0.0.final
-// 
+//
 ///////////////////////////////////////////////////////////////////
 
 package example2
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,11 +37,11 @@ type PersonListNode struct {
 }
 
 func (this *PersonListNode) Get() *Person {
-	return this.*Person
+	return this.Person
 }
 
 func (this *PersonListNode) Set(v *Person) (old *Person) {
-	old, this.*Person = this.*Person, v
+	old, this.Person = this.Person, v
 	return
 }
 
@@ -142,12 +140,12 @@ func (this *PersonList) RotateBackward() {
 }
 
 func (this *PersonList) PushFront(v *Person) *PersonListNode {
-	n := &PersonListNode{*Person: v}
+	n := &PersonListNode{Person: v}
 	return this.InsertFront(n)
 }
 
 func (this *PersonList) PushBack(v *Person) *PersonListNode {
-	n := &PersonListNode{*Person: v}
+	n := &PersonListNode{Person: v}
 	return this.InsertBack(n)
 }
 
@@ -210,7 +208,7 @@ func (this *PersonList) InsertBackList(other *PersonList) (ok bool) {
 
 func (this *PersonList) PushBefore(v *Person, mark *PersonListNode) (n *PersonListNode) {
 	if mark != nil {
-		n = &PersonListNode{*Person: v}
+		n = &PersonListNode{Person: v}
 		n = this.InsertBefore(n, mark)
 	}
 	return
@@ -218,7 +216,7 @@ func (this *PersonList) PushBefore(v *Person, mark *PersonListNode) (n *PersonLi
 
 func (this *PersonList) PushAfter(v *Person, mark *PersonListNode) (n *PersonListNode) {
 	if mark != nil {
-		n = &PersonListNode{*Person: v}
+		n = &PersonListNode{Person: v}
 		n = this.InsertAfter(n, mark)
 	}
 	return
@@ -384,7 +382,7 @@ func (this *PersonList) merge(other *PersonList) {
 
 	p, po := this.Front(), other.Front()
 	for p != nil && po != nil {
-		if gPersonListGbl.cmp.F(po.*Person, p.*Person) {
+		if gPersonListGbl.cmp.F(po.Person, p.Person) {
 			n := other.RemoveFront()
 			po = other.Front()
 			p = this.InsertBefore(n, p)
@@ -398,4 +396,3 @@ func (this *PersonList) merge(other *PersonList) {
 		this.InsertBackList(other)
 	}
 }
-
