@@ -489,9 +489,10 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 		return
 	})
 
-	replacedCode = goFmt(replacedCode, this.gpPath)
-
 	if replcaceCnt > 0 {
+		replacedCode = gGogpExpEmptyLine.ReplaceAllString(replacedCode, "\n\n") //avoid multi empty lines
+		replacedCode = goFmt(replacedCode, this.gpPath)
+
 		if err = this.rawSaveFile(this.codePath, replacedCode); err == nil {
 			this.nCodeFile++
 			if !gSilence {
