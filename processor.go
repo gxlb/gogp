@@ -647,7 +647,7 @@ func (this *gopgProcessor) getRawName(src string) (r string) {
 func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth int, second bool) (replacedGp string, err error) {
 	_path := fmt.Sprintf("%s|%s", relateGoPath(gpPath), relateGoPath(filepath.Dir(this.gpgPath))) //gp file+gpg path=unique
 
-	replacedGp = this.doPredefReplace(gpPath, content, section, nDepth)
+	replacedGp = content
 
 	//gen code file content
 	this.buildMatches(section, gpPath, false, second)
@@ -655,6 +655,8 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	norep := 0
 	replacedGp, norep = replist.doReplacing(replacedGp, this.gpgPath, false)
 	this.nNoReplaceMathNum += norep
+
+	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
 
 	//remove more empty line
 	replacedGp = goFmt(replacedGp, this.gpgPath)
