@@ -658,6 +658,8 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 
 	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
 
+	replacedGp = gGogpExpEmptyLine.ReplaceAllString(replacedGp, "\n\n") //avoid multi empty lines
+
 	//remove more empty line
 	replacedGp = goFmt(replacedGp, this.gpgPath)
 
