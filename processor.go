@@ -489,7 +489,7 @@ func (this *gopgProcessor) procStepRequire() (err error) {
 		return
 	})
 
-	if replcaceCnt > 0 {
+	if gForceUpdate || replcaceCnt > 0 {
 		replacedCode = gGogpExpEmptyLine.ReplaceAllString(replacedCode, "\n\n") //avoid multi empty lines
 		replacedCode = goFmt(replacedCode, this.gpPath)
 
