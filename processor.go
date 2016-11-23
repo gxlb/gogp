@@ -117,8 +117,25 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 	//		}
 	//	}
 	rep = reg.ReplaceAllStringFunc(content, func(src string) (r string) {
-		if v, ok := this.getMatch(src); ok {
-			r = v
+		p, w, s := "", src, ""
+		rawName := false
+		if !reverse {
+			elem := reg.FindAllStringSubmatch(src, 1)[0]
+			p, w, s = elem[1], elem[2], elem[3]
+			rawName = (w == "<VALUE_TYPE>" || w == "<KEY_TYPE>") && (p == "." || s == ":")
+			//fmt.Printf("[%s][%s][%s][%s][%v]\n", src, p, w, s, rawName)
+		}
+		if v, ok := this.getMatch(w); ok {
+			if reverse {
+				r = v
+			} else { //gp replacing
+				wv := v
+				if rawName {
+					wv = gGetRawName(v)
+				}
+				r = p + wv + s
+				//fmt.Printf("[%s][%s]->[%s]\n", w, v, r)
+			}
 		} else {
 			fmt.Printf("[gogp error]: [%s] has no replacing.[%s] [%s : %s]\n", src, relateGoPath(this.gpPath), relateGoPath(this.gpgPath), this.sectionName)
 			//this.reportNoReplacing(src, _path)
@@ -623,7 +640,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 					}
 				}
 			case rawname != "":
-				rep = this.getRawName(rawname)
+				rep = gGetRawName(rawname)
 			default:
 				fmt.Printf("[gogp error]: %s invalid predef statement [%#v]\n", this.step, src)
 			}
@@ -635,12 +652,6 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 		gOnceMap[pathIdentify] = true //record processed gp file
 	}
 
-	return
-}
-
-//remove "*" from src
-func (this *gopgProcessor) getRawName(src string) (r string) {
-	r = strings.Replace(src, "*", "", -1)
 	return
 }
 

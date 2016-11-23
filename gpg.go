@@ -38,7 +38,7 @@ const (
 	grawKeyValueType   = "VALUE_TYPE"        //value_type
 
 	//generic-programming flag <XXX>
-	gsExpTxtReplace = `\<[[:alpha:]][[:word:]]*\>`
+	gsExpTxtReplace = `(?P<P>.?)(?P<W>\<[[:alpha:]][[:word:]]*\>)(?P<S>.?)`
 
 	// ignore all text format:
 	// //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
@@ -307,5 +307,11 @@ func goFmt(s, file string) (r string) {
 	} else {
 		r = string(b)
 	}
+	return
+}
+
+//remove "*" from src
+func gGetRawName(src string) (r string) {
+	r = strings.Replace(src, "*", "", -1)
 	return
 }
