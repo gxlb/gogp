@@ -261,11 +261,13 @@ func (this *GOGPGlobalNamePrefixList) InsertFront(node *GOGPGlobalNamePrefixList
 
 func (this *GOGPGlobalNamePrefixList) InsertBack(node *GOGPGlobalNamePrefixListNode) (n *GOGPGlobalNamePrefixListNode) {
 	if n = node; n != nil {
-		if this.head != nil {
+		if this.head == nil {
 			this.head, n.next, n.prev = n, n, n
 		} else {
 			n.next = this.head
 			n.prev = this.head.prev
+			this.head.prev.next = n
+			this.head.prev = n
 		}
 	}
 	return
