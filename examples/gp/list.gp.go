@@ -328,9 +328,10 @@ func (this *GOGPGlobalNamePrefixList) PushAfter(v GOGPValueType, mark *GOGPGloba
 }
 
 func (this *GOGPGlobalNamePrefixList) InsertBefore(node, mark *GOGPGlobalNamePrefixListNode) (n *GOGPGlobalNamePrefixListNode) {
-	if n = node; node != nil && mark != nil {
+	if n = node; node != nil && mark != nil && node != mark {
 		n.next = mark
 		n.prev = mark.prev
+		mark.prev.next = n
 		mark.prev = n
 		if this.head == mark {
 			this.RotateBackward()
@@ -453,13 +454,13 @@ func (this *GOGPGlobalNamePrefixList) mergeSort() {
 	}
 
 	var (
-		hand, unsorted GOGPGlobalNamePrefixList
-		binList        [64]GOGPGlobalNamePrefixList //save temp list that len=2^i
-		nFilledBin     = 0
+		hand       GOGPGlobalNamePrefixList
+		binList    [64]GOGPGlobalNamePrefixList //save temp list that len=2^i
+		nFilledBin = 0
 	)
 
-	for unsorted = *this; !unsorted.Empty(); {
-		hand.InsertFront(unsorted.RemoveFront())
+	for !this.Empty() {
+		hand.InsertFront(this.RemoveFront())
 		i := 0
 		for ; i < nFilledBin && !binList[i].Empty(); i++ {
 			binList[i].merge(&hand)
@@ -490,7 +491,7 @@ func (this *GOGPGlobalNamePrefixList) merge(other *GOGPGlobalNamePrefixList) {
 		if gGOGPGlobalNamePrefixListGbl.cmp.F(po.GOGPValueType, p.GOGPValueType) {
 			n := other.RemoveFront()
 			po = other.Front()
-			p = this.InsertBefore(n, p)
+			this.InsertBefore(n, p)
 		} else {
 			if p = p.next; p == this.Front() {
 				p = nil

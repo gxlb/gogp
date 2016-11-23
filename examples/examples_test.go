@@ -15,14 +15,18 @@ func TestCallGogp(t *testing.T) {
 		l.PushBack(v)
 	}
 	showList(l, "before sort")
-	showListReverse(l, "Rbefore sort")
+	//showListReverse(l, "Rbefore sort")
 	l.Sort()
-	//showList(l, "after  sort")
+	showList(l, "after  sort")
 }
 
 func showList(l *IntList, head string) {
 	fmt.Printf("%s: ", head)
-	for v := l.Visitor(); v.Next(); {
+	for v, n := l.Visitor(), 0; v.Next(); {
+		n++
+		if n > 10 {
+			break
+		}
 		fmt.Printf("%d ", v.Get().Get())
 	}
 	fmt.Printf("\n")
