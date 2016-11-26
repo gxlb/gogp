@@ -164,6 +164,7 @@ type gopgProcessor struct {
 	impName           string         //current gpg section name
 	step              gogp_proc_step //current processing step
 	matches2          replaceList    //cases that need replacing, secondary
+	replaces          replaceList    //keys that need replace
 }
 
 //get file suffix of code file
@@ -591,6 +592,8 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 
 func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDepth int) (rep string) {
 	pathIdentify := fmt.Sprintf("%s|%s", relateGoPath(gpPath), relateGoPath(filepath.Dir(this.gpgPath))) //gp file+gpg path=unique
+	this.replaces.clear()
+
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
@@ -598,7 +601,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 		needReplace = false
 		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (rep string) {
 			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
-			ignore, req, reqp, reqn, reqgpg, condk, t, f, gpgcfg, once, rawname := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11]
+			ignore, req, reqp, reqn, reqgpg, condk, t, f, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11], elem[12]
 
 			if reqgpg != "" && reqn == "" { //section name is config from gpg file
 				reqn = this.getGpgCfg(section, reqgpg, true)
@@ -639,8 +642,11 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 						fmt.Printf("[gogp debug]: %s GOGP_ONCE(%s:%s) ok [%#v]\n", this.step, pathIdentify, section, once)
 					}
 				}
-			case rawname != "":
-				rep = gGetRawName(rawname)
+			case repsrc != "":
+				rep = ""
+				this.replaces.insert(repdst, repsrc, true)
+				//fmt.Printf("%s %s %s [%s] -> [%s]\n", gpPath, section, src, repsrc, repdst)
+
 			default:
 				fmt.Printf("[gogp error]: %s invalid predef statement [%#v]\n", this.step, src)
 			}
@@ -659,6 +665,15 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	_path := fmt.Sprintf("%s|%s", relateGoPath(gpPath), relateGoPath(filepath.Dir(this.gpgPath))) //gp file+gpg path=unique
 
 	replacedGp = content
+	this.replaces.clear()
+
+	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
+
+	//replaces keys that need be replacing
+	if this.replaces.Len() > 0 {
+		replacedGp, _ = this.replaces.doReplacing(replacedGp, this.gpgPath, true)
+		this.replaces.clear()
+	}
 
 	//gen code file content
 	this.buildMatches(section, gpPath, false, second)
@@ -666,8 +681,6 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	norep := 0
 	replacedGp, norep = replist.doReplacing(replacedGp, this.gpgPath, false)
 	this.nNoReplaceMathNum += norep
-
-	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
 
 	replacedGp = gGogpExpEmptyLine.ReplaceAllString(replacedGp, "\n\n") //avoid multi empty lines
 
