@@ -361,6 +361,16 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 	}
 
 	replaceSection := reqn
+	leftFmt := gsTxtRequireResultFmt                          //left required file
+	at := len(replaceSection) > 0 && replaceSection[0] == '@' //left result in this file
+	if at {
+		replaceSection = replaceSection[1:]
+		leftFmt = gsTxtRequireAtResultFmt
+	}
+	sharp := len(replaceSection) > 0 && replaceSection[0] == '#' //do not save
+	if sharp {
+		replaceSection = replaceSection[1:]
+	}
 	if replaceSection == "" || replaceSection == "_" {
 		replaceSection = section
 	}
@@ -373,7 +383,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 			if this.step == gogp_step_PRODUCE {
 				rep = "\n\n"
 				replaced = true
-				if reqn != "_" && !this.checkGpgCfg(replaceSection, grawKeyDontSave) { //reqn=="_" will not generate this code file
+				if !sharp && reqn != "_" && !this.checkGpgCfg(replaceSection, grawKeyDontSave) { //reqn=="_" will not generate this code file
 					gpgDir := filepath.Dir(this.gpgPath)
 					gpName := strings.TrimSuffix(filepath.Base(gpFullPath), gGpExt)
 					codePath := this.getProductFilePath(gpgDir, gpName, this.getCodeFileSuffix(replaceSection))
@@ -423,7 +433,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 						replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 						replacedGp = strings.Replace(replacedGp, "import", "//import", -1)
 						//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
-						reqResult := fmt.Sprintf(gsTxtRequireResultFmt, reqp, "$CONTENT", reqp)
+						reqResult := fmt.Sprintf(leftFmt, reqp, "$CONTENT", reqp)
 						out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
 						replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
 						oldContent := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$CONTENT")
