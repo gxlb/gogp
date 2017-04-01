@@ -258,7 +258,8 @@ func (this *gopgProcessor) procGpg(file string, step gogp_proc_step) (err error)
 	if err = this.loadGpgFile(file); err == nil && this.hasTask(step) {
 		for i, imp := range this.gpgContent.Sections() {
 			if err = this.genProduct(i, imp); err != nil {
-				return
+				fmt.Println(err)
+				//return
 			}
 		}
 	}
@@ -427,6 +428,9 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 			} else {
 				if gRemoveProductsOnly {
 					rep = fmt.Sprintf("\n\n%s\n\n", req)
+					if !gSilence {
+						fmt.Printf("%#v\n", rep)
+					}
 					replaced = true
 				} else {
 					if nDepth == 0 { //do not let require recursive
@@ -607,7 +611,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
-	for _content, needReplace := content, true; needReplace; _content = rep {
+	for _content, needReplace, i := content, true, 0; needReplace && i < 3; _content, i = rep, i+1 {
 		needReplace = false
 		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (rep string) {
 			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
@@ -615,6 +619,10 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 
 			if reqgpg != "" && reqn == "" { //section name is config from gpg file
 				reqn = this.getGpgCfg(section, reqgpg, true)
+			}
+
+			if !gSilence && i > 1 {
+				fmt.Println(i, ignore, req, reqp, reqn, reqgpg, condk, t, f, gpgcfg, once, repsrc, repdst)
 			}
 
 			needReplace = true

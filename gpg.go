@@ -50,7 +50,7 @@ const (
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\\((?P<REQGPG>[[:word:]]+)\\)))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?:(?://#GOGP_IGNORE_BEGIN )?//required from\\([^\\n\\r,]*?\\).*?(?://)?(?:#GOGP_IGNORE_END )?//required from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
+	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\\((?P<REQGPG>[[:word:]]+)\\)))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\\([^\\n\\r,]*?\\).*?(?://)?(?:#GOGP_IGNORE_END )?///require end from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 
@@ -73,8 +73,8 @@ const (
 	gsExpTxtFileEnd   = "(?sm:\\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\\r|\\n]*)"
 
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
-	gsTxtRequireResultFmt   = "//#GOGP_IGNORE_BEGIN //required from(%s)\n%s\n//#GOGP_IGNORE_END //required from(%s)"
-	gsTxtRequireAtResultFmt = "//required from(%s)\n%s\n//required from(%s)"
+	gsTxtRequireResultFmt   = "//#GOGP_IGNORE_BEGIN ///require begin from(%s)\n%s\n//#GOGP_IGNORE_END ///require end from(%s)"
+	gsTxtRequireAtResultFmt = "///require begin from(%s)\n%s\n///require end from(%s)"
 	gsTxtGogpIgnoreFmt      = "//#GOGP_IGNORE_BEGIN%s%s//#GOGP_IGNORE_END%s"
 
 	gThisFilePath = "github.com/vipally/gogp/gpg.go"
