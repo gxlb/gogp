@@ -43,6 +43,7 @@ const (
 	// ignore all text format:
 	// //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
 	gsExpTxtIgnore = "(?sm:\\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
+	gsExpTxtGPOnly = "(?sm:\\s*//#GOGP_GPONLY_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_GPONLY_END.*?$[\\r|\\n]*)"
 
 	// select by condition <cd> defines in gpg file:
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
