@@ -345,8 +345,7 @@ func (this *gopgProcessor) remove(file string) {
 func (this *gopgProcessor) procRequireReplacement(statement, section string, nDepth int) (rep string, replaced bool, err error) {
 
 	rep = statement
-
-	if nDepth >= 10 {
+	if nDepth >= 5 {
 		panic(fmt.Sprintf("[gogp error] [%s:%s]maybe loop recursive of #GOGP_REQUIRE(...), %d", relateGoPath(this.gpgPath), section, nDepth))
 	}
 
@@ -686,7 +685,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	this.replaces.clear()
 
 	if this.step == gogp_step_PRODUCE {
-		replacedGp = gGogpExpGpIgnore.ReplaceAllString(this.gpContent, "")
+		replacedGp = gGogpExpGpIgnore.ReplaceAllString(replacedGp, "")
 	}
 
 	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
