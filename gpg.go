@@ -43,7 +43,7 @@ const (
 	// ignore all text format:
 	// //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
 	gsExpTxtIgnore = "(?sm:\\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
-	gsExpTxtGPOnly = "(?sm:\\s*//#GOGP_GPONLY_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_GPONLY_END.*?$[\\r|\\n]*)"
+	gsExpTxtGPOnly = "(?sm:\\s*//#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\\r|\\n]*)"
 
 	// select by condition <cd> defines in gpg file:
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
@@ -86,11 +86,12 @@ var (
 	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
 	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey))
 	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
+	gGogpExpGpIgnore         = regexp.MustCompile(fmt.Sprintf("%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly))
 	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
 	gGogpExpTrimEmptyLine    = regexp.MustCompile(gsExpTxtTrimEmptyLine)
 	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)
 	gGogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtRequire, gsExpTxtFileBegin, gsExpTxtFileEnd))
-	gGogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtFileBegin, gsExpTxtFileEnd, gGogpExpIgnore))
+	gGogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtFileBegin, gsExpTxtFileEnd, gsExpTxtIgnore))
 	//gGogpExpRawName          = regexp.MustCompile(gsExpTxtRawName)
 	//	gGogpExpChoice      = regexp.MustCompile(gsExpTxtChoice)
 

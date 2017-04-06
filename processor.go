@@ -685,6 +685,10 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	replacedGp = content
 	this.replaces.clear()
 
+	if this.step == gogp_step_PRODUCE {
+		replacedGp = gGogpExpGpIgnore.ReplaceAllString(this.gpContent, "")
+	}
+
 	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
 
 	//replaces keys that need be replacing
