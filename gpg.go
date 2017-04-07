@@ -51,7 +51,7 @@ const (
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\\((?P<REQGPG>[[:word:]]+)\\)))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\\([^\\n\\r,]*?\\).*?(?://)?(?:#GOGP_IGNORE_END )?///require end from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
+	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\\((?P<REQGPG>[[:word:]]+)\\)))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\\([^\\n\\r,]*?\\)(?P<CONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 
@@ -86,7 +86,7 @@ var (
 	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
 	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey))
 	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
-	gGogpExpGpIgnore         = regexp.MustCompile(fmt.Sprintf("%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly))
+	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly))
 	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
 	gGogpExpTrimEmptyLine    = regexp.MustCompile(gsExpTxtTrimEmptyLine)
 	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)
