@@ -37,6 +37,8 @@ const (
 	grawKeyKeyType     = "KEY_TYPE"          //key_type
 	grawKeyValueType   = "VALUE_TYPE"        //value_type
 
+	grawStringNotComment = "//#GOGP"
+
 	//generic-programming flag <XXX>
 	gsExpTxtReplace = `(?P<P>.?)(?P<W>\<[[:alpha:]][[:word:]]*\>)(?P<S>.?)`
 

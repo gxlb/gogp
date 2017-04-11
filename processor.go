@@ -641,12 +641,19 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 			case ignore != "":
 				rep = "\n\n"
 			case condk != "":
-				cfg := this.getGpgCfg(section, condk, false)
-				if cfg == "" || cfg == "false" || cfg == "0" {
-					rep = fmt.Sprintf("\n\n%s\n\n", f)
+				if this.step == gogp_step_PRODUCE { //gen go code
+					cfg := this.getGpgCfg(section, condk, false)
+
+					sel := t
+					if cfg == "" || cfg == "false" || cfg == "0" {
+						sel = f
+					}
+					sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
+					rep = fmt.Sprintf("\n\n%s\n\n", sel)
 				} else {
-					rep = fmt.Sprintf("\n\n%s\n\n", t)
+					rep = src
 				}
+
 			case reqp != "":
 				//require process
 				if r, _, err := this.procRequireReplacement(src, section, nDepth+1); err == nil {
