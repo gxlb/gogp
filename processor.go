@@ -703,7 +703,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	this.replaces.clear()
 
 	if this.step == gogp_step_PRODUCE {
-		replacedGp = gGogpExpCodeIgnore.ReplaceAllString(replacedGp, "")
+		replacedGp = gGogpExpCodeIgnore.ReplaceAllString(replacedGp, "\n\n")
 	}
 
 	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
