@@ -1,8 +1,12 @@
 //#GOGP_IFDEF GOGP_DO_NOT_HAS_THIS_DEFINE__
-//this is a fake types for other gp file //#GOGP_ENDIF
+//this is a fake types for other gp file
+//#GOGP_ENDIF
 
 //#GOGP_IGNORE_BEGIN
-package gp //#GOGP_IGNORE_END
+
+package gp
+
+//#GOGP_IGNORE_END
 
 //#GOGP_FILE_BEGIN
 //#GOGP_IGNORE_BEGIN ///gogp_file_begin
