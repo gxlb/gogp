@@ -453,7 +453,9 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 					oldContent := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$REQCONTENT")
 
 					rep = goFmt(replacedGp, this.gpPath)
-					replaced = !strings.Contains(rep, oldContent) //check if content changed
+
+					//check if content changed
+					replaced = !strings.Contains(rep, oldContent) //|| !strings.Contains(oldContent, "//#GOGP_IGNORE_BEGIN")
 					//if replaced {
 					//	fmt.Printf("\nrep=[%#v]\nold=[%#v]\n", rep, oldContent)
 					//}
