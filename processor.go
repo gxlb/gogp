@@ -450,13 +450,13 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 					reqResult := fmt.Sprintf(leftFmt, reqp, "$CONTENT", reqp)
 					out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
 					replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
-					oldContent := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$CONTENT")
+					oldContent := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$REQCONTENT")
 
 					rep = goFmt(replacedGp, this.gpPath)
-					replaced = !strings.Contains(oldContent, "//#GOGP_IGNORE_BEGIN") || !strings.Contains(rep, oldContent) //check if content changed
-					//if !replaced {
-					//	fmt.Printf("\n[%#v]\n[%#v]\n", rep, oldContent)
-					//}
+					replaced = !strings.Contains(rep, oldContent) //check if content changed
+					if replaced {
+						fmt.Printf("\nrep=[%#v]\nold=[%#v]\n", rep, oldContent)
+					}
 
 				} else {
 					rep = "\n\n"
@@ -625,14 +625,15 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 		needReplace = false
 		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (rep string) {
 			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
-			ignore, req, reqp, reqn, reqgpg, content, condk, t, f, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11], elem[12], elem[13]
+			ignore, req, reqp, reqn, reqgpg, content, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
 
 			if reqgpg != "" && reqn == "" { //section name is config from gpg file
 				reqn = this.getGpgCfg(section, reqgpg, true)
 			}
 
 			if !gSilence && i > 1 {
-				fmt.Println(i, ignore, req, reqp, reqn, reqgpg, condk, t, f, gpgcfg, once, repsrc, repdst)
+				fmt.Printf("##src=[%#v]\n i=%d ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
+					src, i, ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
 			}
 
 			needReplace = true
@@ -640,19 +641,6 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 			switch {
 			case ignore != "":
 				rep = "\n\n"
-			case condk != "":
-				if this.step == gogp_step_PRODUCE { //gen go code
-					cfg := this.getGpgCfg(section, condk, false)
-
-					sel := t
-					if cfg == "" || cfg == "false" || cfg == "0" {
-						sel = f
-					}
-					sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
-					rep = fmt.Sprintf("\n\n%s\n\n", sel)
-				} else {
-					rep = src
-				}
 
 			case reqp != "":
 				//require process
@@ -696,6 +684,29 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 	return
 }
 
+func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (replaced string) {
+	replaced = gGogpExpCodeIgnore.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
+		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
+		ignore, gponly, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5]
+		switch {
+		case condk != "":
+			cfg := this.getGpgCfg(section, condk, false)
+
+			sel := t
+			if cfg == "" || cfg == "false" || cfg == "0" {
+				sel = f
+			}
+			sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
+			rep = fmt.Sprintf("\n\n%s\n\n", sel)
+		default:
+		case ignore != "" || gponly != "":
+			rep = "\n\n"
+		}
+		return
+	})
+	return
+}
+
 func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth int, second bool) (replacedGp string, err error) {
 	_path := fmt.Sprintf("%s|%s", relateGoPath(gpPath), relateGoPath(filepath.Dir(this.gpgPath))) //gp file+gpg path=unique
 
@@ -703,7 +714,8 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	this.replaces.clear()
 
 	if this.step == gogp_step_PRODUCE {
-		replacedGp = gGogpExpCodeIgnore.ReplaceAllString(replacedGp, "\n\n")
+		//replacedGp = gGogpExpCodeIgnore.ReplaceAllString(replacedGp, "\n\n")
+		replacedGp = this.pretreatGpForCode(replacedGp, section)
 	}
 
 	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)

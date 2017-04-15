@@ -53,7 +53,7 @@ const (
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\\((?P<REQGPG>[[:word:]]+)\\)))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\\([^\\n\\r,]*?\\)(?P<CONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
+	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\\((?P<REQGPG>[[:word:]]+)\\)))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\\([^\\n\\r,]*?\\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
 	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
 	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
 
@@ -86,16 +86,16 @@ const (
 
 var (
 	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
-	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtChoice, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey))
+	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey))
 	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
-	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly))
+	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly, gsExpTxtChoice))
 	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
 	gGogpExpTrimEmptyLine    = regexp.MustCompile(gsExpTxtTrimEmptyLine)
 	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)
 	gGogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtRequire, gsExpTxtFileBegin, gsExpTxtFileEnd))
 	gGogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtFileBegin, gsExpTxtFileEnd, gsExpTxtIgnore))
 	//gGogpExpRawName          = regexp.MustCompile(gsExpTxtRawName)
-	//	gGogpExpChoice      = regexp.MustCompile(gsExpTxtChoice)
+	//gGogpExpChoice = regexp.MustCompile(gsExpTxtChoice)
 
 	gGoPath             = "" //GoPath
 	gCopyRightCode      = ""
