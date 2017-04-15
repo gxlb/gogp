@@ -106,7 +106,7 @@ var (
 
 	gsTxtFileBeginContent = `//
 /*   //This line can be uncommented to disable all this file, and it doesn't effect to the .gp file
-//	 //If test or change .gp file required, comment it to modify and cmomile as normal go file
+//	 //If test or change .gp file required, comment it to modify and compile as normal go file
 //
 // This is a fake go code file
 // It is used to generate .gp file by gogp tool
