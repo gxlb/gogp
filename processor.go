@@ -454,9 +454,9 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 
 					rep = goFmt(replacedGp, this.gpPath)
 					replaced = !strings.Contains(rep, oldContent) //check if content changed
-					if replaced {
-						fmt.Printf("\nrep=[%#v]\nold=[%#v]\n", rep, oldContent)
-					}
+					//if replaced {
+					//	fmt.Printf("\nrep=[%#v]\nold=[%#v]\n", rep, oldContent)
+					//}
 
 				} else {
 					rep = "\n\n"
