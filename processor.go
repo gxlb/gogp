@@ -627,7 +627,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 		needReplace = false
 		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (rep string) {
 			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
-			ignore, req, reqp, reqn, reqgpg, content, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
+			ignore, req, reqp, reqn, reqgpg, reqcontent, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
 
 			if reqgpg != "" && reqn == "" { //section name is config from gpg file
 				reqn = this.getGpgCfg(section, reqgpg, true)
@@ -645,13 +645,18 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 				rep = "\n\n"
 
 			case reqp != "":
-				//require process
-				if r, _, err := this.procRequireReplacement(src, section, nDepth+1); err == nil {
-					rep = r
+				if reqcontent == "" {
+					//require process
+					if r, _, err := this.procRequireReplacement(src, section, nDepth+1); err == nil {
+						rep = r
+					} else {
+						fmt.Println(err)
+					}
+					req, reqn, reqcontent = req, reqn, reqcontent //never use
 				} else {
-					fmt.Println(err)
+					rep = reqcontent
 				}
-				req, reqn, content = req, reqn, content //never use
+
 			case gpgcfg != "":
 				rep = this.getGpgCfg(section, gpgcfg, true)
 			case once != "":
@@ -675,6 +680,12 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 			default:
 				fmt.Printf("[gogp error]: %s invalid predef statement [%#v]\n", this.step, src)
 			}
+			//			if section == "GOGP_REVERSE_datadef" {
+			//				fmt.Printf("##gpPath=[%s] section[%s] \ncontent=[%s] \n##src=[%s]\n##rep=%s\n",
+			//					gpPath, section, reqcontent, src, rep)
+			//				fmt.Printf("ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
+			//					ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
+			//			}
 			return
 		})
 	}
