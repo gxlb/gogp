@@ -624,8 +624,11 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
 	for _content, needReplace, i := content, true, 0; needReplace && i < 3; _content, i = rep, i+1 {
+		//		if section == "GOGP_REVERSE_datadef" {
+		//			fmt.Printf("@@i=%d _content=[%s]\n", i, _content)
+		//		}
 		needReplace = false
-		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (rep string) {
+		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (_rep string) {
 			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
 			ignore, req, reqp, reqn, reqgpg, reqcontent, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
 
@@ -642,38 +645,38 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 
 			switch {
 			case ignore != "":
-				rep = "\n\n"
+				_rep = "\n\n"
 
 			case reqp != "":
 				if reqcontent == "" {
 					//require process
 					if r, _, err := this.procRequireReplacement(src, section, nDepth+1); err == nil {
-						rep = r
+						_rep = r
 					} else {
 						fmt.Println(err)
 					}
 					req, reqn, reqcontent = req, reqn, reqcontent //never use
 				} else {
-					rep = reqcontent
+					_rep = reqcontent
 				}
 
 			case gpgcfg != "":
-				rep = this.getGpgCfg(section, gpgcfg, true)
+				_rep = this.getGpgCfg(section, gpgcfg, true)
 			case once != "":
 				if _, ok := gOnceMap[pathIdentify]; ok { //check if has processed this file
-					rep = "\n\n"
+					_rep = "\n\n"
 					if gDebug {
 						fmt.Printf("[gogp debug]: %s GOGP_ONCE(%s:%s) ignore [%#v]\n", this.step, pathIdentify, section, once)
 					}
 
 				} else {
-					rep = fmt.Sprintf("\n\n%s\n\n", once)
+					_rep = fmt.Sprintf("\n\n%s\n\n", once)
 					if gDebug {
 						fmt.Printf("[gogp debug]: %s GOGP_ONCE(%s:%s) ok [%#v]\n", this.step, pathIdentify, section, once)
 					}
 				}
 			case repsrc != "":
-				rep = ""
+				_rep = ""
 				this.replaces.insert(repdst, repsrc, true)
 				//fmt.Printf("%s %s %s [%s] -> [%s]\n", gpPath, section, src, repsrc, repdst)
 
@@ -681,8 +684,8 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 				fmt.Printf("[gogp error]: %s invalid predef statement [%#v]\n", this.step, src)
 			}
 			//			if section == "GOGP_REVERSE_datadef" {
-			//				fmt.Printf("##gpPath=[%s] section[%s] \ncontent=[%s] \n##src=[%s]\n##rep=%s\n",
-			//					gpPath, section, reqcontent, src, rep)
+			//				fmt.Printf("##gpPath=[%s] section[%s] \n##%s 1content=[%s] \n##%s 2src=[%s]\n##%s 3rep=[%s]\n",
+			//					gpPath, section, section, reqcontent, section, src, section, _rep)
 			//				fmt.Printf("ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
 			//					ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
 			//			}
