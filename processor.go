@@ -403,15 +403,15 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 				}
 
 				if _, ok := gSavedCodeFile[codePath]; ok { //skip saved file
-					//if gDebug {
-					//	fmt.Printf("[gogp] debug: step%d Required file [%s] skip\n", this.step, codePath)
-					//}
+					//					if gDebug {
+					//						fmt.Printf("[gogp] debug: step%d Required file [%s] skip\n", this.step, codePath)
+					//					}
 					return
 				} else {
 					gSavedCodeFile[codePath] = true //to prevent rewrite this file no matter it chages or not
-					//if gDebug {
-					//	fmt.Printf("[gogp] debug: step%d Required file [%s] save ok\n", this.step, codePath)
-					//}
+					//					if gDebug {
+					//						fmt.Printf("[gogp] debug: step%d Required file [%s] save ok\n", this.step, codePath)
+					//					}
 				}
 
 				oldCode, _ := this.rawLoadFile(codePath)
@@ -444,18 +444,24 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 					if replacedGp, err = this.doGpReplace(gpFullPath, gpContent, replaceSection, nDepth, true); err != nil {
 						return
 					}
+					//					if section == "GOGP_REVERSE_datadef" {
+					//						fmt.Printf("@@procRequireReplacement replacedGp=[%s]\n", replacedGp)
+					//					}
 					replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 					replacedGp = strings.Replace(replacedGp, "import", "//import", -1)
 					//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
 					reqResult := fmt.Sprintf(leftFmt, reqp, "$CONTENT", reqp)
 					out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
 					replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
-					oldContent := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$REQCONTENT")
+					oldContent := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$CONTENT")
 
 					rep = goFmt(replacedGp, this.gpPath)
 
 					//check if content changed
 					replaced = !strings.Contains(rep, oldContent) //|| !strings.Contains(oldContent, "//#GOGP_IGNORE_BEGIN")
+					//					if section == "GOGP_REVERSE_datadef" {
+					//						fmt.Printf("@@procRequireReplacement replaced=%v old=[%s] \nreplaced=%v replacedGp=[%s]\n", replaced, oldContent, replaced, rep)
+					//					}
 					//if replaced {
 					//	fmt.Printf("\nrep=[%#v]\nold=[%#v]\n", rep, oldContent)
 					//}
