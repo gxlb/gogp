@@ -453,12 +453,12 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 					reqResult := fmt.Sprintf(leftFmt, reqp, "$CONTENT", reqp)
 					out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
 					replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
-					oldContent := gGogpExpTrimEmptyLine.ReplaceAllString(statement, "$CONTENT")
+					oldContent := gGogpExpRequire.ReplaceAllString(statement, "$REQCONTENT")
 
 					rep = goFmt(replacedGp, this.gpPath)
 
 					//check if content changed
-					replaced = !strings.Contains(rep, oldContent) //|| !strings.Contains(oldContent, "//#GOGP_IGNORE_BEGIN")
+					replaced = oldContent == "" || !strings.Contains(rep, oldContent) //|| !strings.Contains(oldContent, "//#GOGP_IGNORE_BEGIN")
 					//					if section == "GOGP_REVERSE_datadef" {
 					//						fmt.Printf("@@procRequireReplacement replaced=%v old=[%s] \nreplaced=%v replacedGp=[%s]\n", replaced, oldContent, replaced, rep)
 					//					}
