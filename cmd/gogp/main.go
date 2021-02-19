@@ -2,9 +2,9 @@
 package main
 
 import (
+	"github.com/gxlb/gogp"
 	"github.com/vipally/cmdline"
 	"github.com/vipally/cpright"
-	"github.com/vipally/gogp"
 )
 
 func main() {

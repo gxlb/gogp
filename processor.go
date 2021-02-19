@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vipally/gogp/ini"
+	"github.com/gxlb/gogp/ini"
 )
 
 //cases of template replacing
@@ -639,7 +639,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 				reqn = this.getGpgCfg(section, reqgpg, true)
 			}
 
-			if !gSilence && i > 1 {
+			if !gSilence && i > 1 || gDebug {
 				fmt.Printf("##src=[%#v]\n i=%d ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
 					src, i, ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
 			}
