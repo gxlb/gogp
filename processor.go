@@ -631,7 +631,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
 	for _content, needReplace, i := content, true, 0; needReplace && i < 3; _content, i = rep, i+1 {
 		needReplace = false
-		//fmt.Println(_content)
+		//fmt.Println("try match case", i, 3, _content)
 		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (_rep string) {
 			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
 			ignore, req, reqp, reqn, reqgpg, reqcontent, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
@@ -640,10 +640,10 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 				reqn = this.getGpgCfg(section, reqgpg, true)
 			}
 
-			//if !gSilence && i > 1 || gDebug {
-			fmt.Printf("##src=[%#v]\n i=%d ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
-				src, i, ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
-			//}
+			if !gSilence && i > 1 {
+				fmt.Printf("##src=[%#v]\n i=%d ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
+					src, i, ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
+			}
 
 			needReplace = true
 
@@ -714,6 +714,7 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 	replaced = gGogpExpCodeIgnore.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
 		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
 		ignore, gponly, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5]
+		//fmt.Printf("##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%s] f=[%s]\n", src, ignore, gponly, condk, t, f)
 		switch {
 		case condk != "":
 			cfg := this.getGpgCfg(section, condk, false)
@@ -735,20 +736,24 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 
 func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth int, second bool) (replacedGp string, err error) {
 	_path := fmt.Sprintf("%s|%s", relateGoPath(gpPath), relateGoPath(filepath.Dir(this.gpgPath))) //gp file+gpg path=unique
-
+	//fmt.Println("doGpReplace", this.step.String(), content)
 	replacedGp = content
 	this.replaces.clear()
 
 	if this.step == gogp_step_PRODUCE {
 		//replacedGp = gGogpExpCodeIgnore.ReplaceAllString(replacedGp, "\n\n")
 		replacedGp = this.pretreatGpForCode(replacedGp, section)
+		//fmt.Println("doGpReplace1", this.step.String(), replacedGp)
 	}
 
 	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
+	//fmt.Println("doGpReplace2", this.step.String(), content)
 
 	//replaces keys that need be replacing
 	if this.replaces.Len() > 0 {
+		//fmt.Println(this.replaces.expString())
 		replacedGp, _ = this.replaces.doReplacing(replacedGp, this.gpgPath, true)
+		//fmt.Println("doGpReplace3", this.step.String(), content)
 		this.replaces.clear()
 	}
 
