@@ -1,0 +1,6 @@
+github.com/vipally/cmdline v0.0.0-20200404124829-ea1e34f654ec h1:idgc5yK/DeUQX5tpHx4Sp57Yc/jQcM1gnxtuNvkspRQ=
+github.com/vipally/cmdline v0.0.0-20200404124829-ea1e34f654ec/go.mod h1:k4n5DFrZkuMWGOCsKFmyh62BTyOPLDZfTgQ1G1oF8eU=
+github.com/vipally/cpright v0.0.0-20161005151456-25b84bafd267 h1:LRBXTIiz2aSUToCnNvdoRLXsr4GT0y5DO+517BnGpEE=
+github.com/vipally/cpright v0.0.0-20161005151456-25b84bafd267/go.mod h1:aJJYawBeNQW7cRYDlxJRRZMNrBqL4oIQhIKFBJhvhF8=
+github.com/vipally/gogp v0.0.0-20170420075522-df97450d9feb h1:D3j7vUCgjgQCMVjyYuTxnwX2EzzUjirdLOvjEYkjOoA=
+github.com/vipally/gogp v0.0.0-20170420075522-df97450d9feb/go.mod h1:jM4O87t7N31BvQvO4kXhDGgM2CRKg9GS2eE6pkdc5Lc=

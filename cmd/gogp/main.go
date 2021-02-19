@@ -81,10 +81,10 @@ func main() {
 	cmdline.BoolVar(&debug, "d", "debug", debug, false, "Debug mode.")
 	cmdline.BoolVar(&removeProductsOnly, "remove", "remove", removeProductsOnly, false, "Only remove all products.")
 
-	cmdline.AnotherName("ext", "e")
-	cmdline.AnotherName("force", "f")
-	cmdline.AnotherName("more", "m")
-	cmdline.AnotherName("debug", "d")
+	// cmdline.AnotherName("ext", "e")
+	// cmdline.AnotherName("force", "f")
+	// cmdline.AnotherName("more", "m")
+	// cmdline.AnotherName("debug", "d")
 	cmdline.Parse()
 
 	gogp.RemoveProductsOnly(removeProductsOnly)
