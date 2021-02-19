@@ -631,6 +631,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
 	for _content, needReplace, i := content, true, 0; needReplace && i < 3; _content, i = rep, i+1 {
 		needReplace = false
+		//fmt.Println(_content)
 		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (_rep string) {
 			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
 			ignore, req, reqp, reqn, reqgpg, reqcontent, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
@@ -639,10 +640,10 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 				reqn = this.getGpgCfg(section, reqgpg, true)
 			}
 
-			if !gSilence && i > 1 || gDebug {
-				fmt.Printf("##src=[%#v]\n i=%d ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
-					src, i, ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
-			}
+			//if !gSilence && i > 1 || gDebug {
+			fmt.Printf("##src=[%#v]\n i=%d ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
+				src, i, ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
+			//}
 
 			needReplace = true
 
@@ -681,7 +682,9 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 			case repsrc != "":
 				_rep = ""
 				this.replaces.insert(repdst, repsrc, true)
-				//fmt.Printf("%s %s %s [%s] -> [%s]\n", gpPath, section, src, repsrc, repdst)
+				if gDebug {
+					fmt.Printf("[debug]%s %s %s [%s] -> [%s]\n", gpPath, section, src, repsrc, repdst)
+				}
 
 			default:
 				fmt.Printf("[gogp error]: %s invalid predef statement [%#v]\n", this.step, src)
@@ -694,6 +697,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 			//			}
 			return
 		})
+		//fmt.Println(rep)
 		//		if section == "GOGP_REVERSE_datadef" {
 		//			fmt.Printf("@@i=%d _content=[%s]\ni=%d rep=[%s]\n", i, _content, i, rep)
 		//		}
