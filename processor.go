@@ -724,7 +724,7 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 				sel = f
 			}
 			sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
-			rep = fmt.Sprintf("\n\n%s\n\n", sel)
+			rep = fmt.Sprintf("\n%s\n", sel)
 		default:
 		case ignore != "" || gponly != "":
 			rep = "\n\n"
@@ -764,7 +764,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	replacedGp, norep = replist.doReplacing(replacedGp, this.gpgPath, false)
 	this.nNoReplaceMathNum += norep
 
-	replacedGp = gGogpExpEmptyLine.ReplaceAllString(replacedGp, "\n\n") //avoid multi empty lines
+	replacedGp = gGogpExpEmptyLine.ReplaceAllString(replacedGp, "\n") //avoid multi empty lines
 
 	//remove more empty line
 	replacedGp = goFmt(replacedGp, this.gpgPath)
