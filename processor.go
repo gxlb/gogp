@@ -883,7 +883,7 @@ func (this *gopgProcessor) fileHead(srcFile, gpgFile, section string) (h string)
 ///////////////////////////////////////////////////////////////////
 `,
 		tool,
-		time.Now().Format("Mon Jan 02 2006 15:04:05"),
+		time.Now().Format("Mon Jan 02 2006 15:04 MST"),
 		relateGoPath(srcFile),
 		relateGoPath(gpgFile),
 		section,
