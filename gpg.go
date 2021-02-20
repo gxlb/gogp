@@ -80,7 +80,7 @@ const (
 	gsTxtRequireAtResultFmt = "///require begin from(%s)\n%s\n///require end from(%s)"
 	gsTxtGogpIgnoreFmt      = "//#GOGP_IGNORE_BEGIN%s%s//#GOGP_IGNORE_END%s"
 
-	gThisFilePath = "github.com/vipally/gogp/gpg.go"
+	gThisFilePath = "github.com/gxlb/gogp/gpg.go"
 	gLibVersion   = "3.0.0.final"
 )
 
