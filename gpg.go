@@ -81,7 +81,7 @@ const (
 	gsTxtGogpIgnoreFmt      = "//#GOGP_IGNORE_BEGIN%s%s//#GOGP_IGNORE_END%s"
 
 	gThisFilePath = "github.com/gxlb/gogp/gpg.go"
-	gLibVersion   = "v3.0.0.final"
+	gLibVersion   = "v3.1.0"
 )
 
 var (
