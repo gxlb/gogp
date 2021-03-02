@@ -730,10 +730,11 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 		switch {
 		case condk != "":
 			// <COND> -> COND
+			key := condk
 			if s := len(condk); s >= 2 && condk[0] == '<' && condk[s-1] == '>' {
-				condk = condk[1 : s-1]
+				key = condk[1 : s-1]
 			}
-			cfg := this.getGpgCfg(section, condk, false)
+			cfg := this.getGpgCfg(section, key, false)
 
 			sel := f
 			if parseBoolValue(cfg) {
