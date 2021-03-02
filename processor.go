@@ -717,6 +717,9 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 		//fmt.Printf("##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%s] f=[%s]\n", src, ignore, gponly, condk, t, f)
 		switch {
 		case condk != "":
+			// <COND> -> COND
+			condk = strings.TrimPrefix(condk, "<")
+			condk = strings.TrimSuffix(condk, ">")
 			cfg := this.getGpgCfg(section, condk, false)
 
 			sel := t
