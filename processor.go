@@ -710,6 +710,18 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 	return
 }
 
+var boolTrueValues = []string{"true", "t", "yes", "y", "1"}
+
+// parse bool value from string, treat unknown strings as false
+func parseBoolValue(val string) bool {
+	for _, v := range boolTrueValues {
+		if strings.EqualFold(val, v) {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (replaced string) {
 	replaced = gGogpExpCodeIgnore.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
 		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
@@ -718,13 +730,14 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 		switch {
 		case condk != "":
 			// <COND> -> COND
-			condk = strings.TrimPrefix(condk, "<")
-			condk = strings.TrimSuffix(condk, ">")
+			if s := len(condk); s >= 2 && condk[0] == '<' && condk[s-1] == '>' {
+				condk = condk[1 : s-1]
+			}
 			cfg := this.getGpgCfg(section, condk, false)
 
-			sel := t
-			if cfg == "" || cfg == "false" || cfg == "0" {
-				sel = f
+			sel := f
+			if parseBoolValue(cfg) {
+				sel = t
 			}
 			sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
 			rep = fmt.Sprintf("\n%s\n", sel)
