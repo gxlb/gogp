@@ -725,11 +725,10 @@ func parseBoolValue(val string) bool {
 func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (replaced string) {
 	replaced = gGogpExpCodeIgnore.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
 		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
-		ignore, gponly, condk, t, f := elem[1], elem[2], elem[3], elem[4], elem[5]
+		ignore, gponly, condk, condHit, condMiss := elem[1], elem[2], elem[3], elem[4], elem[5]
 		//fmt.Printf("##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%s] f=[%s]\n", src, ignore, gponly, condk, t, f)
 		switch {
 		case condk != "":
-
 			selectPart := func(sel string) {
 				sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
 				rep = fmt.Sprintf("\n%s\n", sel)
@@ -740,19 +739,24 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 			selOk := false
 			for _, cond := range conds {
 				key := cond
+				condValCheck := true
+				if s := len(key); s > 1 && key[0] == '!' { // !<key> means check key not define
+					key = key[1:]
+					condValCheck = false
+				}
 				if s := len(key); s >= 2 && key[0] == '<' && key[s-1] == '>' { // <key> -> key
 					key = key[1 : s-1]
 				}
 				cfg := this.getGpgCfg(section, key, false)
 
-				if parseBoolValue(cfg) {
-					selectPart(t)
+				if parseBoolValue(cfg) == condValCheck {
+					selectPart(condHit)
 					selOk = true
 					break
 				}
 			}
 			if !selOk {
-				selectPart(f)
+				selectPart(condMiss)
 			}
 
 		default:
