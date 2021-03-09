@@ -729,19 +729,32 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 		//fmt.Printf("##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%s] f=[%s]\n", src, ignore, gponly, condk, t, f)
 		switch {
 		case condk != "":
-			// <COND> -> COND
-			key := condk
-			if s := len(condk); s >= 2 && condk[0] == '<' && condk[s-1] == '>' {
-				key = condk[1 : s-1]
-			}
-			cfg := this.getGpgCfg(section, key, false)
 
-			sel := f
-			if parseBoolValue(cfg) {
-				sel = t
+			selectPart := func(sel string) {
+				sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
+				rep = fmt.Sprintf("\n%s\n", sel)
+				//fmt.Println(rep)
 			}
-			sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
-			rep = fmt.Sprintf("\n%s\n", sel)
+			conds := strings.Split(condk, "||")
+			//fmt.Println("gogp if", condk, conds)
+			selOk := false
+			for _, cond := range conds {
+				key := cond
+				if s := len(key); s >= 2 && key[0] == '<' && key[s-1] == '>' { // <key> -> key
+					key = key[1 : s-1]
+				}
+				cfg := this.getGpgCfg(section, key, false)
+
+				if parseBoolValue(cfg) {
+					selectPart(t)
+					selOk = true
+					break
+				}
+			}
+			if !selOk {
+				selectPart(f)
+			}
+
 		default:
 		case ignore != "" || gponly != "":
 			rep = "\n\n"
