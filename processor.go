@@ -635,7 +635,8 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 		//fmt.Println("try match case", i, 3, _content)
 		rep = gGogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (_rep string) {
 			elem := gGogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG","CONDK", "T", "F","GPGCFG","ONCE"}
-			ignore, req, reqp, reqn, reqgpg, reqcontent, gpgcfg, once, repsrc, repdst := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10]
+			ignore, req, reqp, reqn, reqgpg, reqcontent, gpgcfg, once, repsrc, repdst, mapsrc, mapdst :=
+				elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11], elem[12]
 
 			if reqgpg != "" && reqn == "" { //section name is config from gpg file
 				reqn = this.getGpgCfg(section, reqgpg, true)
@@ -680,9 +681,15 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 						fmt.Printf("[gogp debug]: %s GOGP_ONCE(%s:%s) ok [%#v]\n", this.step, pathIdentify, section, once)
 					}
 				}
+			case mapsrc != "":
+				_rep = ""
+				this.replaces.insert(mapsrc, mapdst, false)
+				if gDebug {
+					fmt.Printf("[debug] map %s %s %s [%s] -> [%s]\n", gpPath, section, src, mapsrc, mapdst)
+				}
 			case repsrc != "":
 				_rep = ""
-				this.replaces.insert(repdst, repsrc, true)
+				this.replaces.insert(repsrc, repdst, false)
 				if gDebug {
 					fmt.Printf("[debug]%s %s %s [%s] -> [%s]\n", gpPath, section, src, repsrc, repdst)
 				}

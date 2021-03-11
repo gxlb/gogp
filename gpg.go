@@ -63,6 +63,7 @@ const (
 
 	// #GOGP_REPLACE(<src>,<dst>)
 	gsExpTxtReplaceKey = "(?-sm:(?://)?#GOGP_REPLACE\\((?P<REPSRC>\\S+)[ |\\t]*,[ |\\t]*?(?P<REPDST>\\S+)\\))"
+	gsExpTxtMapKey     = "(?-sm:(?://)?#GOGP_MAP\\((?P<MAPSRC>\\S+)[ |\\t]*,[ |\\t]*?(?P<MAPDST>\\S+)\\))"
 
 	//remove "*" from value type such as "*string -> string"
 	// #GOGP_RAWNAME(<strValueType>)
@@ -86,7 +87,7 @@ const (
 
 var (
 	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
-	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey))
+	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey, gsExpTxtMapKey))
 	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
 	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly, gsExpTxtChoice))
 	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
