@@ -143,4 +143,9 @@ this_is_required6.xxx  cfg
 	}
 
 	//fmt.Printf("[%s\n]", gGogpExpPretreatAll.String())
+
+	ss := gGogpExpCodeIgnore.FindAllStringSubmatch(`xxx //  #GOGP_MAP(GOGP_IfIsPointerFlagValue, yes) yyy
+// #GOGP_REPLACE(GOGP_IfIsPointerFlagValue, yes)
+	`, -1)
+	fmt.Println("ss", ss)
 }

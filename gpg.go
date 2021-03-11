@@ -62,8 +62,8 @@ const (
 	gsExpTxtGetGpgCfg = "(?-sm:(?://)?#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 
 	// #GOGP_REPLACE(<src>,<dst>)
-	gsExpTxtReplaceKey = `(?-sm:(?:/{2,}[ |\t]*?)?#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*?(?P<REPDST>\S+)\))`
-	gsExpTxtMapKey     = `(?-sm:(?:/{2,}[ |\t]*?)?#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*?(?P<MAPDST>\S+)\))`
+	gsExpTxtReplaceKey = `(?-sm:(?:/{2,}[ |\t]*?)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*?(?P<REPDST>\S+)\))`
+	gsExpTxtMapKey     = `(?-sm:(?:/{2,}[ |\t]*?)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*?(?P<MAPDST>\S+)\))`
 
 	//remove "*" from value type such as "*string -> string"
 	// #GOGP_RAWNAME(<strValueType>)
@@ -87,9 +87,9 @@ const (
 
 var (
 	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
-	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey, gsExpTxtMapKey))
+	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey, gsExpTxtMapKey))
 	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
-	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly, gsExpTxtChoice))
+	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly, gsExpTxtChoice, gsExpTxtMapKey))
 	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
 	gGogpExpTrimEmptyLine    = regexp.MustCompile(gsExpTxtTrimEmptyLine)
 	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)

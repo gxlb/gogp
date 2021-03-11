@@ -165,6 +165,7 @@ type gopgProcessor struct {
 	step              gogp_proc_step //current processing step
 	matches2          replaceList    //cases that need replacing, secondary
 	replaces          replaceList    //keys that need replace
+	maps              replaceList    //keys that need replace
 }
 
 //get file suffix of code file
@@ -334,8 +335,14 @@ func (this *gopgProcessor) rawSaveFile(file, content string) (err error) {
 
 func (this *gopgProcessor) getGpgCfg(section, key string, warnEmpty bool) (val string) {
 	val = this.gpgContent.GetString(section, key, "")
-	if val == "" && warnEmpty {
-		fmt.Printf("[gogp warn]: [%s:%s] maybe lost key [%s]\n", relateGoPath(this.gpgPath), section, key)
+	if val == "" {
+		if match, ok := this.maps.getMatch(key); ok {
+			val = match
+			return
+		}
+		if warnEmpty {
+			fmt.Printf("[gogp warn]: [%s:%s] maybe lost key [%s]\n", relateGoPath(this.gpgPath), section, key)
+		}
 	}
 	return
 }
@@ -735,14 +742,25 @@ func parseBoolValue(val string) bool {
 }
 
 func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (replaced string) {
+	this.maps.clear()
+
 	replaced = gGogpExpCodeIgnore.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
 		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
-		ignore, gponly, condk, condHit, condMiss := elem[1], elem[2], elem[3], elem[4], elem[5]
+		ignore, gponly, condk, condHit, condMiss, mapK, mapV := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7]
 		//fmt.Printf("##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%s] f=[%s]\n", src, ignore, gponly, condk, t, f)
 		switch {
 		case condk != "":
 			selectPart := func(sel string) {
 				sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
+				sel = gGogpExpCodeIgnore.ReplaceAllStringFunc(sel, func(src string) (rep string) {
+					elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0]
+					if mapK, mapV := elem[6], elem[7]; mapK != "" {
+						this.maps.insert(mapK, mapV, false)
+						//println("set1", mapK, mapV)
+						return
+					}
+					return src
+				})
 				rep = fmt.Sprintf("\n%s\n", sel)
 				//fmt.Println(rep)
 			}
@@ -760,6 +778,7 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 					key = key[1 : s-1]
 				}
 				cfg := this.getGpgCfg(section, key, false)
+				//println("get", key, cfg)
 
 				if parseBoolValue(cfg) == condValCheck {
 					selectPart(condHit)
@@ -770,6 +789,10 @@ func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (
 			if !selOk {
 				selectPart(condMiss)
 			}
+
+		case mapK != "":
+			this.maps.insert(mapK, mapV, false)
+			//println("set2", mapK, mapV)
 
 		default:
 		case ignore != "" || gponly != "":
@@ -852,6 +875,9 @@ func (this *gopgProcessor) procStepNormal() (err error) {
 
 	replacedGp := ""
 	if replacedGp, err = this.doGpReplace(this.gpPath, this.gpContent, this.impName, 0, false); err != nil {
+		if err = this.saveCodeFile(replacedGp); err != nil { //save code to file
+			return
+		}
 		return
 	}
 
