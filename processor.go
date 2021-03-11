@@ -629,6 +629,7 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
 	// "//#GOGP_REQUIRE(path [, gpgSection])"
+	//"(?-sm:(?://)?#GOGP_REPLACE\\((?P<REPSRC>\\S+)[ |\\t]*,[ |\\t]*?(?P<REPDST>\\S+)\\))"
 	for _content, needReplace, i := content, true, 0; needReplace && i < 3; _content, i = rep, i+1 {
 		needReplace = false
 		//fmt.Println("try match case", i, 3, _content)
