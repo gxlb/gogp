@@ -62,8 +62,8 @@ const (
 	gsExpTxtGetGpgCfg = "(?-sm:(?://)?#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 
 	// #GOGP_REPLACE(<src>,<dst>)
-	gsExpTxtReplaceKey = "(?-sm:(?://)?#GOGP_REPLACE\\((?P<REPSRC>\\S+)[ |\\t]*,[ |\\t]*?(?P<REPDST>\\S+)\\))"
-	gsExpTxtMapKey     = "(?-sm:(?://)?#GOGP_MAP\\((?P<MAPSRC>\\S+)[ |\\t]*,[ |\\t]*?(?P<MAPDST>\\S+)\\))"
+	gsExpTxtReplaceKey = `(?-sm:(?:/{2,})?#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*?(?P<REPDST>\S+)\))`
+	gsExpTxtMapKey     = `(?-sm:(?:/{2,})?#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*?(?P<MAPDST>\S+)\))`
 
 	//remove "*" from value type such as "*string -> string"
 	// #GOGP_RAWNAME(<strValueType>)
