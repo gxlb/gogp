@@ -138,7 +138,7 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 			}
 		} else {
 			fmt.Printf("[gogp error]: [%s] has no replacing.[%s] [%s : %s]\n", w, relateGoPath(this.gpPath), relateGoPath(this.gpgPath), this.sectionName)
-			//this.reportNoReplacing(src, _path)
+			//println(_path, src, this.gpgPath, this.gpPath, this.sectionName)
 			r = src
 			noRep++
 		}
@@ -294,6 +294,10 @@ func (this *gopgProcessor) buildMatches(section, gpPath string, reverse, second 
 	pmatch.sectionName = section
 	pmatch.gpgPath = this.gpgPath
 	pmatch.gpPath = gpPath
+	//this.replaces.sectionName = section
+	//this.replaces.gpgPath = this.gpgPath
+	//this.replaces.gpPath = gpPath
+	//println("buildMatches", section, gpPath, reverse, second, pmatch.sectionName, pmatch.gpgPath, pmatch.gpPath)
 	if replaceList := this.gpgContent.Keys(section); replaceList != nil {
 		//make replace map
 		for _, key := range replaceList {
@@ -683,13 +687,13 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 				}
 			case mapsrc != "":
 				_rep = ""
-				this.replaces.insert(mapsrc, mapdst, false)
+				this.replaces.insert(mapdst, mapsrc, true)
 				if gDebug {
 					fmt.Printf("[debug] map %s %s %s [%s] -> [%s]\n", gpPath, section, src, mapsrc, mapdst)
 				}
 			case repsrc != "":
 				_rep = ""
-				this.replaces.insert(repsrc, repdst, false)
+				this.replaces.insert(repdst, repsrc, true)
 				if gDebug {
 					fmt.Printf("[debug]%s %s %s [%s] -> [%s]\n", gpPath, section, src, repsrc, repdst)
 				}
@@ -794,8 +798,15 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	//replaces keys that need be replacing
 	if this.replaces.Len() > 0 {
 		//fmt.Println(this.replaces.expString())
-		replacedGp, _ = this.replaces.doReplacing(replacedGp, this.gpgPath, true)
-		//fmt.Println("doGpReplace3", this.step.String(), content)
+		noRep := 0
+		replacedGp, noRep = this.replaces.doReplacing(replacedGp, this.gpgPath, true)
+		if noRep > 0 {
+			//for _, v := range this.replaces.list {
+			//	fmt.Println(v)
+			//}
+			//fmt.Println("doGpReplace3", noRep, this.step.String(), gpPath, section, content)
+			//os.Exit(1)
+		}
 		this.replaces.clear()
 	}
 

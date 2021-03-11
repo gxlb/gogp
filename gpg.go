@@ -62,8 +62,8 @@ const (
 	gsExpTxtGetGpgCfg = "(?-sm:(?://)?#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
 
 	// #GOGP_REPLACE(<src>,<dst>)
-	gsExpTxtReplaceKey = `(?-sm:(?:/{2,})?#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*?(?P<REPDST>\S+)\))`
-	gsExpTxtMapKey     = `(?-sm:(?:/{2,})?#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*?(?P<MAPDST>\S+)\))`
+	gsExpTxtReplaceKey = `(?-sm:(?:/{2,}[ |\t]*?)?#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*?(?P<REPDST>\S+)\))`
+	gsExpTxtMapKey     = `(?-sm:(?:/{2,}[ |\t]*?)?#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*?(?P<MAPDST>\S+)\))`
 
 	//remove "*" from value type such as "*string -> string"
 	// #GOGP_RAWNAME(<strValueType>)
@@ -231,8 +231,11 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 		dir = workPath()
 	}
 	dir = formatPath(dir)
+	//println(dir)
+
 	var list []string
 	if list, err = deepCollectSubFiles(dir, gGpgExt); err == nil {
+		//fmt.Println("list", list)
 		if !gSilence && len(list) > 0 {
 			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
 		}
@@ -268,7 +271,13 @@ func Version() string {
 }
 
 func relateGoPath(full string) string {
-	return strings.TrimPrefix(formatPath(full), gGoPath)
+	fp := filepath.ToSlash(filepath.Clean(full))
+	fg := formatPath(gGoPath)
+	//println("relateGoPath", fp, fg)
+	if !filepath.HasPrefix(fp, fg) {
+		return fp
+	}
+	return strings.TrimPrefix(fp, gGoPath)
 }
 func expadGoPath(path string) (r string) {
 	r = path
