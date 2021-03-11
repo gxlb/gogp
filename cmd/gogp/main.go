@@ -71,7 +71,7 @@ func main() {
 	  gogp
 	  gogp gopath`)
 
-	cmdline.StringVar(&filePath, "", "filePath", filePath, false, "Path that gogp will work. GoPath and WorkPath is allowed.")
+	cmdline.StringVar(&filePath, "", "filePath", filePath, true, "Path that gogp will work. GoPath and WorkPath is allowed.")
 	//	cmdline.BoolVar(&reverseWork, "r", "reverse", reverseWork, false,
 	//		`Reverse work, this mode is used to gen .gp file from a real-go file.
 	//		If set this flag, the filePath flag must be a .gpg file path related to GoPath.`)
