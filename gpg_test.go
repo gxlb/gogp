@@ -153,6 +153,7 @@ this_is_required6.xxx  cfg
 
 func TestRegCase(t *testing.T) {
 	txt := `
+// #GOGP_SWITCH
 // #GOGP_CASE x 
 xxx
 xxx	
@@ -165,10 +166,11 @@ yyy
 zzz
 zzz	
 // #GOGP_ENDCASE 
-// #GOGP_DEFAULT
+// #GOGP_DEFAUL
 000
 000	 
 //#GOGP_ENDCASE
+// #GOGP_ENDSWITCH
 
 mmm
 `
@@ -183,4 +185,44 @@ mmm
 	})
 	fmt.Println("rep", rep)
 	rep = rep
+}
+
+func TestRegIf(t *testing.T) {
+	txt := `
+// #GOGP_IF true
+aaat
+// #GOGP_ELSE
+bbbt
+// #GOGP_ENDIF
+
+// #GOGP_IF false
+aaaf
+// #GOGP_ELSE
+bbbf
+// #GOGP_ENDIF
+
+// #GOGP_IF true
+ccct
+// #GOGP_ENDIF
+
+// #GOGP_IF false
+cccf
+// #GOGP_ENDIF
+
+
+// #GOGP_IF true
+//	 #GOGP_IF true
+aaatt
+//	 #GOGP_ELSE
+bbbtt
+//	 #GOGP_ENDIF
+// #GOGP_ELSE
+//	 #GOGP_IF false
+aaatf
+// 	#GOGP_ELSE
+bbbtf
+//	 #GOGP_ENDIF
+// #GOGP_ENDIF
+`
+	txt = txt
 }

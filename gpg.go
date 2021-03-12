@@ -51,10 +51,9 @@ const (
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
 	gsExpTxtIf = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]<>\\|!]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
 
-	gsExpTxtCase = `(?sm:^\s*(?:/{2,}[ |\t]*?)(?: |
-	|#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+)(?:[ |\\t]*?//.*?$)|
-	|#GOGP_DEFAULT)[\\r|\\n]*(?P<CASE>.*?)[\s]*(?://)??#GOGP_ENDCASE.*?$[\\r|\\n]*)`
-	gsExpTxtSwitch = `(?sm:\\s*//#GOGP_SWITCH[ |\\t]+(?P<CONDK>[[:word:]<>\\|!]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<SWITCH>.*?)[\\r|\\n]*(?://)??#GOGP_ENDSWITCH.*?$[\\r|\\n]*)"`
+	gsExpTxtSwitch = `(?sm:\\s*//#GOGP_SWITCH(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<SWITCH>.*?(?::#GOGP_CASE|:#GOGP_DEFAULT).*?)[\\r|\\n]*(?://)??#GOGP_ENDSWITCH.*?$[\\r|\\n]*)"`
+	gsExpTxtCase   = `(?sm:^\s*(?:/{2,}[ |\t]*?)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+)(?:[ |\\t]*?//.*?$))|
+####|#GOGP_DEFAULT)[\\r|\\n]*(?P<CASE>.*?)[\s]*(?://)??#GOGP_ENDCASE.*?$[\\r|\\n]*)`
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
