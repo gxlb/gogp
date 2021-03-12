@@ -214,17 +214,17 @@ cccf
 
 
 // #GOGP_IF true
-//	 #GOGP_IF true
+//	  #GOGP_IF true
 aaatt
-//	 #GOGP_ELSE
+//	  #GOGP_ELSE
 bbbtt
-//	 #GOGP_ENDIF
+//	  #GOGP_ENDIF
 // #GOGP_ELSE
-//	 #GOGP_IF false
+//	  #GOGP_IF false
 aaatf
-// 	#GOGP_ELSE
+//    #GOGP_ELSE
 bbbtf
-//	 #GOGP_ENDIF
+//	  #GOGP_ENDIF
 // #GOGP_ENDIF
 
 ooo
