@@ -166,7 +166,7 @@ yyy
 zzz
 zzz	
 // #GOGP_ENDCASE 
-// #GOGP_DEFAUL
+// #GOGP_DEFAULT
 000
 000	 
 //#GOGP_ENDCASE
