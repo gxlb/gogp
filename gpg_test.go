@@ -154,53 +154,67 @@ this_is_required6.xxx  cfg
 func TestRegCase(t *testing.T) {
 	txt := `
 // #GOGP_SWITCH
-// #GOGP_CASE x 
+// #GOGP_CASE x  //xxx
 xxx
 xxx	
-//#GOGP_ENDCASE
+// #GOGP_ENDCASE //??
 // #GOGP_CASE y 
 yyy
 yyy	
-//#GOGP_ENDCASE		
-/// #GOGP_CASE z 
+// #GOGP_ENDCASE		
+ /// #GOGP_CASE z //aa
 zzz
 zzz	
-// #GOGP_ENDCASE 
-// #GOGP_DEFAUL
+ // #GOGP_ENDCASE //xxx
+ // #GOGP_DEFAULT
 000
 000	 
-//#GOGP_ENDCASE
+ // #GOGP_ENDCASE //end case
 // #GOGP_ENDSWITCH
 
 mmm
 `
-	exp := regexp.MustCompile(gsExpTxtCase)
-	//ss := exp.FindAllStringSubmatch(txt, -1)
-	fmt.Println("ssCase", exp.MatchString(txt))
-	fmt.Printf("%#v\n", exp.SubexpNames())
-	rep := exp.ReplaceAllStringFunc(txt, func(src string) string {
-		elem := exp.FindAllStringSubmatch(src, -1)[0]
-		fmt.Printf("match: %#v\n", elem)
+	expSwitch := regexp.MustCompile(gsExpTxtSwitch)
+	fmt.Println("ssSwitch", expSwitch.MatchString(txt))
+	fmt.Printf("%#v\n", expSwitch.SubexpNames())
+
+	rep := expSwitch.ReplaceAllStringFunc(txt, func(src string) string {
+		cases := expSwitch.FindAllStringSubmatch(src, -1)[0][1]
+		fmt.Printf("match: %#v\n", cases)
+		if true {
+			exp := regexp.MustCompile(gsExpTxtCase)
+			//ss := exp.FindAllStringSubmatch(txt, -1)
+			fmt.Println("ssCase", exp.MatchString(txt))
+			fmt.Printf("%#v\n", exp.SubexpNames())
+			rep := exp.ReplaceAllStringFunc(cases, func(src string) string {
+				elem := exp.FindAllStringSubmatch(src, -1)[0]
+				fmt.Printf("match: %#v\n", elem)
+				return ""
+			})
+			fmt.Println("rep", rep)
+			rep = rep
+		}
 		return ""
 	})
 	fmt.Println("rep", rep)
 	rep = rep
+
 }
 
 func TestRegIf(t *testing.T) {
 	txt := `
-// #GOGP_IF true
+//#GOGP_IF true
 aaat
-// #GOGP_ELSE
+//#GOGP_ELSE
 bbbt
-// #GOGP_ENDIF
+//#GOGP_ENDIF
 
 
-// #GOGP_IF false
+//#GOGP_IF false
 aaaf
-// #GOGP_ELSE
+//#GOGP_ELSE
 bbbf
-// #GOGP_ENDIF
+//#GOGP_ENDIF
 
 
 // #GOGP_IF true
@@ -213,21 +227,30 @@ cccf
 // #GOGP_ENDIF
 
 
-// #GOGP_IF true
+//#GOGP_IF true
 //	  #GOGP_IF true
 aaatt
 //	  #GOGP_ELSE
 bbbtt
 //	  #GOGP_ENDIF
-// #GOGP_ELSE
+//#GOGP_ELSE
 //	  #GOGP_IF false
 aaatf
 //    #GOGP_ELSE
 bbbtf
 //	  #GOGP_ENDIF
-// #GOGP_ENDIF
+//#GOGP_ENDIF
 
 ooo
 `
-	txt = txt
+	exp := regexp.MustCompile(gsExpTxtIf)
+	fmt.Println("ssCase", exp.MatchString(txt))
+	fmt.Printf("%#v\n", exp.SubexpNames())
+	rep := exp.ReplaceAllStringFunc(txt, func(src string) string {
+		elem := exp.FindAllStringSubmatch(src, -1)[0]
+		fmt.Printf("match: %#v\n", elem)
+		return ""
+	})
+	fmt.Println("rep", rep)
+	rep = rep
 }
