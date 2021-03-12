@@ -195,15 +195,18 @@ aaat
 bbbt
 // #GOGP_ENDIF
 
+
 // #GOGP_IF false
 aaaf
 // #GOGP_ELSE
 bbbf
 // #GOGP_ENDIF
 
+
 // #GOGP_IF true
 ccct
 // #GOGP_ENDIF
+
 
 // #GOGP_IF false
 cccf
@@ -223,6 +226,8 @@ aaatf
 bbbtf
 //	 #GOGP_ENDIF
 // #GOGP_ENDIF
+
+ooo
 `
 	txt = txt
 }
