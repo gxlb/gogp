@@ -7,6 +7,7 @@ package gogp
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 )
 
@@ -148,4 +149,38 @@ this_is_required6.xxx  cfg
 // #GOGP_REPLACE(GOGP_IfIsPointerFlagValue, yes)
 	`, -1)
 	fmt.Println("ss", ss)
+}
+
+func TestRegCase(t *testing.T) {
+	txt := `
+// #GOGP_CASE x 
+xxx
+xxx	
+//#GOGP_ENDCASE
+// #GOGP_CASE y 
+yyy
+yyy	
+//#GOGP_ENDCASE		
+/// #GOGP_CASE z 
+zzz
+zzz	
+// #GOGP_ENDCASE 
+// #GOGP_DEFAULT
+000
+000	 
+//#GOGP_ENDCASE
+
+mmm
+`
+	exp := regexp.MustCompile(gsExpTxtCase)
+	//ss := exp.FindAllStringSubmatch(txt, -1)
+	fmt.Println("ssCase", exp.MatchString(txt))
+	fmt.Printf("%#v\n", exp.SubexpNames())
+	rep := exp.ReplaceAllStringFunc(txt, func(src string) string {
+		elem := exp.FindAllStringSubmatch(src, -1)[0]
+		fmt.Printf("match: %#v\n", elem)
+		return ""
+	})
+	fmt.Println("rep", rep)
+	rep = rep
 }

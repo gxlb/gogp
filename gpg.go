@@ -49,7 +49,12 @@ const (
 
 	// select by condition <cd> defines in gpg file:
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
-	gsExpTxtChoice = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]<>\\|!]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
+	gsExpTxtIf = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]<>\\|!]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]*)"
+
+	gsExpTxtCase = `(?sm:^\s*(?:/{2,}[ |\t]*?)(?: |
+	|#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+)(?:[ |\\t]*?//.*?$)|
+	|#GOGP_DEFAULT)[\\r|\\n]*(?P<CASE>.*?)[\s]*(?://)??#GOGP_ENDCASE.*?$[\\r|\\n]*)`
+	gsExpTxtSwitch = `(?sm:\\s*//#GOGP_SWITCH[ |\\t]+(?P<CONDK>[[:word:]<>\\|!]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<SWITCH>.*?)[\\r|\\n]*(?://)??#GOGP_ENDSWITCH.*?$[\\r|\\n]*)"`
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
@@ -89,7 +94,7 @@ var (
 	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
 	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey, gsExpTxtMapKey))
 	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
-	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly, gsExpTxtChoice, gsExpTxtMapKey))
+	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly, gsExpTxtIf, gsExpTxtMapKey))
 	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
 	gGogpExpTrimEmptyLine    = regexp.MustCompile(gsExpTxtTrimEmptyLine)
 	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)
