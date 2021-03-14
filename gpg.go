@@ -44,13 +44,13 @@ const (
 
 	// ignore all text format:
 	// //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
-	gsExpTxtIgnore = "(?sm:\\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\\r|\\n]*)"
-	gsExpTxtGPOnly = "(?sm:\\s*//#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\\r|\\n]*)"
+	gsExpTxtIgnore = `(?sm:\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r|\n]*)`
+	gsExpTxtGPOnly = `(?sm:\s*//#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r|\n]*)`
 
 	// select by condition <cd> defines in gpg file:
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
 
-	//gsExpTxtIf = "(?sm:\\s*//#GOGP_IFDEF[ |\\t]+(?P<CONDK>[[:word:]<>\\|!]+)(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<T>.*?)[\\r|\\n]*(?:[ |\\t]*?(?://)??#GOGP_ELSE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<F>.*?)[\\r|\\n]*)?[ |\\t]*?(?://)??#GOGP_ENDIF.*?$[\\r|\\n]?)"
+	//gsExpTxtIf = "(?sm:\s*//#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!]+)(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<T>.*?)[\r|\n]*(?:[ |\t]*?(?://)??#GOGP_ELSE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<F>.*?)[\r|\n]*)?[ |\t]*?(?://)??#GOGP_ENDIF.*?$[\r|\n]?)"
 	gsExpTxtIf  = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`
 	gsExpTxtIf2 = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<CONDK2>[[:word:]<>\|!]+)(?:.*?$[\r|\n]?)(?P<T2>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<F2>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`
 
@@ -59,28 +59,28 @@ const (
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-	gsExpTxtRequire       = "(?sm:\\s*(?P<REQ>^[ |\\t]*(?://)?#GOGP_REQUIRE\\((?P<REQP>[^\\n\\r,]*?)(?:[ |\\t]*?,[ |\\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\\((?P<REQGPG>[[:word:]]+)\\)))??(?:[ |\\t]*?\\))).*?$[\\r|\\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\\([^\\n\\r,]*?\\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\\([^\\n\\r,]*?\\))?[\\r|\\n]*)"
-	gsExpTxtEmptyLine     = "(?sm:(?P<EMPTY_LINE>[\\r|\\n]{3,}))"
-	gsExpTxtTrimEmptyLine = "(?s:^[\\r|\\n]*(?P<CONTENT>.*?)[\\r|\\n]*$)"
+	gsExpTxtRequire       = `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`
+	gsExpTxtEmptyLine     = `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`
+	gsExpTxtTrimEmptyLine = `(?s:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`
 
 	// get gpg config string:
 	// #GOGP_GPGCFG(<cfgName>)
-	gsExpTxtGetGpgCfg = "(?-sm:(?://)?#GOGP_GPGCFG\\((?P<GPGCFG>[[:word:]]+)\\))"
+	gsExpTxtGetGpgCfg = `(?-sm:(?://)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]]+)\))`
 
 	// #GOGP_REPLACE(<src>,<dst>)
-	gsExpTxtReplaceKey = `(?-sm:(?:/{2,}[ |\t]*?)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*?(?P<REPDST>\S+)\))`
-	gsExpTxtMapKey     = `(?-sm:(?:/{2,}[ |\t]*?)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*?(?P<MAPDST>\S+)\))`
+	gsExpTxtReplaceKey = `(?-sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*?(?P<REPDST>\S+)\))`
+	gsExpTxtMapKey     = `(?-sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*?(?P<MAPDST>\S+)\))`
 
 	//remove "*" from value type such as "*string -> string"
 	// #GOGP_RAWNAME(<strValueType>)
-	//gsExpTxtRawName = "(?-sm:(?://)?#GOGP_RAWNAME\\((?P<RAWNAME>\\S+)\\))"
+	//gsExpTxtRawName = "(?-sm:(?://)?#GOGP_RAWNAME\((?P<RAWNAME>\S+)\))"
 
 	// only generate <content> once from a gp file:
 	// //#GOGP_ONCE <content> //#GOGP_END_ONCE
-	gsExpTxtOnce = "(?sm:\\s*//#GOGP_ONCE(?:[ |\\t]*?//.*?$)?[\\r|\\n]*(?P<ONCE>.*?)[\\r|\\n]*[ |\\t]*?(?://)??#GOGP_END_ONCE.*?$[\\r|\\n]*)"
+	gsExpTxtOnce = "(?sm:(?:^[ |\t]*/{2,}[ |\t]*)//#GOGP_ONCE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<ONCE>.*?)[\r|\n]*[ |\t]*?(?://)??#GOGP_END_ONCE.*?$[\r|\n]*)"
 
-	gsExpTxtFileBegin = "(?sm:\\s*(?P<FILEB>//#GOGP_FILE_BEGIN(?:[ |\\t]+(?P<OPEN>[[:word:]]+))?).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\\r|\\n]*)"
-	gsExpTxtFileEnd   = "(?sm:\\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\\r|\\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\\r|\\n]*)"
+	gsExpTxtFileBegin = `(?sm:\s*(?P<FILEB>//#GOGP_FILE_BEGIN(?:[ |\t]+(?P<OPEN>[[:word:]]+))?).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r|\n]*)`
+	gsExpTxtFileEnd   = `(?sm:\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r|\n]*)`
 
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
 	gsTxtRequireResultFmt   = "//#GOGP_IGNORE_BEGIN ///require begin from(%s)\n%s\n//#GOGP_IGNORE_END ///require end from(%s)"
