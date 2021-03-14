@@ -741,8 +741,9 @@ func parseBoolValue(val string) bool {
 	return false
 }
 
-func selectPart(sel string) string {
-	return sel
+func (this *gopgProcessor) selectPart(section, sel string, depth int) string {
+	rep, _ := this.pretreatSelector(sel, section, depth+1)
+	return rep
 }
 
 func (this *gopgProcessor) checkCondition(section, condition string) bool {
@@ -767,12 +768,12 @@ func (this *gopgProcessor) checkCondition(section, condition string) bool {
 	return selOk
 }
 
-func (this *gopgProcessor) selectByCondition(section, cond, t, f string) string {
+func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth int) string {
 	ret := ""
 	if this.checkCondition(section, cond) {
-		ret = selectPart(t)
+		ret = this.selectPart(section, t, depth)
 	} else {
-		ret = selectPart(f)
+		ret = this.selectPart(section, f, depth)
 	}
 	return ret
 }
@@ -802,7 +803,7 @@ func (this *gopgProcessor) selectByCases(section, cases string) string {
 }
 
 func (this *gopgProcessor) pretreatSelector(gpContent string, section string, depth int) (replaced string, repCnt int) {
-	if depth > 5 { //limit recursion depth
+	if depth > 3 { //limit recursion depth
 		s := fmt.Sprintf("[gogp error]: [%s:%s %s depth=%d] replace recursion too deep\n", relateGoPath(this.gpgPath), relateGoPath(this.gpPath), section, depth)
 		fmt.Errorf("%s", s)
 		return gpContent, 0
@@ -812,14 +813,14 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
 		ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases :=
 			elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11]
-		//fmt.Printf("##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%s] f=[%s]\n", src, ignore, gponly, condk, t, f)
+		//fmt.Printf("depth=%d ##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%q] f=[%q] condk2=[%s] t2=[%q] f2=[%q] map=[%s,%s] switchCases=[%s]\n", depth, src, ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases)
 
 		switch {
 		case condk != "":
-			rep = this.selectByCondition(section, condk, condHit, condMiss)
+			rep = this.selectByCondition(section, condk, condHit, condMiss, depth)
 
 		case condk2 != "":
-			rep = this.selectByCondition(section, condk2, condHit2, condMiss2)
+			rep = this.selectByCondition(section, condk2, condHit2, condMiss2, depth)
 
 		case switchCases != "":
 			return this.selectByCases(section, switchCases)
@@ -842,10 +843,9 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (replaced string) {
 	this.maps.clear()
 
-	depth := 0
 	repCnt := 1 //init first loop
-	for repCnt > 0 {
-		replaced, repCnt = this.pretreatSelector(gpContent, section, depth+1)
+	for depth := 0; repCnt > 0; depth++ {
+		replaced, repCnt = this.pretreatSelector(gpContent, section, depth)
 	}
 
 	return
