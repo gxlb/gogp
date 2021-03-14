@@ -153,15 +153,16 @@ this_is_required6.xxx  cfg
 
 func TestRegCase(t *testing.T) {
 	txt := `
+head
 // #GOGP_SWITCH
 // #GOGP_CASE x  //xxx
 xxx
 xxx	
-// #GOGP_ENDCASE //??
+// #GOGP_ENDCASE //x
 // #GOGP_CASE y 
 yyy
 yyy	
-// #GOGP_ENDCASE		
+// #GOGP_ENDCASE		//y
  /// #GOGP_CASE z //aa
 zzz
 zzz	
@@ -169,10 +170,9 @@ zzz
  // #GOGP_DEFAULT
 000
 000	 
- // #GOGP_ENDCASE //end case
+ // #GOGP_ENDCASE //default
 // #GOGP_ENDSWITCH
-
-mmm
+tail
 `
 	expSwitch := regexp.MustCompile(gsExpTxtSwitch)
 	fmt.Println("ssSwitch", expSwitch.MatchString(txt))
@@ -188,10 +188,15 @@ mmm
 			fmt.Printf("%#v\n", exp.SubexpNames())
 			rep := exp.ReplaceAllStringFunc(cases, func(src string) string {
 				elem := exp.FindAllStringSubmatch(src, -1)[0]
-				fmt.Printf("match: %#v\n", elem)
+				fmt.Println("--match------------------------------------------------")
+				fmt.Printf("%s", elem[0])
+				fmt.Println("--cond--------------------")
+				fmt.Printf("%s\n", elem[1])
+				fmt.Println("--content--------------------")
+				fmt.Printf("%s", elem[2])
 				return ""
 			})
-			fmt.Println("rep", rep)
+			//fmt.Println("rep", rep)
 			rep = rep
 		}
 		return ""
@@ -203,54 +208,72 @@ mmm
 
 func TestRegIf(t *testing.T) {
 	txt := `
-//#GOGP_IF true
+head
+//#GOGP_IFDEF true /
 aaat
 //#GOGP_ELSE
 bbbt
 //#GOGP_ENDIF
 
 
-//#GOGP_IF false
+//#GOGP_IFDEF false
 aaaf
 //#GOGP_ELSE
 bbbf
 //#GOGP_ENDIF
 
 
-// #GOGP_IF true
+// #GOGP_IFDEF true
 ccct
 // #GOGP_ENDIF
 
 
-// #GOGP_IF false
+// #GOGP_IFDEF false
 cccf
 // #GOGP_ENDIF
 
-
-//#GOGP_IF true
-//	  #GOGP_IF true
+//#GOGP_IFDEF2 true //outer
+//	  #GOGP_IFDEF true //inner
 aaatt
-//	  #GOGP_ELSE
+//	  #GOGP_ELSE //a
 bbbtt
-//	  #GOGP_ENDIF
-//#GOGP_ELSE
-//	  #GOGP_IF false
+//	  #GOGP_ENDIF //b
+//#GOGP_ELSE2 //x
+//	  #GOGP_IFDEF false //inner
 aaatf
-//    #GOGP_ELSE
+//    #GOGP_ELSE //c
 bbbtf
-//	  #GOGP_ENDIF
-//#GOGP_ENDIF
-
-ooo
+//	  #GOGP_ENDIF //d
+//#GOGP_ENDIF2 //outer
+tail
 `
-	exp := regexp.MustCompile(gsExpTxtIf)
+	exp := regexp.MustCompile(fmt.Sprintf("%s|%s", gsExpTxtIf, gsExpTxtIf2))
 	fmt.Println("ssCase", exp.MatchString(txt))
 	fmt.Printf("%#v\n", exp.SubexpNames())
 	rep := exp.ReplaceAllStringFunc(txt, func(src string) string {
 		elem := exp.FindAllStringSubmatch(src, -1)[0]
-		fmt.Printf("match: %#v\n", elem)
+		fmt.Println("match------------------------------------------------")
+		fmt.Printf("%s", elem[0])
+		switch {
+		case elem[1] != "":
+			fmt.Println("cond--------------------")
+			fmt.Printf("%s\n", elem[1])
+			fmt.Println("t--------------------")
+			fmt.Printf("%s", elem[2])
+			fmt.Println("f--------------------")
+			fmt.Printf("%s", elem[3])
+		case elem[4] != "":
+			fmt.Println("cond2--------------------")
+			fmt.Printf("%s\n", elem[4])
+			fmt.Println("t--------------------")
+			fmt.Printf("%s", elem[5])
+			fmt.Println("f--------------------")
+			fmt.Printf("%s", elem[6])
+		}
+
 		return ""
 	})
+	fmt.Println("------------------------------------------------")
 	fmt.Println("rep", rep)
 	rep = rep
 }
