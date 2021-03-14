@@ -751,7 +751,7 @@ func (this *gopgProcessor) checkCondition(section, condition string) bool {
 	for _, cond := range conds {
 		key := cond
 		condValCheck := true
-		if s := len(key); s > 1 && key[0] == '!' { // !<key> means check key not define
+		if s := len(key); s > 1 && key[0] == '!' { // !<key> means check key not defined
 			key = key[1:]
 			condValCheck = false
 		}
@@ -778,6 +778,7 @@ func (this *gopgProcessor) selectByCondition(section, cond, t, f string) string 
 }
 
 func (this *gopgProcessor) selectByCases(section, cases string) string {
+	defaultContent := ""
 	found := false
 	repaced := gGogpExpCodeCases.ReplaceAllStringFunc(cases, func(src string) string {
 		if found { //ignore the rest cases if has found
@@ -785,12 +786,18 @@ func (this *gopgProcessor) selectByCases(section, cases string) string {
 		}
 		elem := gGogpExpCodeCases.FindAllStringSubmatch(src, -1)[0]
 		cond, content := elem[1], elem[2]
-		if cond == "" || this.checkCondition(section, cond) {
+		switch {
+		case cond == "": //DEFAULT branch
+			defaultContent = content
+		case this.checkCondition(section, cond): //CASE branch
 			found = true
 			return content
 		}
 		return ""
 	})
+	if !found {
+		return defaultContent
+	}
 	return repaced
 }
 
