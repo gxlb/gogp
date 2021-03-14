@@ -209,11 +209,11 @@ tail
 func TestRegIf(t *testing.T) {
 	txt := `
 head
-//#GOGP_IFDEF true /
+	//#GOGP_IFDEF true /
 aaat
-//#GOGP_ELSE
+	//#GOGP_ELSE
 bbbt
-//#GOGP_ENDIF
+  //#GOGP_ENDIF
 
 
 //#GOGP_IFDEF false
