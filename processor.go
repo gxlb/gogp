@@ -775,6 +775,7 @@ func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth i
 	} else {
 		ret = this.selectPart(section, f, depth)
 	}
+	//fmt.Printf("selectByCondition section=%s depth=%d ret=%s\n%s, %q, %q\n", section, depth, ret, cond, t, f)
 	return ret
 }
 
