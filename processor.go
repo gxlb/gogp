@@ -741,65 +741,106 @@ func parseBoolValue(val string) bool {
 	return false
 }
 
-func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (replaced string) {
-	this.maps.clear()
+func selectPart(sel string) string {
+	return sel
+}
 
+func (this *gopgProcessor) checkCondition(section, condition string) bool {
+	conds := strings.Split(condition, "||")
+	selOk := false
+	for _, cond := range conds {
+		key := cond
+		condValCheck := true
+		if s := len(key); s > 1 && key[0] == '!' { // !<key> means check key not define
+			key = key[1:]
+			condValCheck = false
+		}
+		if s := len(key); s >= 2 && key[0] == '<' && key[s-1] == '>' { // <key> -> key
+			key = key[1 : s-1]
+		}
+		cfg := this.getGpgCfg(section, key, false)
+		if parseBoolValue(cfg) == condValCheck {
+			selOk = true
+			break
+		}
+	}
+	return selOk
+}
+
+func (this *gopgProcessor) selectByCondition(section, cond, t, f string) string {
+	ret := ""
+	if this.checkCondition(section, cond) {
+		ret = selectPart(t)
+	} else {
+		ret = selectPart(f)
+	}
+	return ret
+}
+
+func (this *gopgProcessor) selectByCases(section, cases string) string {
+	found := false
+	repaced := gGogpExpCodeCases.ReplaceAllStringFunc(cases, func(src string) string {
+		if found { //ignore the rest cases if has found
+			//return "" //treat as multi switch
+		}
+		elem := gGogpExpCodeCases.FindAllStringSubmatch(src, -1)[0]
+		cond, content := elem[1], elem[2]
+		if cond == "" || this.checkCondition(section, cond) {
+			found = true
+			return content
+		}
+		return ""
+	})
+	return repaced
+}
+
+func (this *gopgProcessor) pretreatSelector(gpContent string, section string, depth int) (replaced string, repCnt int) {
+	if depth > 5 { //limit recursion depth
+		s := fmt.Sprintf("[gogp error]: [%s:%s %s depth=%d] replace recursion too deep\n", relateGoPath(this.gpgPath), relateGoPath(this.gpPath), section, depth)
+		fmt.Errorf("%s", s)
+		return gpContent, 0
+	}
 	replaced = gGogpExpCodeIgnore.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
+		repCnt++
 		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
-		ignore, gponly, condk, condHit, condMiss, mapK, mapV := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7]
+		ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases :=
+			elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11]
 		//fmt.Printf("##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%s] f=[%s]\n", src, ignore, gponly, condk, t, f)
+
 		switch {
 		case condk != "":
-			selectPart := func(sel string) {
-				sel = strings.Replace(sel, grawStringNotComment, "", -1) //uncomment selected
-				sel = gGogpExpCodeIgnore.ReplaceAllStringFunc(sel, func(src string) (rep string) {
-					elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0]
-					if mapK, mapV := elem[6], elem[7]; mapK != "" {
-						this.maps.insert(mapK, mapV, false)
-						//println("set1", mapK, mapV)
-						return
-					}
-					return src
-				})
-				rep = fmt.Sprintf("\n%s\n", sel)
-				//fmt.Println(rep)
-			}
-			conds := strings.Split(condk, "||")
-			//fmt.Println("gogp if", condk, conds)
-			selOk := false
-			for _, cond := range conds {
-				key := cond
-				condValCheck := true
-				if s := len(key); s > 1 && key[0] == '!' { // !<key> means check key not define
-					key = key[1:]
-					condValCheck = false
-				}
-				if s := len(key); s >= 2 && key[0] == '<' && key[s-1] == '>' { // <key> -> key
-					key = key[1 : s-1]
-				}
-				cfg := this.getGpgCfg(section, key, false)
-				//println("get", key, cfg)
+			rep = this.selectByCondition(section, condk, condHit, condMiss)
 
-				if parseBoolValue(cfg) == condValCheck {
-					selectPart(condHit)
-					selOk = true
-					break
-				}
-			}
-			if !selOk {
-				selectPart(condMiss)
-			}
+		case condk2 != "":
+			rep = this.selectByCondition(section, condk2, condHit2, condMiss2)
+
+		case switchCases != "":
+			return this.selectByCases(section, switchCases)
 
 		case mapK != "":
 			this.maps.insert(mapK, mapV, false)
+			rep = ""
 			//println("set2", mapK, mapV)
 
-		default:
 		case ignore != "" || gponly != "":
 			rep = "\n\n"
+		default:
+			rep = ""
 		}
 		return
 	})
+	return
+}
+
+func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (replaced string) {
+	this.maps.clear()
+
+	depth := 0
+	repCnt := 1 //init first loop
+	for repCnt > 0 {
+		replaced, repCnt = this.pretreatSelector(gpContent, section, depth+1)
+	}
+
 	return
 }
 
