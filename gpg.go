@@ -61,15 +61,15 @@ const (
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
 	gsExpTxtRequire       = `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`
 	gsExpTxtEmptyLine     = `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`
-	gsExpTxtTrimEmptyLine = `(?s:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`
+	gsExpTxtTrimEmptyLine = `(?sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`
 
 	// get gpg config string:
 	// #GOGP_GPGCFG(<cfgName>)
-	gsExpTxtGetGpgCfg = `(?-sm:(?://)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]]+)\))`
+	gsExpTxtGetGpgCfg = `(?sm:(?://)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]]+)\))`
 
 	// #GOGP_REPLACE(<src>,<dst>)
-	gsExpTxtReplaceKey = `(?-sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*?(?P<REPDST>\S+)\))`
-	gsExpTxtMapKey     = `(?-sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*?(?P<MAPDST>\S+)\))`
+	gsExpTxtReplaceKey = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*(?P<REPDST>\S+)\))`
+	gsExpTxtMapKey     = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*(?P<MAPDST>\S+)\))`
 
 	//remove "*" from value type such as "*string -> string"
 	// #GOGP_RAWNAME(<strValueType>)
