@@ -356,7 +356,7 @@ func (this *gopgProcessor) remove(file string) {
 
 //require a gp file, maybe recursive
 func (this *gopgProcessor) procRequireReplacement(statement, section string, nDepth int) (rep string, replaced bool, err error) {
-
+	//fmt.Println("statement", statement)
 	rep = statement
 	if nDepth >= 5 {
 		panic(fmt.Sprintf("[gogp error] [%s:%s]maybe loop recursive of #GOGP_REQUIRE(...), %d", relateGoPath(this.gpgPath), section, nDepth))
@@ -366,7 +366,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 	req, reqp, reqn, reqgpg, content := elem[1], elem[2], elem[3], elem[4], elem[5]
 
 	if gDebug {
-		fmt.Printf("[gogp debug] #GOGP_REQUIRE: [%s][%s]\n", reqp, reqn)
+		fmt.Printf("[gogp debug] #GOGP_REQUIRE: [%s][%s][%s]\n", reqp, reqn, content)
 	}
 
 	if reqgpg != "" && reqn == "" { //section name is config from gpg file
@@ -462,11 +462,13 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 					//					}
 					replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 					replacedGp = strings.Replace(replacedGp, "import", "//import", -1)
+					//fmt.Println("111", replacedGp)
 					//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
 					reqResult := fmt.Sprintf(leftFmt, reqp, "$CONTENT", reqp)
 					out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
 					replacedGp = gGogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
 					oldContent := gGogpExpRequire.ReplaceAllString(statement, "$REQCONTENT")
+					//fmt.Println("222", replacedGp)
 
 					rep = goFmt(replacedGp, this.gpPath)
 
@@ -497,6 +499,8 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 	//if gDebug {
 	//	//fmt.Printf("%#v %d\n[%#v]\n[%#v]\n", replaced, nDepth, statement, rep)
 	//}
+	//fmt.Println("statement", statement)
+	//fmt.Println("rep", rep)
 	return
 }
 
