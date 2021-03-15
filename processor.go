@@ -20,6 +20,8 @@ import (
 	"github.com/gxlb/gogp/ini"
 )
 
+const maxRecursionDepth = 3
+
 //cases of template replacing
 type replaceCase struct {
 	key, value string
@@ -742,8 +744,10 @@ func parseBoolValue(val string) bool {
 }
 
 func (this *gopgProcessor) selectPart(section, sel string, depth int) string {
-	//rep, _ := this.pretreatSelector(sel, section, depth+1)
-	//return rep
+	if depth <= maxRecursionDepth {
+		rep, _ := this.pretreatSelector(sel, section, depth+1)
+		return rep
+	}
 	return sel
 }
 
@@ -776,7 +780,7 @@ func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth i
 	} else {
 		ret = this.selectPart(section, f, depth)
 	}
-	fmt.Printf("[xx]selectByCondition section=%s depth=%d ret=%s\n%s, %q, %q\n", section, depth, ret, cond, t, f)
+	//fmt.Printf("[xx]selectByCondition section=%s depth=%d ret=%s\n%s, %q, %q\n", section, depth, ret, cond, t, f)
 	return ret
 }
 
@@ -805,7 +809,7 @@ func (this *gopgProcessor) selectByCases(section, cases string) string {
 }
 
 func (this *gopgProcessor) pretreatSelector(gpContent string, section string, depth int) (replaced string, repCnt int) {
-	if depth > 3 { //limit recursion depth
+	if depth > maxRecursionDepth { //limit recursion depth
 		s := fmt.Sprintf("[gogp error]: [%s:%s %s depth=%d] replace recursion too deep\n", relateGoPath(this.gpgPath), relateGoPath(this.gpPath), section, depth)
 		fmt.Errorf("%s", s)
 		return gpContent, 0
@@ -836,19 +840,20 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 		default:
 			rep = ""
 		}
-		fmt.Printf("[$$] rep=%s\ndepth=%d ##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%q] f=[%q] condk2=[%s] t2=[%q] f2=[%q] map=[%s,%s] switchCases=[%s]\n", rep, depth, src, ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases)
+		//fmt.Printf("[$$] rep=%s\ndepth=%d ##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%q] f=[%q] condk2=[%s] t2=[%q] f2=[%q] map=[%s,%s] switchCases=[%s]\n", rep, depth, src, ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases)
 		return
 	})
-	fmt.Println("[$$$]", replaced)
+	//fmt.Println("[$$$]", replaced)
 	return
 }
 
 func (this *gopgProcessor) pretreatGpForCode(gpContent string, section string) (replaced string) {
 	this.maps.clear()
 
+	replaced = gpContent
 	repCnt := 1 //init first loop
 	for depth := 0; repCnt > 0; depth++ {
-		replaced, repCnt = this.pretreatSelector(gpContent, section, depth)
+		replaced, repCnt = this.pretreatSelector(replaced, section, depth)
 	}
 
 	return
@@ -899,7 +904,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	if this.nNoReplaceMathNum > 0 { //report error
 		s := fmt.Sprintf("[gogp error]: [%s:%s %s depth=%d] not every gp have been replaced\n", relateGoPath(this.gpgPath), relateGoPath(_path), replist.sectionName, nDepth)
 		//fmt.Println(s)
-		fmt.Println("[##result]", replacedGp)
+		fmt.Printf("----**result is:\n%s\n----**end\n", replacedGp)
 		err = fmt.Errorf(s)
 	}
 
@@ -927,9 +932,9 @@ func (this *gopgProcessor) procStepNormal() (err error) {
 
 	replacedGp := ""
 	if replacedGp, err = this.doGpReplace(this.gpPath, this.gpContent, this.impName, 0, false); err != nil {
-		if err = this.saveCodeFile(replacedGp); err != nil { //save code to file
-			return
-		}
+		// if err = this.saveCodeFile(replacedGp); err != nil { //save code to file
+		// 	return
+		// }
 		return
 	}
 
