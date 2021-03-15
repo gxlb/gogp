@@ -742,8 +742,9 @@ func parseBoolValue(val string) bool {
 }
 
 func (this *gopgProcessor) selectPart(section, sel string, depth int) string {
-	rep, _ := this.pretreatSelector(sel, section, depth+1)
-	return rep
+	//rep, _ := this.pretreatSelector(sel, section, depth+1)
+	//return rep
+	return sel
 }
 
 func (this *gopgProcessor) checkCondition(section, condition string) bool {
@@ -775,7 +776,7 @@ func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth i
 	} else {
 		ret = this.selectPart(section, f, depth)
 	}
-	//fmt.Printf("selectByCondition section=%s depth=%d ret=%s\n%s, %q, %q\n", section, depth, ret, cond, t, f)
+	fmt.Printf("[xx]selectByCondition section=%s depth=%d ret=%s\n%s, %q, %q\n", section, depth, ret, cond, t, f)
 	return ret
 }
 
@@ -814,7 +815,6 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
 		ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases :=
 			elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11]
-		//fmt.Printf("depth=%d ##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%q] f=[%q] condk2=[%s] t2=[%q] f2=[%q] map=[%s,%s] switchCases=[%s]\n", depth, src, ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases)
 
 		switch {
 		case condk != "":
@@ -836,8 +836,10 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 		default:
 			rep = ""
 		}
+		fmt.Printf("[$$] rep=%s\ndepth=%d ##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%q] f=[%q] condk2=[%s] t2=[%q] f2=[%q] map=[%s,%s] switchCases=[%s]\n", rep, depth, src, ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases)
 		return
 	})
+	fmt.Println("[$$$]", replaced)
 	return
 }
 
