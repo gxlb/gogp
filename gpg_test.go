@@ -95,6 +95,12 @@ type GOGPTreeNamePrefixTreeNode struct {
 
 //#GOGP_ENDIF //end
 
+//    #GOGP_REPLACE(repSrc1, repDst1)
+//#GOGP_REPLACE(<repSrc2>, <repDst2>)
+
+//    #GOGP_MAP(mapSrc1, mapDst1)
+//#GOGP_MAP(<mapSrc2>, <mapDst2>)
+
 
 
 
@@ -136,7 +142,7 @@ this_is_required6.xxx  cfg
 	//		}
 	//	}
 
-	tt := gGogpExpPretreatAll.ReplaceAllString(s, "$REQP $REQN $REQGPG $CONDK $T $F $GPGCFG $ONCE\n")
+	tt := gGogpExpPretreatAll.ReplaceAllString(s, "$REQP $REQN $REQGPG $CONDK $T $F $GPGCFG $ONCE $REPSRC $REPDST $MAPSRC $MAPDST\n")
 	if tt != sCheck {
 		t.Errorf("\n%#v\n%#v\n%#v\n", s, sCheck, tt)
 		fmt.Printf("[%s\n]", tt)
