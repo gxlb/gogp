@@ -899,6 +899,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 	if this.nNoReplaceMathNum > 0 { //report error
 		s := fmt.Sprintf("[gogp error]: [%s:%s %s depth=%d] not every gp have been replaced\n", relateGoPath(this.gpgPath), relateGoPath(_path), replist.sectionName, nDepth)
 		//fmt.Println(s)
+		fmt.Println("[##result]", replacedGp)
 		err = fmt.Errorf(s)
 	}
 
