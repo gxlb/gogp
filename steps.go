@@ -25,3 +25,12 @@ const (
 	gogpStepREVERSE                            // gen gp file from fake go file
 	gogpStepPRODUCE                            // gen go file from gp file
 )
+
+// get steps of gogp processor
+func getProcessingSteps(removeProductsOnly bool) []gogpProcessStep {
+	steps := []gogpProcessStep{gogpStepREVERSE, gogpStepREQUIRE, gogpStepREVERSE, gogpStepPRODUCE} //reverse work first
+	if removeProductsOnly {
+		steps = []gogpProcessStep{gogpStepPRODUCE, gogpStepREQUIRE, gogpStepREVERSE} //normal work first
+	}
+	return steps
+}

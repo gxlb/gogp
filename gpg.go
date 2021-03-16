@@ -24,7 +24,7 @@ const (
 	gpCodeFileSuffix = "gp"
 
 	thisFilePath = "github.com/gxlb/gogp/gpg.go"
-	libVersion   = "v3.1.0"
+	libVersion   = "v3.1.1"
 )
 
 var (
@@ -39,15 +39,6 @@ var (
 	savedCodeFile map[string]bool //record saved code files
 	debug         = false         //debug switch
 )
-
-func gGetTxtFileBeginContent(open bool) (r string) {
-	if open {
-		r = txtFileBeginContentOpen
-	} else {
-		r = txtFileBeginContent
-	}
-	return
-}
 
 func init() {
 	cmdline.Version(libVersion)
@@ -132,10 +123,7 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
 		}
 
-		steps := []gogpProcessStep{gogpStepREVERSE, gogpStepREQUIRE, gogpStepREVERSE, gogpStepPRODUCE} //reverse work first
-		if optRemoveProductsOnly {
-			steps = []gogpProcessStep{gogpStepPRODUCE, gogpStepREQUIRE, gogpStepREVERSE} //normal work first
-		}
+		steps := getProcessingSteps(optRemoveProductsOnly)
 		nGpg = len(list)
 		for _, step := range steps {
 			for _, gpg := range list {
@@ -160,6 +148,15 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 //get version of this gogp lib
 func Version() string {
 	return libVersion
+}
+
+func getTxtFileBeginContent(open bool) (r string) {
+	if open {
+		r = txtFileBeginContentOpen
+	} else {
+		r = txtFileBeginContent
+	}
+	return
 }
 
 func relateGoPath(full string) string {

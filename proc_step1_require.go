@@ -38,7 +38,7 @@ func (this *gopgProcessor) procStep1Require() (err error) {
 				rep, replaced = fmt.Sprintf("\n\n%s\n\n", fileb), true
 				break
 			}
-			repContent := fmt.Sprintf(txtGogpIgnoreFmt, " ///gogp_file_begin\n", gGetTxtFileBeginContent(open != ""), " ///gogp_file_begin\n\n")
+			repContent := fmt.Sprintf(txtGogpIgnoreFmt, " ///gogp_file_begin\n", getTxtFileBeginContent(open != ""), " ///gogp_file_begin\n\n")
 			if rep, replaced = src, !strings.Contains(src, gogpExpTrimEmptyLine.ReplaceAllString(repContent, "$CONTENT")); replaced {
 				rep = fmt.Sprintf("\n\n%s\n%s", fileb, repContent)
 			}
