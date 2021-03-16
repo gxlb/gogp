@@ -164,7 +164,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 ```
 - "require" syntax
 ```
-#GOGP_REQUIRE(<gp-path> [, <gpgSection>])
+// #GOGP_REQUIRE(<gp-path> [, <gpgSection>])
 ```
 - "config" refer syntax
 ```
@@ -172,6 +172,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 ```
 - "replace" syntax
 ```
+****<src> -> <dst>, literal replacement****
 // #GOGP_REPLACE(<src>, <dst>)
 ```
 - "map" syntax
