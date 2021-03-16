@@ -8,6 +8,12 @@ import (
 	"strings"
 )
 
+//remove "*" from src
+func getRawName(src string) (r string) {
+	r = strings.Replace(src, "*", "", -1)
+	return
+}
+
 //cases of template replacing
 type replaceCase struct {
 	key, value string
