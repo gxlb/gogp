@@ -33,9 +33,10 @@ func parseBoolValue(val string) bool {
 func (this *gopgProcessor) selectPart(section, sel string, depth int) string {
 	if depth <= maxRecursionDepth {
 		rep, _ := this.pretreatSelector(sel, section, depth+1)
-		return rep
+		return gogpExpComment.ReplaceAllString(rep, "")
 	}
-	return sel
+
+	return gogpExpComment.ReplaceAllString(sel, "")
 }
 
 // " <key> || !<key> || <key> == xxx || <key> != xxx "
@@ -111,11 +112,11 @@ func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth i
 func (this *gopgProcessor) selectByCases(section, cases string, predefKey string) string {
 	defaultContent := ""
 	found := false
-	repaced := gogpExpCodeCases.ReplaceAllStringFunc(cases, func(src string) string {
+	repaced := gogpExpCases.ReplaceAllStringFunc(cases, func(src string) string {
 		if found { //ignore the rest cases if has found
 			//return "" //treat as multi switch
 		}
-		elem := gogpExpCodeCases.FindAllStringSubmatch(src, -1)[0]
+		elem := gogpExpCases.FindAllStringSubmatch(src, -1)[0]
 		cond, content := elem[1], elem[2]
 		switch {
 		case cond == "": //DEFAULT branch

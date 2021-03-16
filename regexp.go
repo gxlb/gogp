@@ -19,7 +19,8 @@ const (
 	rawKeyKeyType     = "KEY_TYPE"          //key_type
 	rawKeyValueType   = "VALUE_TYPE"        //value_type
 
-	//rawStringGogpComment = "//#GOGP_COMMENT"
+	// // #GOGP_COMMENT
+	expTxtGogpComment = `(?sm:(?P<COMMENT>/{2,}[ |\t]*#GOGP_COMMENT))`
 
 	//generic-programming flag <XXX>
 	expTxtTodoReplace = `(?P<P>.?)(?P<W>\<[[:alpha:]_][[:word:]]*\>)(?P<S>.?)`
@@ -84,13 +85,14 @@ var (
 	gogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtRequire, expTxtGetGpgCfg, expTxtOnce, expTxtReplaceKey, expTxtMapKey))
 	gogpExpIgnore           = regexp.MustCompile(expTxtIgnore)
 	gogpExpCodeSelector     = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtGPOnly, expTxtIf, expTxtIf2, expTxtMapKey, expTxtSwitch))
-	gogpExpCodeCases        = regexp.MustCompile(expTxtCase)
+	gogpExpCases            = regexp.MustCompile(expTxtCase)
 	gogpExpEmptyLine        = regexp.MustCompile(expTxtEmptyLine)
 	gogpExpTrimEmptyLine    = regexp.MustCompile(expTxtTrimEmptyLine)
 	gogpExpRequire          = regexp.MustCompile(expTxtRequire)
 	gogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtRequire, expTxtFileBegin, expTxtFileEnd))
 	gogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtFileBegin, expTxtFileEnd, expTxtIgnore))
 	gogpExpCondition        = regexp.MustCompile(expTxtRequire)
+	gogpExpComment          = regexp.MustCompile(expTxtGogpComment)
 
 	txtFileBeginContent = `//
 /*   //This line can be uncommented to disable all this file, and it doesn't effect to the .gp file
