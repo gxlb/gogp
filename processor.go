@@ -90,15 +90,14 @@ func (this *replaceList) expString() (exp string) {
 	var b bytes.Buffer
 	if this.Len() > 0 {
 		for _, v := range this.list {
-			s := fmt.Sprintf("\\Q%s\\E", v.value) //match raw letter
+			s := fmt.Sprintf(`\Q%s\E|`, v.value) //match raw letter
 			b.WriteString(s)
-			b.WriteByte('|')
 		}
 		b.Truncate(b.Len() - 1) //remove last '|'
 		exp = b.String()
 	} else {
 		//avoid return "", which will match every byte
-		exp = "\\QGOGP_DO_NOT_HAVE_ANY_KEY__\\E"
+		exp = `\Q#GOGP_DO_NOT_HAVE_ANY_KEY#\E`
 	}
 
 	//fmt.Println(exp)
@@ -106,7 +105,7 @@ func (this *replaceList) expString() (exp string) {
 }
 
 func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep string, noRep int) {
-	reg := gogpExpReplace
+	reg := gogpExpTodoReplace
 	if reverse {
 		exp := this.expString()
 		reg = regexp.MustCompile(exp)
@@ -124,6 +123,7 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 		if !reverse {
 			elem := reg.FindAllStringSubmatch(src, 1)[0]
 			p, w, s = elem[1], elem[2], elem[3]
+			//.<VALUE_TYPE> <VALUE_TYPE>:
 			rawName = (w == "<VALUE_TYPE>" || w == "<KEY_TYPE>") && (p == "." || s == ":")
 			//fmt.Printf("[%s][%s][%s][%s][%v]\n", src, p, w, s, rawName)
 		}
@@ -133,7 +133,7 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 			} else { //gp replacing
 				wv := v
 				if rawName {
-					wv = gGetRawName(v)
+					wv = getRawName(v)
 				}
 				r = p + wv + s
 				//fmt.Printf("[%s][%s]->[%s]\n", w, v, r)
