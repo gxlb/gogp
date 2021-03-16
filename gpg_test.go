@@ -142,16 +142,16 @@ this_is_required6.xxx  cfg
 	//		}
 	//	}
 
-	tt := gGogpExpPretreatAll.ReplaceAllString(s, "$REQP $REQN $REQGPG $CONDK $T $F $GPGCFG $ONCE $REPSRC $REPDST $MAPSRC $MAPDST\n")
+	tt := gogpExpPretreatAll.ReplaceAllString(s, "$REQP $REQN $REQGPG $CONDK $T $F $GPGCFG $ONCE $REPSRC $REPDST $MAPSRC $MAPDST\n")
 	if tt != sCheck {
 		t.Errorf("\n%#v\n%#v\n%#v\n", s, sCheck, tt)
 		fmt.Printf("[%s\n]", tt)
-		fmt.Printf("[%#v\n]", gGogpExpPretreatAll.SubexpNames())
+		fmt.Printf("[%#v\n]", gogpExpPretreatAll.SubexpNames())
 	}
 
 	//fmt.Printf("[%s\n]", gGogpExpPretreatAll.String())
 
-	ss := gGogpExpCodeIgnore.FindAllStringSubmatch(`xxx //  #GOGP_MAP(GOGP_IfIsPointerFlagValue, yes) yyy
+	ss := gogpExpCodeSelector.FindAllStringSubmatch(`xxx //  #GOGP_MAP(GOGP_IfIsPointerFlagValue, yes) yyy
 // #GOGP_REPLACE(GOGP_IfIsPointerFlagValue, yes)
 	`, -1)
 	fmt.Println("ss", ss)
@@ -180,7 +180,7 @@ zzz
 // #GOGP_ENDSWITCH
 tail
 `
-	expSwitch := regexp.MustCompile(gsExpTxtSwitch)
+	expSwitch := regexp.MustCompile(expTxtSwitch)
 	fmt.Println("ssSwitch", expSwitch.MatchString(txt))
 	fmt.Printf("%#v\n", expSwitch.SubexpNames())
 
@@ -188,7 +188,7 @@ tail
 		cases := expSwitch.FindAllStringSubmatch(src, -1)[0][1]
 		fmt.Printf("match: %#v\n", cases)
 		if true {
-			exp := regexp.MustCompile(gsExpTxtCase)
+			exp := regexp.MustCompile(expTxtCase)
 			//ss := exp.FindAllStringSubmatch(txt, -1)
 			fmt.Println("ssCase", exp.MatchString(txt))
 			fmt.Printf("%#v\n", exp.SubexpNames())
@@ -253,7 +253,7 @@ bbbtf
 //#GOGP_ENDIF2 //outer
 tail
 `
-	exp := regexp.MustCompile(fmt.Sprintf("%s|%s", gsExpTxtIf, gsExpTxtIf2))
+	exp := regexp.MustCompile(fmt.Sprintf("%s|%s", expTxtIf, expTxtIf2))
 	fmt.Println("ssCase", exp.MatchString(txt))
 	fmt.Printf("%#v\n", exp.SubexpNames())
 	rep := exp.ReplaceAllStringFunc(txt, func(src string) string {
