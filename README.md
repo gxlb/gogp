@@ -154,7 +154,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 ```
 **** it is multi-switch logic(more than one case brantch can trigger out) ****
 // #GOGP_SWITCH [<SwitchKey>] 
-//    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || || !<SwitchKeyValue>
+//    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
         {case content}
 //    #GOGP_ENDCASE
 //    #GOGP_DEFAULT
