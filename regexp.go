@@ -19,7 +19,7 @@ const (
 	rawKeyKeyType     = "KEY_TYPE"          //key_type
 	rawKeyValueType   = "VALUE_TYPE"        //value_type
 
-	rawStringNotComment = "//#GOGP_COMMENT"
+	//rawStringGogpComment = "//#GOGP_COMMENT"
 
 	//generic-programming flag <XXX>
 	expTxtTodoReplace = `(?P<P>.?)(?P<W>\<[[:alpha:]_][[:word:]]*\>)(?P<S>.?)`
@@ -32,7 +32,6 @@ const (
 	// select by condition <cd> defines in gpg file:
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
 	// "<key> || ! <key> || <key> == xxx || <key> != xxx"
-	//gsExpTxtIf = "(?sm:\s*//#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!]+)(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<T>.*?)[\r|\n]*(?:[ |\t]*?(?://)??#GOGP_ELSE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<F>.*?)[\r|\n]*)?[ |\t]*?(?://)??#GOGP_ENDIF.*?$[\r|\n]?)"
 	expTxtIf  = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`
 	expTxtIf2 = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<CONDK2>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T2>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<F2>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`
 
