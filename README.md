@@ -138,7 +138,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 
 ----	
 ## syntax spec
-- "if" syntax
+- "**if**" syntax
 ```
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -150,7 +150,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 	{true content}
 // #GOGP_ENDIF
 ```
-- "switch" syntax
+- "**switch**" syntax
 ```
 **** it is multi-switch logic(more than one case brantch can trigger out) ****
 // #GOGP_SWITCH [<SwitchKey>] 
@@ -162,37 +162,37 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 //    #GOGP_ENDCASE
 // #GOGP_GOGP_ENDSWITCH
 ```
-- "require" syntax
+- "**require**" syntax
 ```
 // #GOGP_REQUIRE(<gp-path> [, <gpgSection>])
 ```
-- "config" refer syntax
+- "**config**" refer syntax
 ```
 #GOGP_GPGCFG(<config-name>)
 ```
-- "replace" syntax
+- "**replace**" syntax
 ```
 ****<src> -> <dst>, literal replacement****
 // #GOGP_REPLACE(<src>, <dst>)
 ```
-- "map" syntax
+- "**map**" syntax
 ```
-****<src> -> <dst>, which can affect brantch of #GOGP_IFDEF and #GOGP_SWITCH****
+****<src> -> <dst>, which can affect brantch of #GOGP_IFDEF and #GOGP_SWITCH after this code****
 // #GOGP_MAP(<src>, <dst>)
 ```
-- "ignore" syntax
+- "**ignore**" syntax
 ```
 // #GOGP_IGNORE_BEGIN 
      {ignore content} 
 // #GOGP_IGNORE_END
 ```
-- "gp only" syntax
+- "**gp-only**" syntax
 ```
 // #GOGP_GPONLY_BEGIN 
      {gp-only content} 
 // #GOGP_GPONLY_END
 ```
-- "comment" syntax
+- "**comment**" syntax
 ```
 //#GOGP_COMMENT {comment(in line) content} 
 ```
