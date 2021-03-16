@@ -1,6 +1,7 @@
 package gogp
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"strings"
@@ -80,6 +81,44 @@ const (
 	txtGogpIgnoreFmt      = "//#GOGP_IGNORE_BEGIN%s%s//#GOGP_IGNORE_END%s"
 )
 
+var res = []*re{
+	&re{
+		name:   "comment",
+		exp:    `(?sm:(?P<COMMENT>/{2,}[ |\t]*#GOGP_COMMENT))`,
+		syntax: `// #GOGP_COMMENT`,
+	},
+	&re{
+		name: "if",
+		exp:  `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`,
+		syntax: `
+// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
+	{true content}
+// #GOGP_ELSE
+	{else content}
+// #GOGP_ENDIF
+
+// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
+	{true content}
+// #GOGP_ENDIF
+`,
+	},
+	&re{
+		name: "switch",
+		exp:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASES>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`,
+		syntax: `
+**** it is multi-switch logic(more than one case brantch can trigger out) ****
+// #GOGP_SWITCH [<SwitchKey>] 
+//    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
+        {case content}
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+        {default content}
+//    #GOGP_ENDCASE
+// #GOGP_GOGP_ENDSWITCH
+`,
+	},
+}
+
 var (
 	gogpExpTodoReplace      = regexp.MustCompile(expTxtTodoReplace)
 	gogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtRequire, expTxtGetGpgCfg, expTxtOnce, expTxtReplaceKey, expTxtGogpComment))
@@ -106,3 +145,47 @@ var (
 	txtFileBeginContentOpen = strings.Replace(txtFileBeginContent, "/*", "///*", 1)
 	txtFileEndContent       = "//*/\n"
 )
+
+// regexp object
+type re struct {
+	name   string
+	exp    string
+	syntax string
+}
+
+func regexpCompile(res ...*re) *regexp.Regexp {
+	var b bytes.Buffer
+	var exp = `\Q#GOGP_DO_NOT_HAVE_ANY_KEY#\E`
+	if len(res) > 0 {
+		for _, v := range res {
+			b.WriteString(v.exp)
+			b.WriteByte('|')
+		}
+		b.Truncate(b.Len() - 1) //remove last '|'
+		exp = b.String()
+
+	}
+	return regexp.MustCompile(exp)
+}
+
+func (r *re) Regexp() *regexp.Regexp {
+	return regexp.MustCompile(r.exp)
+}
+
+func (r *re) Syntax() string {
+	return r.syntax
+}
+
+func (r *re) Name() string {
+	return r.name
+}
+
+func findRE(name string) *re {
+	for _, v := range res {
+		if v.name == name {
+			return v
+		}
+	}
+	panic(fmt.Errorf("findRE(%s) not found", name))
+	return nil
+}
