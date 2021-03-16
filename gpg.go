@@ -219,9 +219,3 @@ func goFmt(s, file string) (r string) {
 	}
 	return
 }
-
-//remove "*" from src
-func getRawName(src string) (r string) {
-	r = strings.Replace(src, "*", "", -1)
-	return
-}

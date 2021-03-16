@@ -144,7 +144,7 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 
 	if this.step == gogpStepPRODUCE {
 		//replacedGp = gGogpExpCodeIgnore.ReplaceAllString(replacedGp, "\n\n")
-		replacedGp = this.pretreatGpCodeSelector(replacedGp, section)
+		replacedGp = this.step3PretreatGpCodeSelector(replacedGp, section)
 		//fmt.Println("doGpReplace1", this.step.String(), replacedGp)
 	}
 

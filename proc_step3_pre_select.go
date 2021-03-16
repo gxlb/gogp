@@ -6,7 +6,7 @@ import (
 )
 
 // deal with #GOGP_IFDEF and #GOGP_SWITCH for .gp file
-func (this *gopgProcessor) pretreatGpCodeSelector(gpContent string, section string) (replaced string) {
+func (this *gopgProcessor) step3PretreatGpCodeSelector(gpContent string, section string) (replaced string) {
 	this.maps.clear()
 
 	replaced = gpContent
