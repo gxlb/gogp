@@ -82,7 +82,7 @@ const (
 
 var (
 	gogpExpTodoReplace      = regexp.MustCompile(expTxtTodoReplace)
-	gogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtRequire, expTxtGetGpgCfg, expTxtOnce, expTxtReplaceKey, expTxtMapKey))
+	gogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtRequire, expTxtGetGpgCfg, expTxtOnce, expTxtReplaceKey, expTxtGogpComment))
 	gogpExpIgnore           = regexp.MustCompile(expTxtIgnore)
 	gogpExpCodeSelector     = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtGPOnly, expTxtIf, expTxtIf2, expTxtMapKey, expTxtSwitch))
 	gogpExpCases            = regexp.MustCompile(expTxtCase)
