@@ -95,14 +95,14 @@ func (this *gopgProcessor) getCodeFileSuffix(section string) (r string) {
 		if v := this.getGpgCfg(section, rawKeyKeyType, false); v != "" {
 			l := strings.ToLower(v)
 			if l != v {
-				l = fmt.Sprintf("%s%s", l, get_hash(v))
+				l = fmt.Sprintf("%s%s", l, getHash(v))
 			}
 			r = l
 		}
 		if v := this.getGpgCfg(section, rawKeyValueType, false); v != "" {
 			l := strings.ToLower(v)
 			if l != v {
-				l = fmt.Sprintf("%s%s", l, get_hash(v))
+				l = fmt.Sprintf("%s%s", l, getHash(v))
 			}
 			if r == "" {
 				r = l
@@ -115,6 +115,7 @@ func (this *gopgProcessor) getCodeFileSuffix(section string) (r string) {
 	if r == "" {
 		r = section
 	} else {
+		// do not use * as filename if <VALUE_TYPE> is a pointer
 		r = strings.Replace(r, "*", "#", -1)
 	}
 
