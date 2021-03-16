@@ -92,8 +92,7 @@ var (
 	gogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtRequire, expTxtFileBegin, expTxtFileEnd))
 	gogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtFileBegin, expTxtFileEnd, expTxtIgnore))
 	gogpExpCondition        = regexp.MustCompile(expTxtRequire)
-	//gGogpExpRawName          = regexp.MustCompile(gsExpTxtRawName)
-	//gGogpExpChoice = regexp.MustCompile(gsExpTxtChoice)
+
 	txtFileBeginContent = `//
 /*   //This line can be uncommented to disable all this file, and it doesn't effect to the .gp file
 //	 //If test or change .gp file required, comment it to modify and compile as normal go file
