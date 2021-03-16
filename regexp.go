@@ -93,8 +93,8 @@ var res = []*re{
 		syntax: `
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
-// #GOGP_ELSE
-	{else content}
+[// #GOGP_ELSE
+	{else content}]
 // #GOGP_ENDIF
 
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
@@ -115,6 +115,39 @@ var res = []*re{
         {default content}
 //    #GOGP_ENDCASE
 // #GOGP_GOGP_ENDSWITCH
+`,
+	},
+	&re{
+		name: "case",
+		exp:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASE>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`,
+		syntax: `
+//    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
+        {case content}
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+        {default content}
+//    #GOGP_ENDCASE
+`,
+	},
+	&re{
+		name:   "require",
+		exp:    `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`,
+		syntax: `// #GOGP_REQUIRE(<gp-path> [, <gpgSection>])`,
+	},
+	&re{
+		name: "replace",
+		exp:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*(?P<REPDST>\S+)\))`,
+		syntax: `
+****<src> -> <dst>, literal replacement****
+// #GOGP_REPLACE(<src>, <dst>)
+`,
+	},
+	&re{
+		name: "map",
+		exp:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*(?P<MAPDST>\S+)\))`,
+		syntax: `
+****<src> -> <dst>, which can affect brantch of #GOGP_IFDEF and #GOGP_SWITCH after this code****
+// #GOGP_MAP(<src>, <dst>)
 `,
 	},
 }
