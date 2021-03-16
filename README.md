@@ -139,7 +139,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 ----	
 ## syntax spec
 - "**if**" syntax
-```
+```go
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
 // #GOGP_ELSE
@@ -151,7 +151,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 // #GOGP_ENDIF
 ```
 - "**switch**" syntax
-```
+```go
 **** it is multi-switch logic(more than one case brantch can trigger out) ****
 // #GOGP_SWITCH [<SwitchKey>] 
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
@@ -163,11 +163,11 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 // #GOGP_GOGP_ENDSWITCH
 ```
 - "**require**" syntax
-```
+```go
 // #GOGP_REQUIRE(<gp-path> [, <gpgSection>])
 ```
 - "**config**" refer syntax
-```
+```go
 #GOGP_GPGCFG(<config-name>)
 ```
 - "**replace**" syntax
@@ -187,7 +187,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 // #GOGP_IGNORE_END
 ```
 - "**gp-only**" syntax
-```
+```go
 // #GOGP_GPONLY_BEGIN 
      {gp-only content} 
 // #GOGP_GPONLY_END
