@@ -756,21 +756,58 @@ func (this *gopgProcessor) selectPart(section, sel string, depth int) string {
 	return sel
 }
 
-func (this *gopgProcessor) checkCondition(section, condition string) bool {
+// " <key> || !<key> || <key> == xxx || <key> != xxx "
+func (this *gopgProcessor) checkCondition(section, condition string, predefKey string) bool {
 	conds := strings.Split(condition, "||")
 	selOk := false
 	for _, cond := range conds {
-		key := cond
-		condValCheck := true
-		if s := len(key); s > 1 && key[0] == '!' { // !<key> means check key not defined
-			key = key[1:]
-			condValCheck = false
+		elems := gGogpExpCondition.FindAllStringSubmatch(cond, -1)
+		if len(elems) == 0 {
+			fmt.Printf("[gogp error]: [%s:%s %s] condition(%s) not match patten\n", relateGoPath(this.gpgPath), relateGoPath(this.gpPath), section, cond)
+			return false
 		}
+
+		// ["", "NOT", "KEY", "OP","VALUE"]
+		elem := elems[0]
+		not, key, op, value := elem[1], elem[2], elem[3], elem[4]
+
+		condValCheck := (not == "")
 		if s := len(key); s >= 2 && key[0] == '<' && key[s-1] == '>' { // <key> -> key
 			key = key[1 : s-1]
 		}
+
 		cfg := this.getGpgCfg(section, key, false)
-		if parseBoolValue(cfg) == condValCheck {
+		condResult := false
+		switch {
+		case predefKey != "":
+			if op != "" || value != "" {
+				fmt.Printf("[gogp warn]: [%s:%s %s] condition(%s) unexpected operator [%s, %s]\n", relateGoPath(this.gpgPath), relateGoPath(this.gpPath), section, cond, op, value)
+			}
+			if s := len(predefKey); s >= 2 && predefKey[0] == '<' && predefKey[s-1] == '>' { // <predefKey> -> predefKey
+				predefKey = predefKey[1 : s-1]
+			}
+			predefVal := this.getGpgCfg(section, predefKey, false)
+			condResult = (predefVal == key)
+
+		case value != "":
+			switch op {
+			case "==":
+				condResult = (cfg == value)
+			case "!=":
+				condResult = (cfg != value)
+			default:
+				fmt.Printf("[gogp error]: [%s:%s %s] condition(%s) undefined operator [%s]\n", relateGoPath(this.gpgPath), relateGoPath(this.gpPath), section, cond, op)
+				condResult = false
+			}
+
+		default:
+			if op != "" {
+				fmt.Printf("[gogp warn]: [%s:%s %s] condition(%s) unexpected operator [%s]\n", relateGoPath(this.gpgPath), relateGoPath(this.gpPath), section, cond, op)
+			}
+			condResult = parseBoolValue(cfg)
+		}
+
+		if condResult == condValCheck {
 			selOk = true
 			break
 		}
@@ -780,7 +817,7 @@ func (this *gopgProcessor) checkCondition(section, condition string) bool {
 
 func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth int) string {
 	ret := ""
-	if this.checkCondition(section, cond) {
+	if this.checkCondition(section, cond, "") {
 		ret = this.selectPart(section, t, depth)
 	} else {
 		ret = this.selectPart(section, f, depth)
@@ -789,7 +826,7 @@ func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth i
 	return ret
 }
 
-func (this *gopgProcessor) selectByCases(section, cases string) string {
+func (this *gopgProcessor) selectByCases(section, cases string, predefKey string) string {
 	defaultContent := ""
 	found := false
 	repaced := gGogpExpCodeCases.ReplaceAllStringFunc(cases, func(src string) string {
@@ -801,7 +838,7 @@ func (this *gopgProcessor) selectByCases(section, cases string) string {
 		switch {
 		case cond == "": //DEFAULT branch
 			defaultContent = content
-		case this.checkCondition(section, cond): //CASE branch
+		case this.checkCondition(section, cond, predefKey): //CASE branch
 			found = true
 			return content
 		}
@@ -822,8 +859,8 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 	replaced = gGogpExpCodeIgnore.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
 		repCnt++
 		elem := gGogpExpCodeIgnore.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
-		ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases :=
-			elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11]
+		ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchKey, switchCases :=
+			elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11], elem[12]
 
 		switch {
 		case condk != "":
@@ -833,7 +870,7 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 			rep = this.selectByCondition(section, condk2, condHit2, condMiss2, depth)
 
 		case switchCases != "":
-			return this.selectByCases(section, switchCases)
+			return this.selectByCases(section, switchCases, switchKey)
 
 		case mapK != "":
 			this.maps.insert(mapK, mapV, false)

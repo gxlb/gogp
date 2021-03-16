@@ -49,17 +49,28 @@ const (
 
 	// select by condition <cd> defines in gpg file:
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
+	// "<key> || ! <key> || <key> == xxx || <key> != xxx"
 	//gsExpTxtIf = "(?sm:\s*//#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!]+)(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<T>.*?)[\r|\n]*(?:[ |\t]*?(?://)??#GOGP_ELSE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<F>.*?)[\r|\n]*)?[ |\t]*?(?://)??#GOGP_ENDIF.*?$[\r|\n]?)"
-	gsExpTxtIf  = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`
-	gsExpTxtIf2 = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<CONDK2>[[:word:]<>\|!]+)(?:.*?$[\r|\n]?)(?P<T2>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<F2>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`
+	gsExpTxtIf  = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`
+	gsExpTxtIf2 = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<CONDK2>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T2>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<F2>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`
 
-	gsExpTxtSwitch = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASES>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`
-	gsExpTxtCase   = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASE>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`
+	// " <key> || !<key> || <key> == xxx || <key> != xxx "
+	// [<NOT>] <KEY> [<OP><VALUE>]
+	gsExpCondition = `(?sm:^[ |\t]*(?P<NOT>!)?[ |\t]*(?P<KEY>[[:word:]<>]+)[ |\t]*(?:(?P<OP>==|!=)[ |\t]*(?P<VALUE>[[:word:]]+))?[ |\t]*)`
+
+	//#GOGP_SWITCH [<SWITCHKEY>] <CASES> #GOGP_GOGP_ENDSWITCH
+	gsExpTxtSwitch = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASES>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`
+
+	//#GOGP_CASE <COND> <CASE> #GOGP_ENDCASE
+	//#GOGP_DEFAULT <CASE> #GOGP_ENDCASE
+	gsExpTxtCase = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASE>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-	gsExpTxtRequire       = `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`
-	gsExpTxtEmptyLine     = `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`
+	gsExpTxtRequire   = `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`
+	gsExpTxtEmptyLine = `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`
+
+	//must "-sm", other it with will repeat every line
 	gsExpTxtTrimEmptyLine = `(?-sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`
 
 	// get gpg config string:
@@ -101,6 +112,7 @@ var (
 	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)
 	gGogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtRequire, gsExpTxtFileBegin, gsExpTxtFileEnd))
 	gGogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtFileBegin, gsExpTxtFileEnd, gsExpTxtIgnore))
+	gGogpExpCondition        = regexp.MustCompile(gsExpTxtRequire)
 	//gGogpExpRawName          = regexp.MustCompile(gsExpTxtRawName)
 	//gGogpExpChoice = regexp.MustCompile(gsExpTxtChoice)
 
