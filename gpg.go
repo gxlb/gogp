@@ -22,64 +22,64 @@ import (
 )
 
 const (
-	gGpgExt           = ".gpg"
-	gGpExt            = ".gp"
-	gGpCodeFileSuffix = "gp"
-	gReplaceKeyFmt    = "<%s>"
-	gSectionReverse   = "GOGP_REVERSE" //gpg section prefix that for gogp reverse only
-	gSectionIgnore    = "GOGP_IGNORE"  //gpg section prefix that for gogp never process
+	gpgExt           = ".gpg"
+	gpExt            = ".gp"
+	gpCodeFileSuffix = "gp"
+	txtReplaceKeyFmt    = "<%s>"
+	txtSectionReverse   = "GOGP_REVERSE" //gpg section prefix that for gogp reverse only
+	txtSectionIgnore    = "GOGP_IGNORE"  //gpg section prefix that for gogp never process
 
-	gKeyReservePrefix  = "<GOGP_"            //reserved key, who will not use repalce action
-	grawKeyIgnore      = "GOGP_Ignore"       //ignore this section
-	grawKeyProductName = "GOGP_CodeFileName" //code file name part
-	grawKeySrcPathName = "GOGP_GpFilePath"   //gp file path and name
-	grawKeyDontSave    = "GOGP_DontSave"     //do not save
-	grawKeyKeyType     = "KEY_TYPE"          //key_type
-	grawKeyValueType   = "VALUE_TYPE"        //value_type
+	keyReservePrefix  = "<GOGP_"            //reserved key, who will not use repalce action
+	rawKeyIgnore      = "GOGP_Ignore"       //ignore this section
+	rawKeyProductName = "GOGP_CodeFileName" //code file name part
+	rawKeySrcPathName = "GOGP_GpFilePath"   //gp file path and name
+	rawKeyDontSave    = "GOGP_DontSave"     //do not save
+	rawKeyKeyType     = "KEY_TYPE"          //key_type
+	rawKeyValueType   = "VALUE_TYPE"        //value_type
 
-	grawStringNotComment = "//#GOGP_COMMENT"
+	rawStringNotComment = "//#GOGP_COMMENT"
 
 	//generic-programming flag <XXX>
-	gsExpTxtReplace = `(?P<P>.?)(?P<W>\<[[:alpha:]][[:word:]]*\>)(?P<S>.?)`
+	expTxtReplace = `(?P<P>.?)(?P<W>\<[[:alpha:]][[:word:]]*\>)(?P<S>.?)`
 
 	// ignore all text format:
 	// //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
-	gsExpTxtIgnore = `(?sm:\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r|\n]*)`
-	gsExpTxtGPOnly = `(?sm:\s*//#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r|\n]*)`
+	expTxtIgnore = `(?sm:\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r|\n]*)`
+	expTxtGPOnly = `(?sm:\s*//#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r|\n]*)`
 
 	// select by condition <cd> defines in gpg file:
 	// //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
 	// "<key> || ! <key> || <key> == xxx || <key> != xxx"
 	//gsExpTxtIf = "(?sm:\s*//#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!]+)(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<T>.*?)[\r|\n]*(?:[ |\t]*?(?://)??#GOGP_ELSE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<F>.*?)[\r|\n]*)?[ |\t]*?(?://)??#GOGP_ENDIF.*?$[\r|\n]?)"
-	gsExpTxtIf  = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`
-	gsExpTxtIf2 = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<CONDK2>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T2>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<F2>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`
+	expTxtIf  = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`
+	expTxtIf2 = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<CONDK2>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T2>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<F2>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`
 
 	// " <key> || !<key> || <key> == xxx || <key> != xxx "
 	// [<NOT>] <KEY> [<OP><VALUE>]
-	gsExpCondition = `(?sm:^[ |\t]*(?P<NOT>!)?[ |\t]*(?P<KEY>[[:word:]<>]+)[ |\t]*(?:(?P<OP>==|!=)[ |\t]*(?P<VALUE>[[:word:]]+))?[ |\t]*)`
+	expCondition = `(?sm:^[ |\t]*(?P<NOT>!)?[ |\t]*(?P<KEY>[[:word:]<>]+)[ |\t]*(?:(?P<OP>==|!=)[ |\t]*(?P<VALUE>[[:word:]]+))?[ |\t]*)`
 
 	//#GOGP_SWITCH [<SWITCHKEY>] <CASES> #GOGP_GOGP_ENDSWITCH
-	gsExpTxtSwitch = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASES>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`
+	expTxtSwitch = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASES>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`
 
 	//#GOGP_CASE <COND> <CASE> #GOGP_ENDCASE
 	//#GOGP_DEFAULT <CASE> #GOGP_ENDCASE
-	gsExpTxtCase = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASE>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`
+	expTxtCase = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASE>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`
 
 	// require another gp file:
 	// //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-	gsExpTxtRequire   = `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`
-	gsExpTxtEmptyLine = `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`
+	expTxtRequire   = `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`
+	expTxtEmptyLine = `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`
 
-	//must "-sm", other it with will repeat every line
-	gsExpTxtTrimEmptyLine = `(?-sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`
+	//must be "-sm", otherwise it with will repeat every line
+	expTxtTrimEmptyLine = `(?-sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`
 
 	// get gpg config string:
 	// #GOGP_GPGCFG(<cfgName>)
-	gsExpTxtGetGpgCfg = `(?sm:(?://)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]]+)\))`
+	expTxtGetGpgCfg = `(?sm:(?://)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]]+)\))`
 
 	// #GOGP_REPLACE(<src>,<dst>)
-	gsExpTxtReplaceKey = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*(?P<REPDST>\S+)\))`
-	gsExpTxtMapKey     = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*(?P<MAPDST>\S+)\))`
+	expTxtReplaceKey = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*(?P<REPDST>\S+)\))`
+	expTxtMapKey     = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*(?P<MAPDST>\S+)\))`
 
 	//remove "*" from value type such as "*string -> string"
 	// #GOGP_RAWNAME(<strValueType>)
@@ -87,43 +87,43 @@ const (
 
 	// only generate <content> once from a gp file:
 	// //#GOGP_ONCE <content> //#GOGP_END_ONCE
-	gsExpTxtOnce = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)//#GOGP_ONCE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<ONCE>.*?)[\r|\n]*[ |\t]*?(?://)??#GOGP_END_ONCE.*?$[\r|\n]*)`
+	expTxtOnce = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)//#GOGP_ONCE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<ONCE>.*?)[\r|\n]*[ |\t]*?(?://)??#GOGP_END_ONCE.*?$[\r|\n]*)`
 
-	gsExpTxtFileBegin = `(?sm:\s*(?P<FILEB>//#GOGP_FILE_BEGIN(?:[ |\t]+(?P<OPEN>[[:word:]]+))?).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r|\n]*)`
-	gsExpTxtFileEnd   = `(?sm:\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r|\n]*)`
+	expTxtFileBegin = `(?sm:\s*(?P<FILEB>//#GOGP_FILE_BEGIN(?:[ |\t]+(?P<OPEN>[[:word:]]+))?).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r|\n]*)`
+	expTxtFileEnd   = `(?sm:\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r|\n]*)`
 
 	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
-	gsTxtRequireResultFmt   = "//#GOGP_IGNORE_BEGIN ///require begin from(%s)\n%s\n//#GOGP_IGNORE_END ///require end from(%s)"
-	gsTxtRequireAtResultFmt = "///require begin from(%s)\n%s\n///require end from(%s)"
-	gsTxtGogpIgnoreFmt      = "//#GOGP_IGNORE_BEGIN%s%s//#GOGP_IGNORE_END%s"
+	txtRequireResultFmt   = "//#GOGP_IGNORE_BEGIN ///require begin from(%s)\n%s\n//#GOGP_IGNORE_END ///require end from(%s)"
+	txtRequireAtResultFmt = "///require begin from(%s)\n%s\n///require end from(%s)"
+	txtGogpIgnoreFmt      = "//#GOGP_IGNORE_BEGIN%s%s//#GOGP_IGNORE_END%s"
 
-	gThisFilePath = "github.com/gxlb/gogp/gpg.go"
-	gLibVersion   = "v3.1.0"
+	thisFilePath = "github.com/gxlb/gogp/gpg.go"
+	libVersion   = "v3.1.0"
 )
 
 var (
-	gGogpExpReplace          = regexp.MustCompile(gsExpTxtReplace)
-	gGogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtRequire, gsExpTxtGetGpgCfg, gsExpTxtOnce, gsExpTxtReplaceKey, gsExpTxtMapKey))
-	gGogpExpIgnore           = regexp.MustCompile(gsExpTxtIgnore)
-	gGogpExpCodeIgnore       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", gsExpTxtIgnore, gsExpTxtGPOnly, gsExpTxtIf, gsExpTxtIf2, gsExpTxtMapKey, gsExpTxtSwitch))
-	gGogpExpCodeCases        = regexp.MustCompile(gsExpTxtCase)
-	gGogpExpEmptyLine        = regexp.MustCompile(gsExpTxtEmptyLine)
-	gGogpExpTrimEmptyLine    = regexp.MustCompile(gsExpTxtTrimEmptyLine)
-	gGogpExpRequire          = regexp.MustCompile(gsExpTxtRequire)
-	gGogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtRequire, gsExpTxtFileBegin, gsExpTxtFileEnd))
-	gGogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", gsExpTxtFileBegin, gsExpTxtFileEnd, gsExpTxtIgnore))
-	gGogpExpCondition        = regexp.MustCompile(gsExpTxtRequire)
+	gogpExpReplace          = regexp.MustCompile(expTxtReplace)
+	gogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtRequire, expTxtGetGpgCfg, expTxtOnce, expTxtReplaceKey, expTxtMapKey))
+	gogpExpIgnore           = regexp.MustCompile(expTxtIgnore)
+	gogpExpCodeSelector       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtGPOnly, expTxtIf, expTxtIf2, expTxtMapKey, expTxtSwitch))
+	gogpExpCodeCases        = regexp.MustCompile(expTxtCase)
+	gogpExpEmptyLine        = regexp.MustCompile(expTxtEmptyLine)
+	gogpExpTrimEmptyLine    = regexp.MustCompile(expTxtTrimEmptyLine)
+	gogpExpRequire          = regexp.MustCompile(expTxtRequire)
+	gogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtRequire, expTxtFileBegin, expTxtFileEnd))
+	gogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtFileBegin, expTxtFileEnd, expTxtIgnore))
+	gogpExpCondition        = regexp.MustCompile(expTxtRequire)
 	//gGogpExpRawName          = regexp.MustCompile(gsExpTxtRawName)
 	//gGogpExpChoice = regexp.MustCompile(gsExpTxtChoice)
 
-	gGoPath             = "" //GoPath
-	gCopyRightCode      = ""
-	gCodeExt            = ".go"
-	gForceUpdate        = false //force update all products
-	gSilence            = true  //work silencely
-	gRemoveProductsOnly = false //remove products only
+	goPath             = "" //GoPath
+	copyRightCode      = ""
+	codeExt            = ".go"
+	optForceUpdate        = false //force update all products
+	optSilence            = true  //work silencely
+	optRemoveProductsOnly = false //remove products only
 
-	gsTxtFileBeginContent = `//
+	txtFileBeginContent = `//
 /*   //This line can be uncommented to disable all this file, and it doesn't effect to the .gp file
 //	 //If test or change .gp file required, comment it to modify and compile as normal go file
 //
@@ -132,19 +132,19 @@ var (
 // Real go code file will be generated from .gp file
 //
 `
-	gsTxtFileBeginContentOpen = strings.Replace(gsTxtFileBeginContent, "/*", "///*", 1)
-	gsTxtFileEndContent       = "//*/\n"
+	txtFileBeginContentOpen = strings.Replace(txtFileBeginContent, "/*", "///*", 1)
+	txtFileEndContent       = "//*/\n"
 
-	gOnceMap       map[string]bool //record once processed files
-	gSavedCodeFile map[string]bool //record saved code files
-	gDebug         = false         //debug switch
+	onceMap       map[string]bool //record once processed files
+	savedCodeFile map[string]bool //record saved code files
+	debug         = false         //debug switch
 )
 
 func gGetTxtFileBeginContent(open bool) (r string) {
 	if open {
-		r = gsTxtFileBeginContentOpen
+		r = txtFileBeginContentOpen
 	} else {
-		r = gsTxtFileBeginContent
+		r = txtFileBeginContent
 	}
 	return
 }
@@ -176,55 +176,55 @@ const (
 )
 
 func init() {
-	cmdline.Version(gLibVersion)
-	gCopyRightCode = cmdline.FormatLineHead(cpright.CopyRight(), "// ")
-	gCopyRightCode = cmdline.ReplaceTags(gCopyRightCode)
+	cmdline.Version(libVersion)
+	copyRightCode = cmdline.FormatLineHead(cpright.CopyRight(), "// ")
+	copyRightCode = cmdline.ReplaceTags(copyRightCode)
 
 	//get GoPath
 	s := os.Getenv("GOPATH")
 	if ss := strings.Split(s, ";"); ss != nil && len(ss) > 0 {
-		gGoPath = formatPath(ss[0]) + "/src/"
+		goPath = formatPath(ss[0]) + "/src/"
 	}
-	gOnceMap = make(map[string]bool)
-	gSavedCodeFile = make(map[string]bool)
+	onceMap = make(map[string]bool)
+	savedCodeFile = make(map[string]bool)
 }
 
 // enable/disable work mode RemoveProductsOnly.
 func RemoveProductsOnly(enable bool) (old bool) {
-	old, gRemoveProductsOnly = gRemoveProductsOnly, enable
+	old, optRemoveProductsOnly = optRemoveProductsOnly, enable
 	return
 }
 
 //set debug mode flag.
 func Debug(enable bool) (old bool) {
-	old, gDebug = gDebug, enable
+	old, debug = debug, enable
 	return
 }
 
 //set silence work mode flag.
 func Silence(enable bool) (old bool) {
-	old, gSilence = gSilence, enable
+	old, optSilence = optSilence, enable
 	return
 }
 
 //set force update product flag.
 func ForceUpdate(enable bool) (old bool) {
-	old, gForceUpdate = gForceUpdate, enable
+	old, optForceUpdate = optForceUpdate, enable
 	return
 }
 
 //set extension of code file, ".go" is default
 func CodeExtName(n string) (old string) {
-	old = gCodeExt
-	if n != "" && gCodeExt != n && n != gGpExt && n != gGpgExt {
-		gCodeExt = n
+	old = codeExt
+	if n != "" && codeExt != n && n != gpExt && n != gpgExt {
+		codeExt = n
 	}
 	return
 }
 
 //run work process on GoPath
 func WorkOnGoPath() (nGpg, nCode, nSkip int, err error) {
-	return Work(gGoPath)
+	return Work(goPath)
 }
 
 //run work process on current working path
@@ -244,7 +244,7 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 	start := time.Now()
 
 	if dir == "" || strings.ToLower(dir) == "gopath" { //if not set a dir,use GoPath
-		dir = gGoPath
+		dir = goPath
 	} else if dir == "." || strings.ToLower(dir) == "workpath" {
 		dir = workPath()
 	}
@@ -252,14 +252,14 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 	//println(dir)
 
 	var list []string
-	if list, err = deepCollectSubFiles(dir, gGpgExt); err == nil {
+	if list, err = deepCollectSubFiles(dir, gpgExt); err == nil {
 		//fmt.Println("list", list)
-		if !gSilence && len(list) > 0 {
+		if !optSilence && len(list) > 0 {
 			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
 		}
 
 		steps := []gogp_proc_step{gogp_step_REVERSE, gogp_step_REQUIRE, gogp_step_REVERSE, gogp_step_PRODUCE} //reverse work first
-		if gRemoveProductsOnly {
+		if optRemoveProductsOnly {
 			steps = []gogp_proc_step{gogp_step_PRODUCE, gogp_step_REQUIRE, gogp_step_REVERSE} //normal work first
 		}
 		nGpg = len(list)
@@ -275,7 +275,7 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 		}
 	}
 
-	if true || !gSilence { //always show this message
+	if true || !optSilence { //always show this message
 		cost := time.Now().Sub(start)
 		fmt.Printf("[gogp][%s] %d/%d product(s) updated from %d gpg file(s) in %s.\n", relateGoPath(dir), nCode, nCode+nSkip, nGpg, cost)
 	}
@@ -285,22 +285,22 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 
 //get version of this gogp lib
 func Version() string {
-	return gLibVersion
+	return libVersion
 }
 
 func relateGoPath(full string) string {
 	fp := filepath.ToSlash(filepath.Clean(full))
-	fg := formatPath(gGoPath)
+	fg := formatPath(goPath)
 	//println("relateGoPath", fp, fg)
 	if !filepath.HasPrefix(fp, fg) {
 		return fp
 	}
-	return strings.TrimPrefix(fp, gGoPath)
+	return strings.TrimPrefix(fp, goPath)
 }
 func expadGoPath(path string) (r string) {
 	r = path
 	if filepath.VolumeName(path) == "" {
-		r = filepath.Join(gGoPath, path)
+		r = filepath.Join(goPath, path)
 	}
 	return
 }
