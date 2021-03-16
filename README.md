@@ -16,6 +16,13 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 
 ----
 
+## todo
+1. [ ] replace regexp package to [regexp2](https://github.com/dlclark/regexp2)
+1. [ ] rebuid and test all regexp syntax
+1. [ ] use [cli](https://github.com/urfave/cli) rewrite the command
+1. [ ] add command to generate a initialized .go file
+1. [x] add syntax spec
+
 ## usage of gogp tool:
     1. (Recommend)use cmdline(cmd/gogp):
   
@@ -129,7 +136,9 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 			only generate <content> once from a gp file:
 			//#GOGP_ONCE <content> //#GOGP_END_ONCE
 
-----		
+----	
+## syntax spec
+	
 ## More gogp details:
 
 ### 1. Working flow:
