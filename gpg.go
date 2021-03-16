@@ -49,32 +49,6 @@ func gGetTxtFileBeginContent(open bool) (r string) {
 	return
 }
 
-type gogp_proc_step int
-
-func (me gogp_proc_step) IsReverse() bool {
-	return me >= gogp_step_REQUIRE && me <= gogp_step_REVERSE
-}
-
-func (me gogp_proc_step) String() (s string) {
-	switch me {
-	case gogp_step_REQUIRE:
-		s = "Step=[1RequireReplace]"
-	case gogp_step_REVERSE:
-		s = "Step=[2ReverseWork]"
-	case gogp_step_PRODUCE:
-		s = "Step=[3NormalProduce]"
-	default:
-		s = "Step=Unknown"
-	}
-	return
-}
-
-const (
-	gogp_step_REQUIRE gogp_proc_step = iota + 1 //require replace in fake go file
-	gogp_step_REVERSE                           //gen gp file from fake go file
-	gogp_step_PRODUCE                           //gen go file from gp file
-)
-
 func init() {
 	cmdline.Version(libVersion)
 	copyRightCode = cmdline.FormatLineHead(cpright.CopyRight(), "// ")
@@ -158,9 +132,9 @@ func Work(dir string) (nGpg, nCode, nSkip int, err error) {
 			fmt.Printf("[gogp]Working at:[%s]\n", relateGoPath(dir))
 		}
 
-		steps := []gogp_proc_step{gogp_step_REVERSE, gogp_step_REQUIRE, gogp_step_REVERSE, gogp_step_PRODUCE} //reverse work first
+		steps := []gogpProcessStep{gogpStepREVERSE, gogpStepREQUIRE, gogpStepREVERSE, gogpStepPRODUCE} //reverse work first
 		if optRemoveProductsOnly {
-			steps = []gogp_proc_step{gogp_step_PRODUCE, gogp_step_REQUIRE, gogp_step_REVERSE} //normal work first
+			steps = []gogpProcessStep{gogpStepPRODUCE, gogpStepREQUIRE, gogpStepREVERSE} //normal work first
 		}
 		nGpg = len(list)
 		for _, step := range steps {

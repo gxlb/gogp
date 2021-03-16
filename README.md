@@ -192,6 +192,20 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
      {gp-only content} 
 // #GOGP_GPONLY_END
 ```
+- "**file-begin**" syntax
+```
+// #GOGP_FILE_BEGIN
+```
+- "**file-end**" syntax
+```
+// #GOGP_FILE_END
+```
+- "**once**" syntax
+```
+// #GOGP_ONCE 
+    {only generate once from a gp file} 
+// #GOGP_END_ONCE 
+```
 - "**comment**" syntax
 ```
 //#GOGP_COMMENT {comment(in line) content} 
