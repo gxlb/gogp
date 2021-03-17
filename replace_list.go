@@ -30,9 +30,11 @@ package gogp
 import (
 	"bytes"
 	"fmt"
+
 	"regexp"
 	"sort"
 	"strings"
+	//regexp "github.com/dlclark/regexp2"
 )
 
 //remove "*" from src
