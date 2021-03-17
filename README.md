@@ -168,7 +168,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 ```
 - "**config**" refer syntax
 ```go
-#GOGP_GPGCFG(<config-name>)
+[//] #GOGP_GPGCFG(<config-name>)
 ```
 - "**replace**" syntax
 ```go

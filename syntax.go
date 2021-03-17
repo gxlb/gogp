@@ -36,6 +36,7 @@ import (
 )
 
 var res = []*syntax{
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#comment",
 		usage: "make an in line comment in fake .go file.",
@@ -44,6 +45,7 @@ var res = []*syntax{
 // #GOGP_COMMENT {expected code}
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#if",
 		usage: "double-way branch selector by condition",
@@ -60,6 +62,7 @@ var res = []*syntax{
 // #GOGP_ENDIF
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#switch",
 		usage: "multi-way branch selector by condition",
@@ -76,6 +79,7 @@ var res = []*syntax{
 // #GOGP_GOGP_ENDSWITCH
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#case",
 		usage: "branches of switch syntax",
@@ -89,6 +93,7 @@ var res = []*syntax{
 //    #GOGP_ENDCASE
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#require",
 		usage: "require another .gp file",
@@ -97,6 +102,7 @@ var res = []*syntax{
 // #GOGP_REQUIRE(<gp-path> [, <gpgSection>])
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#replace",
 		usage: "build-in key-value replace command for generating .gp file",
@@ -106,6 +112,7 @@ var res = []*syntax{
 // #GOGP_REPLACE(<src>, <dst>)
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#map",
 		usage: "build-in key-value define for generating .gp file. Which can affect brantch of #if and #switch after this code.",
@@ -115,14 +122,7 @@ var res = []*syntax{
 // #GOGP_MAP(<src>, <dst>)
 `,
 	},
-	&syntax{
-		name:  "#to-replace",
-		usage: "literal that waiting to replacing.",
-		exp:   `(?P<REPPREFIX>.?)(?P<REPLACEKEY>\<[[:alpha:]_][[:word:]]*\>)(?P<REPSUFFIX>.?)`,
-		syntax: `
-<{to-replace}>
-`,
-	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#ignore",
 		usage: "txt that will ignore by gogp tool.",
@@ -133,6 +133,7 @@ var res = []*syntax{
 // #GOGP_IGNORE_END
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#gp-only",
 		usage: "txt that will stay at .gp file only. Which will ignored at final .go file.",
@@ -143,14 +144,7 @@ var res = []*syntax{
 // #GOGP_GPONLY_END
 `,
 	},
-	&syntax{
-		name:  "#condition",
-		usage: "txt that for #if or #case condition field parser.",
-		exp:   `(?sm:^[ |\t]*(?P<NOT>!)?[ |\t]*(?P<KEY>[[:word:]<>]+)[ |\t]*(?:(?P<OP>==|!=)[ |\t]*(?P<VALUE>[[:word:]]+))?[ |\t]*)`,
-		syntax: `
-<key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
-`,
-	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#empty-line",
 		usage: "empty line.",
@@ -159,6 +153,7 @@ var res = []*syntax{
 {empty-lines} 
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#trim-empty-line",
 		usage: "trim empty line",
@@ -169,6 +164,7 @@ var res = []*syntax{
 {empty-lines} 
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#gpg-config",
 		usage: "refer .gpg config",
@@ -177,6 +173,7 @@ var res = []*syntax{
 [//]#GOGP_GPGCFG(<GPGCFG>)
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#once",
 		usage: "code that will generate once during one .gp file processing.",
@@ -187,6 +184,7 @@ var res = []*syntax{
 // #GOGP_END_ONCE 
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#file-begin",
 		usage: "file head of a fake .go file.",
@@ -195,6 +193,7 @@ var res = []*syntax{
 // #GOGP_FILE_BEGIN
 `,
 	},
+	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#file-end",
 		usage: "file tail of a fake .go file.",
@@ -203,14 +202,35 @@ var res = []*syntax{
 // #GOGP_FILE_END
 `,
 	},
+	//--------------------------------------------------------------------------
+	&syntax{
+		ignoreInList: true,
+		name:         "#to-replace",
+		usage:        "literal that waiting to replacing.",
+		exp:          `(?P<REPPREFIX>.?)(?P<REPLACEKEY>\<[[:alpha:]_][[:word:]]*\>)(?P<REPSUFFIX>.?)`,
+		syntax: `
+<{to-replace}>
+`,
+	},
+	//--------------------------------------------------------------------------
+	&syntax{
+		ignoreInList: true,
+		name:         "#condition",
+		usage:        "txt that for #if or #case condition field parser.",
+		exp:          `(?sm:^[ |\t]*(?P<NOT>!)?[ |\t]*(?P<KEY>[[:word:]<>]+)[ |\t]*(?:(?P<OP>==|!=)[ |\t]*(?P<VALUE>[[:word:]]+))?[ |\t]*)`,
+		syntax: `
+<key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
+`,
+	},
 }
 
 // syntax regexp descriptor
 type syntax struct {
-	name   string
-	usage  string
-	exp    string
-	syntax string
+	name         string
+	usage        string
+	exp          string
+	syntax       string
+	ignoreInList bool
 }
 
 func compileMultiRegexps(res ...*syntax) *regexp.Regexp {
@@ -218,8 +238,10 @@ func compileMultiRegexps(res ...*syntax) *regexp.Regexp {
 	var exp = `\Q#GOGP_DO_NOT_HAVE_ANY_REGEXP_SYNTAX#\E`
 	if len(res) > 0 {
 		for _, v := range res {
-			b.WriteString(v.exp)
-			b.WriteByte('|')
+			if !v.ignoreInList {
+				b.WriteString(v.exp)
+				b.WriteByte('|')
+			}
 		}
 		b.Truncate(b.Len() - 1) //remove last '|'
 		exp = b.String()
