@@ -26,6 +26,7 @@ func TestAllRegexpSyntax(t *testing.T) {
 const tstExpSyntaxAll = `
 head
 // #GOGP_COMMENT {comment code}
+//#GOGP_COMMENT {comment code2}
 
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{if-true content}
@@ -37,6 +38,16 @@ head
 	{if-true content2}
 // #GOGP_ENDIF
 
+//#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
+	{if-true content}
+//#GOGP_ELSE
+	{if-else content}
+//#GOGP_ENDIF
+
+//#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
+	{if-true content2}
+//#GOGP_ENDIF
+
 // #GOGP_SWITCH <SwitchKey>
 //    #GOGP_CASE <SwitchKeyValue1>
         {case content1}
@@ -47,7 +58,7 @@ head
 //    #GOGP_DEFAULT
         {default content1}
 //    #GOGP_ENDCASE
-// #GOGP_GOGP_ENDSWITCH
+// #GOGP_ENDSWITCH
 
 // #GOGP_SWITCH
 //    #GOGP_CASE <key>
@@ -59,7 +70,31 @@ head
 //    #GOGP_DEFAULT
         {default content2}
 //    #GOGP_ENDCASE
-// #GOGP_GOGP_ENDSWITCH
+// #GOGP_ENDSWITCH
+
+//#GOGP_SWITCH <SwitchKey>
+//    #GOGP_CASE <SwitchKeyValue1>
+        {case content1}
+//    #GOGP_ENDCASE
+//    #GOGP_CASE <SwitchKeyValue2>
+        {case content2}
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+        {default content1}
+//    #GOGP_ENDCASE
+//#GOGP_ENDSWITCH
+
+//#GOGP_SWITCH 
+//    #GOGP_CASE <key>
+        {case content3}
+//    #GOGP_ENDCASE
+//    #GOGP_CASE <key> != val
+        {case content4}
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+        {default content2}
+//    #GOGP_ENDCASE
+//#GOGP_ENDSWITCH
 
 //    #GOGP_CASE <key>
         {case content3}
@@ -70,6 +105,16 @@ head
 //    #GOGP_DEFAULT
         {default content2}
 //    #GOGP_ENDCASE
+
+//#GOGP_CASE <key>
+        {case content3}
+//#GOGP_ENDCASE
+//#GOGP_CASE <key> != val
+        {case content4}
+//#GOGP_ENDCASE
+//#GOGP_DEFAULT
+        {default content2}
+//#GOGP_ENDCASE
 
 // #GOGP_REQUIRE(<gp-path> , <gpgSection>)
 

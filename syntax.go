@@ -97,7 +97,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#require",
 		usage: "require another .gp file",
-		exp:   `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`,
+		exp:   `(?sm:(?P<REQ>(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`,
 		syntax: `
 // #GOGP_REQUIRE(<gp-path> [, <gpgSection>])
 `,
@@ -126,7 +126,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#ignore",
 		usage: "txt that will ignore by gogp tool.",
-		exp:   `(?sm:\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r|\n]*)`,
+		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r|\n]*)`,
 		syntax: `
 // #GOGP_IGNORE_BEGIN 
      {ignore-content} 
@@ -137,7 +137,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#gp-only",
 		usage: "txt that will stay at .gp file only. Which will ignored at final .go file.",
-		exp:   `(?sm:\s*//#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r|\n]*)`,
+		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r|\n]*)`,
 		syntax: `
 // #GOGP_GPONLY_BEGIN 
      {gp-only content} 
@@ -168,16 +168,16 @@ var res = []*syntax{
 	&syntax{
 		name:  "#gpg-config",
 		usage: "refer .gpg config",
-		exp:   `(?sm:(?://)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]]+)\))`,
+		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]<\->]+)\))`,
 		syntax: `
-[//]#GOGP_GPGCFG(<GPGCFG>)
+[//] #GOGP_GPGCFG(<GPGCFG>)
 `,
 	},
 	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#once",
 		usage: "code that will generate once during one .gp file processing.",
-		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)//#GOGP_ONCE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<ONCE>.*?)[\r|\n]*[ |\t]*?(?://)??#GOGP_END_ONCE.*?$[\r|\n]*)`,
+		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ONCE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<ONCE>.*?)[\r|\n]?(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_END_ONCE.*?$[\r|\n]?)`,
 		syntax: `
 // #GOGP_ONCE 
     {only generate once from a gp file} 
@@ -188,7 +188,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#file-begin",
 		usage: "file head of a fake .go file.",
-		exp:   `(?sm:\s*(?P<FILEB>//#GOGP_FILE_BEGIN(?:[ |\t]+(?P<OPEN>[[:word:]]+))?).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r|\n]*)`,
+		exp:   `(?sm:(?P<FILEB>(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_FILE_BEGIN(?:[ |\t]+(?P<OPEN>[[:word:]]+))?).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r|\n]*)`,
 		syntax: `
 // #GOGP_FILE_BEGIN
 `,
@@ -197,7 +197,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#file-end",
 		usage: "file tail of a fake .go file.",
-		exp:   `(?sm:\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r|\n]*)`,
+		exp:   `(?sm:(?P<FILEE>(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_FILE_END).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r|\n]*)`,
 		syntax: `
 // #GOGP_FILE_END
 `,
