@@ -148,7 +148,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#empty-line",
 		usage: "empty line.",
-		exp:   `(?-sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`,
+		exp:   `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`,
 		syntax: `
 {empty-lines} 
 `,
@@ -157,7 +157,8 @@ var res = []*syntax{
 	&syntax{
 		name:  "#trim-empty-line",
 		usage: "trim empty line",
-		exp:   `(?-sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`,
+		// must be "-sm", otherwise it with will repeat every line
+		exp: `(?-sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`,
 		syntax: `
 {empty-lines} 
 {contents}
@@ -243,7 +244,9 @@ func compileMultiRegexps(res ...*syntax) *regexp.Regexp {
 				b.WriteByte('|')
 			}
 		}
-		b.Truncate(b.Len() - 1) //remove last '|'
+		if b.Len() > 0 {
+			b.Truncate(b.Len() - 1) //remove last '|'
+		}
 		exp = b.String()
 	}
 	return regexp.MustCompile(exp)

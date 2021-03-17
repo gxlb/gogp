@@ -139,6 +139,11 @@ head
 // #GOGP_ONCE 
     {only generate once from a gp file} 
 // #GOGP_END_ONCE 
+---
+
+
+
+
 
 tail
 `
