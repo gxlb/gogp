@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	_ "github.com/vipally/gogp/auto" //auto run gogp tool at GoPath in test process
+	_ "github.com/gxlb/gogp/auto" //auto run gogp tool at GoPath in test process
 )
 
 func TestPersonStack(t *testing.T) {

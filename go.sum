@@ -1,3 +1,5 @@
+github.com/dlclark/regexp2 v1.4.0 h1:F1rxgk7p4uKjwIQxBs9oAXe5CqrXlCduYEJvrF4u93E=
+github.com/dlclark/regexp2 v1.4.0/go.mod h1:2pZnwuY/m+8K6iRw6wQdMtk+rH5tNGR1i55kozfMjCc=
 github.com/vipally/cmdline v0.0.0-20200404124829-ea1e34f654ec h1:idgc5yK/DeUQX5tpHx4Sp57Yc/jQcM1gnxtuNvkspRQ=
 github.com/vipally/cmdline v0.0.0-20200404124829-ea1e34f654ec/go.mod h1:k4n5DFrZkuMWGOCsKFmyh62BTyOPLDZfTgQ1G1oF8eU=
 github.com/vipally/cpright v0.0.0-20210219131844-45e860cc0fd8 h1:qK9FnJnMmPm0U8zGt7avcUBUbpbuUybOMJ5sTRVEGGQ=

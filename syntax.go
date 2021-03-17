@@ -30,7 +30,9 @@ package gogp
 import (
 	"bytes"
 	"fmt"
-	"regexp"
+
+	//"regexp"
+	regexp "github.com/dlclark/regexp2"
 )
 
 var res = []*syntax{
