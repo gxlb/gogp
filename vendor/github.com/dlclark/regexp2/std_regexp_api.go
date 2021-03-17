@@ -537,18 +537,17 @@ func (re *RegexpStd) FindAllSubmatchIndex(b []byte, n int) [][]int {
 func (re *RegexpStd) FindAllStringSubmatch(s string, n int) [][]string {
 	m, err := re.p.FindStringMatch(s)
 	if err != nil {
+		println(err.Error())
 		return nil
 	}
-	r := make([][]string, 0, len(m.Captures))
-	for m != nil && err == nil {
-		mm := make([]string, 0, len(m.otherGroups)+1)
-		mm = append(mm, m.String())
-		for i := 0; i < len(m.otherGroups); i++ {
-			mm = append(mm, (&m.otherGroups[i]).String())
-		}
-		r = append(r, mm)
-		m, err = re.p.FindNextMatch(m)
+
+	groups := m.Groups()
+	mm := make([]string, 0, len(groups))
+	for i := 0; i < len(groups); i++ {
+		mm = append(mm, (&groups[i]).String())
 	}
+
+	r := [][]string{mm}
 	return r
 }
 
