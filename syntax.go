@@ -49,7 +49,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#if",
 		usage: "double-way branch selector by condition",
-		exp:   `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`,
+		exp:   `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<IFT>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<IFF>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`,
 		syntax: `
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -66,7 +66,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#switch",
 		usage: "multi-way branch selector by condition",
-		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASES>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`,
+		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<SWITCHCONTENT>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`,
 		syntax: `
 **** it is multi-switch logic(more than one case brantch can trigger out) ****
 // #GOGP_SWITCH [<SwitchKey>] 
@@ -83,7 +83,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#case",
 		usage: "branches of switch syntax",
-		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASE>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`,
+		exp:   `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<CASEKEY>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASECONTENT>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`,
 		syntax: `
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
         {case content}
@@ -148,7 +148,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#empty-line",
 		usage: "empty line.",
-		exp:   `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`,
+		exp:   `(?-sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`,
 		syntax: `
 {empty-lines} 
 `,
