@@ -171,7 +171,7 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 #GOGP_GPGCFG(<config-name>)
 ```
 - "**replace**" syntax
-```
+```go
 ****<src> -> <dst>, literal replacement****
 // #GOGP_REPLACE(<src>, <dst>)
 ```
@@ -193,21 +193,21 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 // #GOGP_GPONLY_END
 ```
 - "**file-begin**" syntax
-```
+```go
 // #GOGP_FILE_BEGIN
 ```
 - "**file-end**" syntax
-```
+```go
 // #GOGP_FILE_END
 ```
 - "**once**" syntax
-```
+```go
 // #GOGP_ONCE 
     {only generate once from a gp file} 
 // #GOGP_END_ONCE 
 ```
 - "**comment**" syntax
-```
+```go
 //#GOGP_COMMENT {comment(in line) content} 
 ```
 	
