@@ -6,6 +6,19 @@ import (
 	"fmt"
 )
 
+func CompileStd(expr string) (*StdRegexp, error) {
+	re, err := Compile(expr, RE2)
+	return re.StdRegexp(), err
+}
+
+func MustCompileStd(expr string) *StdRegexp {
+	re, err := CompileStd(expr)
+	if err != nil {
+		panic(err)
+	}
+	return re
+}
+
 type StdRegexp struct {
 	p *Regexp
 }
@@ -27,6 +40,10 @@ func (re *StdRegexp) ReplaceAllString(input string, repace string) string {
 		return input
 	}
 	return rep
+}
+
+func (re *StdRegexp) Regexp2() *Regexp {
+	return re.p
 }
 
 func (re *StdRegexp) ReplaceAllStringFunc(input string, f func(string) string) string {
