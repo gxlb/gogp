@@ -541,9 +541,9 @@ func (re *RegexpStd) FindAllStringSubmatch(s string, n int) [][]string {
 		return nil
 	}
 
+	m.populateOtherGroups()
 	subs := make([]string, 0, len(m.otherGroups)+1)
 	subs = append(subs, m.Group.String())
-	m.populateOtherGroups()
 	for i := 0; i < len(m.otherGroups); i++ {
 		subs = append(subs, (&m.otherGroups[i]).String())
 	}
