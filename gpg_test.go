@@ -7,7 +7,6 @@ package gogp
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 )
 
@@ -180,7 +179,7 @@ zzz
 // #GOGP_ENDSWITCH
 tail
 `
-	expSwitch := regexp.MustCompile(expTxtSwitch)
+	expSwitch := findRE("#switch").Regexp()
 	fmt.Println("ssSwitch", expSwitch.MatchString(txt))
 	fmt.Printf("%#v\n", expSwitch.SubexpNames())
 
@@ -188,7 +187,7 @@ tail
 		cases := expSwitch.FindAllStringSubmatch(src, -1)[0][1]
 		fmt.Printf("match: %#v\n", cases)
 		if true {
-			exp := regexp.MustCompile(expTxtCase)
+			exp := findRE("#case").Regexp()
 			//ss := exp.FindAllStringSubmatch(txt, -1)
 			fmt.Println("ssCase", exp.MatchString(txt))
 			fmt.Printf("%#v\n", exp.SubexpNames())
@@ -253,7 +252,7 @@ bbbtf
 //#GOGP_ENDIF2 //outer
 tail
 `
-	exp := regexp.MustCompile(fmt.Sprintf("%s|%s", expTxtIf, expTxtIf2))
+	exp := findRE("#if").Regexp()
 	fmt.Println("ssCase", exp.MatchString(txt))
 	fmt.Printf("%#v\n", exp.SubexpNames())
 	rep := exp.ReplaceAllStringFunc(txt, func(src string) string {
@@ -284,74 +283,72 @@ tail
 	rep = rep
 }
 
-/*
 //  // to remove code
 
-	// // // #GOGP_COMMENT
-	// expTxtGogpComment = `(?sm:(?P<COMMENT>/{2,}[ |\t]*#GOGP_COMMENT))`
+// // // #GOGP_COMMENT
+// expTxtGogpComment = `(?sm:(?P<COMMENT>/{2,}[ |\t]*#GOGP_COMMENT))`
 
-	// //generic-programming flag <XXX>
-	// expTxtTodoReplace = `(?P<P>.?)(?P<W>\<[[:alpha:]_][[:word:]]*\>)(?P<S>.?)`
+// //generic-programming flag <XXX>
+// expTxtTodoReplace = `(?P<P>.?)(?P<W>\<[[:alpha:]_][[:word:]]*\>)(?P<S>.?)`
 
-	// // ignore all text format:
-	// // //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
-	// expTxtIgnore = `(?sm:\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r|\n]*)`
-	// expTxtGPOnly = `(?sm:\s*//#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r|\n]*)`
+// // ignore all text format:
+// // //#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
+// expTxtIgnore = `(?sm:\s*//#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r|\n]*)`
+// expTxtGPOnly = `(?sm:\s*//#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r|\n]*)`
 
-	// // select by condition <cd> defines in gpg file:
-	// // //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
-	// // "<key> || ! <key> || <key> == xxx || <key> != xxx"
-	// expTxtIf  = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`
-	// expTxtIf2 = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<CONDK2>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T2>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<F2>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`
+// // select by condition <cd> defines in gpg file:
+// // //#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
+// // "<key> || ! <key> || <key> == xxx || <key> != xxx"
+// expTxtIf  = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<CONDK>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<F>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`
+// expTxtIf2 = `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<CONDK2>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<T2>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<F2>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`
 
-	// // " <key> || !<key> || <key> == xxx || <key> != xxx "
-	// // [<NOT>] <KEY> [<OP><VALUE>]
-	// expCondition = `(?sm:^[ |\t]*(?P<NOT>!)?[ |\t]*(?P<KEY>[[:word:]<>]+)[ |\t]*(?:(?P<OP>==|!=)[ |\t]*(?P<VALUE>[[:word:]]+))?[ |\t]*)`
+// // " <key> || !<key> || <key> == xxx || <key> != xxx "
+// // [<NOT>] <KEY> [<OP><VALUE>]
+// expCondition = `(?sm:^[ |\t]*(?P<NOT>!)?[ |\t]*(?P<KEY>[[:word:]<>]+)[ |\t]*(?:(?P<OP>==|!=)[ |\t]*(?P<VALUE>[[:word:]]+))?[ |\t]*)`
 
-	// //#GOGP_SWITCH [<SWITCHKEY>] <CASES> #GOGP_GOGP_ENDSWITCH
-	// expTxtSwitch = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASES>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`
+// //#GOGP_SWITCH [<SWITCHKEY>] <CASES> #GOGP_GOGP_ENDSWITCH
+// expTxtSwitch = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASES>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`
 
-	// //#GOGP_CASE <COND> <CASE> #GOGP_ENDCASE
-	// //#GOGP_DEFAULT <CASE> #GOGP_ENDCASE
-	// expTxtCase = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASE>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`
+// //#GOGP_CASE <COND> <CASE> #GOGP_ENDCASE
+// //#GOGP_DEFAULT <CASE> #GOGP_ENDCASE
+// expTxtCase = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<COND>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASE>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`
 
-	// // require another gp file:
-	// // //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-	// expTxtRequire   = `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`
-	// expTxtEmptyLine = `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`
+// // require another gp file:
+// // //#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
+// expTxtRequire   = `(?sm:\s*(?P<REQ>^[ |\t]*(?://)?#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`
+// expTxtEmptyLine = `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`
 
-	// //must be "-sm", otherwise it with will repeat every line
-	// expTxtTrimEmptyLine = `(?-sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`
+// //must be "-sm", otherwise it with will repeat every line
+// expTxtTrimEmptyLine = `(?-sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`
 
-	// // get gpg config string:
-	// // #GOGP_GPGCFG(<cfgName>)
-	// expTxtGetGpgCfg = `(?sm:(?://)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]]+)\))`
+// // get gpg config string:
+// // #GOGP_GPGCFG(<cfgName>)
+// expTxtGetGpgCfg = `(?sm:(?://)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]]+)\))`
 
-	// // #GOGP_REPLACE(<src>,<dst>)
-	// expTxtReplaceKey = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*(?P<REPDST>\S+)\))`
-	// expTxtMapKey     = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*(?P<MAPDST>\S+)\))`
+// // #GOGP_REPLACE(<src>,<dst>)
+// expTxtReplaceKey = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*(?P<REPDST>\S+)\))`
+// expTxtMapKey     = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*(?P<MAPDST>\S+)\))`
 
-	// //remove "*" from value type such as "*string -> string"
-	// // #GOGP_RAWNAME(<strValueType>)
-	// //gsExpTxtRawName = "(?-sm:(?://)?#GOGP_RAWNAME\((?P<RAWNAME>\S+)\))"
+// //remove "*" from value type such as "*string -> string"
+// // #GOGP_RAWNAME(<strValueType>)
+// //gsExpTxtRawName = "(?-sm:(?://)?#GOGP_RAWNAME\((?P<RAWNAME>\S+)\))"
 
-	// // only generate <content> once from a gp file:
-	// // //#GOGP_ONCE <content> //#GOGP_END_ONCE
-	// expTxtOnce = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)//#GOGP_ONCE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<ONCE>.*?)[\r|\n]*[ |\t]*?(?://)??#GOGP_END_ONCE.*?$[\r|\n]*)`
+// // only generate <content> once from a gp file:
+// // //#GOGP_ONCE <content> //#GOGP_END_ONCE
+// expTxtOnce = `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)//#GOGP_ONCE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<ONCE>.*?)[\r|\n]*[ |\t]*?(?://)??#GOGP_END_ONCE.*?$[\r|\n]*)`
 
-	// expTxtFileBegin = `(?sm:\s*(?P<FILEB>//#GOGP_FILE_BEGIN(?:[ |\t]+(?P<OPEN>[[:word:]]+))?).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r|\n]*)`
-	// expTxtFileEnd   = `(?sm:\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r|\n]*)`
+// expTxtFileBegin = `(?sm:\s*(?P<FILEB>//#GOGP_FILE_BEGIN(?:[ |\t]+(?P<OPEN>[[:word:]]+))?).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r|\n]*)`
+// expTxtFileEnd   = `(?sm:\s*(?P<FILEE>//#GOGP_FILE_END).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r|\n]*)`
 
-	// gogpExpTodoReplace      = regexp.MustCompile(expTxtTodoReplace)
-	// gogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtRequire, expTxtGetGpgCfg, expTxtOnce, expTxtReplaceKey, expTxtGogpComment))
-	// gogpExpIgnore           = regexp.MustCompile(expTxtIgnore)
-	// gogpExpCodeSelector     = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtGPOnly, expTxtIf, expTxtIf2, expTxtMapKey, expTxtSwitch))
-	// gogpExpCases            = regexp.MustCompile(expTxtCase)
-	// gogpExpEmptyLine        = regexp.MustCompile(expTxtEmptyLine)
-	// gogpExpTrimEmptyLine    = regexp.MustCompile(expTxtTrimEmptyLine)
-	// gogpExpRequire          = regexp.MustCompile(expTxtRequire)
-	// gogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtRequire, expTxtFileBegin, expTxtFileEnd))
-	// gogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtFileBegin, expTxtFileEnd, expTxtIgnore))
-	// gogpExpCondition        = regexp.MustCompile(expTxtRequire)
-	// gogpExpComment          = regexp.MustCompile(expTxtGogpComment)
- */
+// gogpExpTodoReplace      = regexp.MustCompile(expTxtTodoReplace)
+// gogpExpPretreatAll      = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtRequire, expTxtGetGpgCfg, expTxtOnce, expTxtReplaceKey, expTxtGogpComment))
+// gogpExpIgnore           = regexp.MustCompile(expTxtIgnore)
+// gogpExpCodeSelector     = regexp.MustCompile(fmt.Sprintf("%s|%s|%s|%s|%s|%s", expTxtIgnore, expTxtGPOnly, expTxtIf, expTxtIf2, expTxtMapKey, expTxtSwitch))
+// gogpExpCases            = regexp.MustCompile(expTxtCase)
+// gogpExpEmptyLine        = regexp.MustCompile(expTxtEmptyLine)
+// gogpExpTrimEmptyLine    = regexp.MustCompile(expTxtTrimEmptyLine)
+// gogpExpRequire          = regexp.MustCompile(expTxtRequire)
+// gogpExpRequireAll       = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtRequire, expTxtFileBegin, expTxtFileEnd))
+// gogpExpReverseIgnoreAll = regexp.MustCompile(fmt.Sprintf("%s|%s|%s", expTxtFileBegin, expTxtFileEnd, expTxtIgnore))
+// gogpExpCondition        = regexp.MustCompile(expTxtRequire)
+// gogpExpComment          = regexp.MustCompile(expTxtGogpComment)
