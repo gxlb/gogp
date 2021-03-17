@@ -11,10 +11,12 @@ func TestAllRegexpSyntax(t *testing.T) {
 	fmt.Printf("%#v\n", groups)
 	fmt.Println("MatchString", expAll.MatchString(tstExpSyntaxAll))
 	rep := expAll.ReplaceAllStringFunc(tstExpSyntaxAll, func(src string) string {
-		elem := expAll.FindAllStringSubmatch(src, -1)[0]
 		fmt.Println("-----------------------------")
+		elem := expAll.FindAllStringSubmatch(src, -1)[0]
+		//fmt.Printf("%#v\n", src)
+		//fmt.Printf("%#v\n", elem)
 		for i, v := range groups {
-			if false && elem[i] != "" && i >= 0 {
+			if true && elem[i] != "" && i >= 0 {
 				fmt.Printf("%d %s-------\n%s\n", i, v, elem[i])
 			}
 		}
