@@ -541,14 +541,14 @@ func (re *RegexpStd) FindAllStringSubmatch(s string, n int) [][]string {
 		return nil
 	}
 
-	groups := m.Groups()
-	mm := make([]string, 0, len(groups))
-	for i := 0; i < len(groups); i++ {
-		mm = append(mm, (&groups[i]).String())
+	m.populateOtherGroups()
+	subs := make([]string, 0, len(m.otherGroups)+1)
+	subs = append(subs, m.Group.String())
+	for i := 0; i < len(m.otherGroups); i++ {
+		subs = append(subs, (&m.otherGroups[i]).String())
 	}
 
-	r := [][]string{mm}
-	return r
+	return [][]string{subs}
 }
 
 // FindAllStringSubmatchIndex is the 'All' version of
