@@ -31,8 +31,8 @@ import (
 	"bytes"
 	"fmt"
 
-	"regexp"
-	//regexp "github.com/dlclark/regexp2"
+	//"regexp"
+	regexp "github.com/dlclark/regexp2"
 )
 
 var res = []*syntax{
@@ -234,7 +234,7 @@ type syntax struct {
 	ignoreInList bool
 }
 
-func compileMultiRegexps(res ...*syntax) *regexp.Regexp {
+func compileMultiRegexps(res ...*syntax) *regexp.RegexpStd {
 	var b bytes.Buffer
 	var exp = `\Q#GOGP_DO_NOT_HAVE_ANY_REGEXP_SYNTAX#\E`
 	if len(res) > 0 {
@@ -249,11 +249,11 @@ func compileMultiRegexps(res ...*syntax) *regexp.Regexp {
 		}
 		exp = b.String()
 	}
-	return regexp.MustCompile(exp)
+	return regexp.MustCompileStd(exp)
 }
 
-func (st *syntax) Regexp() *regexp.Regexp {
-	return regexp.MustCompile(st.expr)
+func (st *syntax) Regexp() *regexp.RegexpStd {
+	return regexp.MustCompileStd(st.expr)
 }
 
 func findSyntax(name string) *syntax {

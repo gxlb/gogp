@@ -31,10 +31,11 @@ import (
 	"bytes"
 	"fmt"
 
-	"regexp"
+	//"regexp"
 	"sort"
 	"strings"
-	//regexp "github.com/dlclark/regexp2"
+
+	regexp "github.com/dlclark/regexp2"
 )
 
 //remove "*" from src
@@ -130,7 +131,7 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 	reg := gogpExpTodoReplace
 	if reverse {
 		exp := this.expString()
-		reg = regexp.MustCompile(exp)
+		reg = regexp.MustCompileStd(exp)
 	}
 	//	if gDebug {
 	//		if this.sectionName == "tree_sort_slice" {

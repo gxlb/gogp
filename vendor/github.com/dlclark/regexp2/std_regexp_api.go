@@ -7,12 +7,12 @@ import (
 	"io"
 )
 
-func CompileStd(expr string) (*StdRegexp, error) {
+func CompileStd(expr string) (*RegexpStd, error) {
 	re, err := Compile(expr, RE2)
 	return re.StdRegexp(), err
 }
 
-func MustCompileStd(expr string) *StdRegexp {
+func MustCompileStd(expr string) *RegexpStd {
 	re, err := CompileStd(expr)
 	if err != nil {
 		panic(err)
@@ -20,12 +20,12 @@ func MustCompileStd(expr string) *StdRegexp {
 	return re
 }
 
-type StdRegexp struct {
+type RegexpStd struct {
 	p *Regexp
 }
 
-func (re *Regexp) StdRegexp() *StdRegexp {
-	return &StdRegexp{p: re}
+func (re *Regexp) StdRegexp() *RegexpStd {
+	return &RegexpStd{p: re}
 }
 
 func makeRepFunc(f func(string) string) MatchEvaluator {
@@ -34,12 +34,12 @@ func makeRepFunc(f func(string) string) MatchEvaluator {
 	}
 }
 
-func (re *StdRegexp) Regexp2() *Regexp {
+func (re *RegexpStd) Regexp2() *Regexp {
 	return re.p
 }
 
 // String returns the source text used to compile the regular expression.
-func (re *StdRegexp) String() string {
+func (re *RegexpStd) String() string {
 	return ""
 }
 
@@ -51,7 +51,7 @@ func (re *StdRegexp) String() string {
 // As of Go 1.12, using Copy is no longer necessary to avoid lock contention.
 // Copy may still be appropriate if the reason for its use is to make
 // two copies with different Longest settings.
-func (re *StdRegexp) Copy() *StdRegexp {
+func (re *RegexpStd) Copy() *RegexpStd {
 	re2 := *re
 	return &re2
 }
@@ -62,7 +62,7 @@ func (re *StdRegexp) Copy() *StdRegexp {
 // it chooses a match that is as long as possible.
 // This method modifies the StdRegexp and may not be called concurrently
 // with any other methods.
-func (re *StdRegexp) Longest() {
+func (re *RegexpStd) Longest() {
 }
 
 // SubexpNames returns the names of the parenthesized subexpressions
@@ -70,7 +70,7 @@ func (re *StdRegexp) Longest() {
 // so that if m is a match slice, the name for m[i] is SubexpNames()[i].
 // Since the StdRegexp as a whole cannot be named, names[0] is always
 // the empty string. The slice should not be modified.
-func (re *StdRegexp) SubexpNames() []string {
+func (re *RegexpStd) SubexpNames() []string {
 	return re.p.GetGroupNames()
 }
 
@@ -81,26 +81,26 @@ func (re *StdRegexp) SubexpNames() []string {
 // (?P<bob>a+)(?P<bob>b+), which declares two subexpressions named "bob".
 // In this case, SubexpIndex returns the index of the leftmost such subexpression
 // in the regular expression.
-func (re *StdRegexp) SubexpIndex(name string) int {
+func (re *RegexpStd) SubexpIndex(name string) int {
 	return 0
 }
 
 // LiteralPrefix returns a literal string that must begin any match
 // of the regular expression re. It returns the boolean true if the
 // literal string comprises the entire regular expression.
-func (re *StdRegexp) LiteralPrefix() (prefix string, complete bool) {
+func (re *RegexpStd) LiteralPrefix() (prefix string, complete bool) {
 	panic("")
 }
 
 // MatchReader reports whether the text returned by the RuneReader
 // contains any match of the regular expression re.
-func (re *StdRegexp) MatchReader(r io.RuneReader) bool {
+func (re *RegexpStd) MatchReader(r io.RuneReader) bool {
 	panic("")
 }
 
 // MatchString reports whether the string s
 // contains any match of the regular expression re.
-func (re *StdRegexp) MatchString(s string) bool {
+func (re *RegexpStd) MatchString(s string) bool {
 	if ok, err := re.p.MatchString(s); err == nil {
 		return ok
 	}
@@ -109,7 +109,7 @@ func (re *StdRegexp) MatchString(s string) bool {
 
 // Match reports whether the byte slice b
 // contains any match of the regular expression re.
-func (re *StdRegexp) Match(b []byte) bool {
+func (re *RegexpStd) Match(b []byte) bool {
 	panic("")
 }
 
@@ -138,7 +138,7 @@ func MatchStd(pattern string, b []byte) (matched bool, err error) {
 // ReplaceAllString returns a copy of src, replacing matches of the StdRegexp
 // with the replacement string repl. Inside repl, $ signs are interpreted as
 // in Expand, so for instance $1 represents the text of the first submatch.
-func (re *StdRegexp) ReplaceAllString(src, repl string) string {
+func (re *RegexpStd) ReplaceAllString(src, repl string) string {
 	rep, err := re.p.Replace(src, repl, 0, -1)
 	if err != nil {
 		fmt.Println(err)
@@ -150,7 +150,7 @@ func (re *StdRegexp) ReplaceAllString(src, repl string) string {
 // ReplaceAllLiteralString returns a copy of src, replacing matches of the StdRegexp
 // with the replacement string repl. The replacement repl is substituted directly,
 // without using Expand.
-func (re *StdRegexp) ReplaceAllLiteralString(src, repl string) string {
+func (re *RegexpStd) ReplaceAllLiteralString(src, repl string) string {
 	// return string(re.ReplaceAll(nil, src, 2, func(dst []byte, match []int) []byte {
 	// 	return append(dst, repl...)
 	// }))
@@ -161,7 +161,7 @@ func (re *StdRegexp) ReplaceAllLiteralString(src, repl string) string {
 // StdRegexp have been replaced by the return value of function repl applied
 // to the matched substring. The replacement returned by repl is substituted
 // directly, without using Expand.
-func (re *StdRegexp) ReplaceAllStringFunc(src string, repl func(string) string) string {
+func (re *RegexpStd) ReplaceAllStringFunc(src string, repl func(string) string) string {
 	rep, err := re.p.ReplaceFunc(src, makeRepFunc(repl), 0, -1)
 	if err != nil {
 		fmt.Println(err)
@@ -173,7 +173,7 @@ func (re *StdRegexp) ReplaceAllStringFunc(src string, repl func(string) string) 
 // ReplaceAll returns a copy of src, replacing matches of the StdRegexp
 // with the replacement text repl. Inside repl, $ signs are interpreted as
 // in Expand, so for instance $1 represents the text of the first submatch.
-func (re *StdRegexp) ReplaceAll(src, repl []byte) []byte {
+func (re *RegexpStd) ReplaceAll(src, repl []byte) []byte {
 	// n := 2
 	// if bytes.IndexByte(repl, '$') >= 0 {
 	// 	n = 2 * (re.numSubexp + 1)
@@ -192,7 +192,7 @@ func (re *StdRegexp) ReplaceAll(src, repl []byte) []byte {
 // ReplaceAllLiteral returns a copy of src, replacing matches of the StdRegexp
 // with the replacement bytes repl. The replacement repl is substituted directly,
 // without using Expand.
-func (re *StdRegexp) ReplaceAllLiteral(src, repl []byte) []byte {
+func (re *RegexpStd) ReplaceAllLiteral(src, repl []byte) []byte {
 	// return re.replaceAll(src, "", 2, func(dst []byte, match []int) []byte {
 	// 	return append(dst, repl...)
 	// })
@@ -203,7 +203,7 @@ func (re *StdRegexp) ReplaceAllLiteral(src, repl []byte) []byte {
 // StdRegexp have been replaced by the return value of function repl applied
 // to the matched byte slice. The replacement returned by repl is substituted
 // directly, without using Expand.
-func (re *StdRegexp) ReplaceAllFunc(src []byte, repl func([]byte) []byte) []byte {
+func (re *RegexpStd) ReplaceAllFunc(src []byte, repl func([]byte) []byte) []byte {
 	// return re.replaceAll(src, "", 2, func(dst []byte, match []int) []byte {
 	// 	return append(dst, repl(src[match[0]:match[1]])...)
 	// })
@@ -243,7 +243,7 @@ func QuoteMeta(s string) string {
 
 // Find returns a slice holding the text of the leftmost match in b of the regular expression.
 // A return value of nil indicates no match.
-func (re *StdRegexp) Find(b []byte) []byte {
+func (re *RegexpStd) Find(b []byte) []byte {
 	// var dstCap [2]int
 	// a := re.doExecute(nil, b, "", 0, 2, dstCap[:0])
 	// if a == nil {
@@ -257,7 +257,7 @@ func (re *StdRegexp) Find(b []byte) []byte {
 // the leftmost match in b of the regular expression. The match itself is at
 // b[loc[0]:loc[1]].
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindIndex(b []byte) (loc []int) {
+func (re *RegexpStd) FindIndex(b []byte) (loc []int) {
 	// a := re.doExecute(nil, b, "", 0, 2, nil)
 	// if a == nil {
 	// 	return nil
@@ -271,7 +271,7 @@ func (re *StdRegexp) FindIndex(b []byte) (loc []int) {
 // but it will also be empty if the regular expression successfully matches
 // an empty string. Use FindStringIndex or FindStringSubmatch if it is
 // necessary to distinguish these cases.
-func (re *StdRegexp) FindString(s string) string {
+func (re *RegexpStd) FindString(s string) string {
 	// var dstCap [2]int
 	// a := re.doExecute(nil, nil, s, 0, 2, dstCap[:0])
 	// if a == nil {
@@ -285,7 +285,7 @@ func (re *StdRegexp) FindString(s string) string {
 // location of the leftmost match in s of the regular expression. The match
 // itself is at s[loc[0]:loc[1]].
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindStringIndex(s string) (loc []int) {
+func (re *RegexpStd) FindStringIndex(s string) (loc []int) {
 	// a := re.doExecute(nil, nil, s, 0, 2, nil)
 	// if a == nil {
 	// 	return nil
@@ -299,7 +299,7 @@ func (re *StdRegexp) FindStringIndex(s string) (loc []int) {
 // the RuneReader. The match text was found in the input stream at
 // byte offset loc[0] through loc[1]-1.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindReaderIndex(r io.RuneReader) (loc []int) {
+func (re *RegexpStd) FindReaderIndex(r io.RuneReader) (loc []int) {
 	// a := re.doExecute(r, nil, "", 0, 2, nil)
 	// if a == nil {
 	// 	return nil
@@ -313,7 +313,7 @@ func (re *StdRegexp) FindReaderIndex(r io.RuneReader) (loc []int) {
 // subexpressions, as defined by the 'Submatch' descriptions in the package
 // comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindSubmatch(b []byte) [][]byte {
+func (re *RegexpStd) FindSubmatch(b []byte) [][]byte {
 	// var dstCap [4]int
 	// a := re.doExecute(nil, b, "", 0, re.prog.NumCap, dstCap[:0])
 	// if a == nil {
@@ -346,7 +346,7 @@ func (re *StdRegexp) FindSubmatch(b []byte) [][]byte {
 // equivalent to ${1x}, not ${1}x, and, $10 is equivalent to ${10}, not ${1}0.
 //
 // To insert a literal $ in the output, use $$ in the template.
-func (re *StdRegexp) Expand(dst []byte, template []byte, src []byte, match []int) []byte {
+func (re *RegexpStd) Expand(dst []byte, template []byte, src []byte, match []int) []byte {
 	//return re.expand(dst, string(template), src, "", match)
 	panic("")
 }
@@ -354,7 +354,7 @@ func (re *StdRegexp) Expand(dst []byte, template []byte, src []byte, match []int
 // ExpandString is like Expand but the template and source are strings.
 // It appends to and returns a byte slice in order to give the calling
 // code control over allocation.
-func (re *StdRegexp) ExpandString(dst []byte, template string, src string, match []int) []byte {
+func (re *RegexpStd) ExpandString(dst []byte, template string, src string, match []int) []byte {
 	//return re.expand(dst, template, nil, src, match)
 	panic("")
 }
@@ -364,7 +364,7 @@ func (re *StdRegexp) ExpandString(dst []byte, template string, src string, match
 // its subexpressions, as defined by the 'Submatch' and 'Index' descriptions
 // in the package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindSubmatchIndex(b []byte) []int {
+func (re *RegexpStd) FindSubmatchIndex(b []byte) []int {
 	//return re.pad(re.doExecute(nil, b, "", 0, re.prog.NumCap, nil))
 	panic("")
 }
@@ -374,7 +374,7 @@ func (re *StdRegexp) FindSubmatchIndex(b []byte) []int {
 // its subexpressions, as defined by the 'Submatch' description in the
 // package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindStringSubmatch(s string) []string {
+func (re *RegexpStd) FindStringSubmatch(s string) []string {
 	// var dstCap [4]int
 	// a := re.doExecute(nil, nil, s, 0, re.prog.NumCap, dstCap[:0])
 	// if a == nil {
@@ -395,7 +395,7 @@ func (re *StdRegexp) FindStringSubmatch(s string) []string {
 // matches, if any, of its subexpressions, as defined by the 'Submatch' and
 // 'Index' descriptions in the package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindStringSubmatchIndex(s string) []int {
+func (re *RegexpStd) FindStringSubmatchIndex(s string) []int {
 	//return re.pad(re.doExecute(nil, nil, s, 0, re.prog.NumCap, nil))
 	panic("")
 }
@@ -405,7 +405,7 @@ func (re *StdRegexp) FindStringSubmatchIndex(s string) []int {
 // the RuneReader, and the matches, if any, of its subexpressions, as defined
 // by the 'Submatch' and 'Index' descriptions in the package comment. A
 // return value of nil indicates no match.
-func (re *StdRegexp) FindReaderSubmatchIndex(r io.RuneReader) []int {
+func (re *RegexpStd) FindReaderSubmatchIndex(r io.RuneReader) []int {
 	//return re.pad(re.doExecute(r, nil, "", 0, re.prog.NumCap, nil))
 	panic("")
 }
@@ -414,7 +414,7 @@ func (re *StdRegexp) FindReaderSubmatchIndex(r io.RuneReader) []int {
 // matches of the expression, as defined by the 'All' description in the
 // package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindAll(b []byte, n int) [][]byte {
+func (re *RegexpStd) FindAll(b []byte, n int) [][]byte {
 	// if n < 0 {
 	// 	n = len(b) + 1
 	// }
@@ -433,7 +433,7 @@ func (re *StdRegexp) FindAll(b []byte, n int) [][]byte {
 // successive matches of the expression, as defined by the 'All' description
 // in the package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindAllIndex(b []byte, n int) [][]int {
+func (re *RegexpStd) FindAllIndex(b []byte, n int) [][]int {
 	// if n < 0 {
 	// 	n = len(b) + 1
 	// }
@@ -452,7 +452,7 @@ func (re *StdRegexp) FindAllIndex(b []byte, n int) [][]int {
 // successive matches of the expression, as defined by the 'All' description
 // in the package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindAllString(s string, n int) []string {
+func (re *RegexpStd) FindAllString(s string, n int) []string {
 	// if n < 0 {
 	// 	n = len(s) + 1
 	// }
@@ -471,7 +471,7 @@ func (re *StdRegexp) FindAllString(s string, n int) []string {
 // slice of all successive matches of the expression, as defined by the 'All'
 // description in the package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindAllStringIndex(s string, n int) [][]int {
+func (re *RegexpStd) FindAllStringIndex(s string, n int) [][]int {
 	// if n < 0 {
 	// 	n = len(s) + 1
 	// }
@@ -490,7 +490,7 @@ func (re *StdRegexp) FindAllStringIndex(s string, n int) [][]int {
 // of all successive matches of the expression, as defined by the 'All'
 // description in the package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindAllSubmatch(b []byte, n int) [][][]byte {
+func (re *RegexpStd) FindAllSubmatch(b []byte, n int) [][][]byte {
 	// if n < 0 {
 	// 	n = len(b) + 1
 	// }
@@ -515,7 +515,7 @@ func (re *StdRegexp) FindAllSubmatch(b []byte, n int) [][][]byte {
 // a slice of all successive matches of the expression, as defined by the
 // 'All' description in the package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindAllSubmatchIndex(b []byte, n int) [][]int {
+func (re *RegexpStd) FindAllSubmatchIndex(b []byte, n int) [][]int {
 	// if n < 0 {
 	// 	n = len(b) + 1
 	// }
@@ -534,7 +534,7 @@ func (re *StdRegexp) FindAllSubmatchIndex(b []byte, n int) [][]int {
 // returns a slice of all successive matches of the expression, as defined by
 // the 'All' description in the package comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindAllStringSubmatch(s string, n int) [][]string {
+func (re *RegexpStd) FindAllStringSubmatch(s string, n int) [][]string {
 	m, err := re.p.FindStringMatch(s)
 	if err != nil {
 		return nil
@@ -557,7 +557,7 @@ func (re *StdRegexp) FindAllStringSubmatch(s string, n int) [][]string {
 // the expression, as defined by the 'All' description in the package
 // comment.
 // A return value of nil indicates no match.
-func (re *StdRegexp) FindAllStringSubmatchIndex(s string, n int) [][]int {
+func (re *RegexpStd) FindAllStringSubmatchIndex(s string, n int) [][]int {
 	// if n < 0 {
 	// 	n = len(s) + 1
 	// }
@@ -587,7 +587,7 @@ func (re *StdRegexp) FindAllStringSubmatchIndex(s string, n int) [][]int {
 //   n > 0: at most n substrings; the last substring will be the unsplit remainder.
 //   n == 0: the result is nil (zero substrings)
 //   n < 0: all substrings
-func (re *StdRegexp) Split(s string, n int) []string {
+func (re *RegexpStd) Split(s string, n int) []string {
 
 	// if n == 0 {
 	// 	return nil
