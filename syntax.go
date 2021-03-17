@@ -31,8 +31,8 @@ import (
 	"bytes"
 	"fmt"
 
-	//"regexp"
-	regexp "github.com/dlclark/regexp2"
+	"regexp"
+	//regexp "github.com/dlclark/regexp2"
 )
 
 var res = []*syntax{

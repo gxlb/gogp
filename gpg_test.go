@@ -22,7 +22,7 @@ import (
 
 //}
 
-func TestRegExps(t *testing.T) {
+func xTestRegExps(t *testing.T) {
 	s := `
 	package stl
 	
@@ -156,7 +156,7 @@ this_is_required6.xxx  cfg
 	fmt.Println("ss", ss)
 }
 
-func TestRegCase(t *testing.T) {
+func xTestRegCase(t *testing.T) {
 	txt := `
 head
 // #GOGP_SWITCH
@@ -211,7 +211,7 @@ tail
 
 }
 
-func TestRegIf(t *testing.T) {
+func xTestRegIf(t *testing.T) {
 	txt := `
 head
 	//#GOGP_IFDEF true /
