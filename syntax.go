@@ -240,7 +240,23 @@ func findSyntax(name string) *syntax {
 }
 
 var (
-	gogpExpTodoReplace = findSyntax("#replace").Regexp()
+	gogpExpTodoReplace   = findSyntax("#replace").Regexp()
+	gogpExpIgnore        = findSyntax("#ignore").Regexp()
+	gogpExpCases         = findSyntax("#case").Regexp()
+	gogpExpEmptyLine     = findSyntax("#empty-line").Regexp()
+	gogpExpTrimEmptyLine = findSyntax("#trim-empty-line").Regexp()
+	gogpExpRequire       = findSyntax("#require").Regexp()
+	gogpExpCondition     = findSyntax("#condition").Regexp()
+	gogpExpComment       = findSyntax("#comment").Regexp()
+
+	gogpExpCodeSelector = compileMultiRegexps(
+		findSyntax("#ignore"),
+		findSyntax("#gp-only"),
+		findSyntax("#map"),
+		findSyntax("#if"),
+		findSyntax("#switch"),
+	)
+
 	gogpExpPretreatAll = compileMultiRegexps(
 		findSyntax("#ignore"),
 		findSyntax("#require"),
@@ -249,28 +265,16 @@ var (
 		findSyntax("#replace"),
 		findSyntax("#comment"),
 	)
-	gogpExpIgnore       = findSyntax("#ignore").Regexp()
-	gogpExpCodeSelector = compileMultiRegexps(
-		findSyntax("#ignore"),
-		findSyntax("#gp-only"),
-		findSyntax("#map"),
-		findSyntax("#if"),
-		findSyntax("#switch"),
-	)
-	gogpExpCases         = findSyntax("#case").Regexp()
-	gogpExpEmptyLine     = findSyntax("#empty-line").Regexp()
-	gogpExpTrimEmptyLine = findSyntax("#trim-empty-line").Regexp()
-	gogpExpRequire       = findSyntax("#require").Regexp()
-	gogpExpRequireAll    = compileMultiRegexps(
+
+	gogpExpRequireAll = compileMultiRegexps(
 		findSyntax("#require"),
 		findSyntax("#file-begin"),
 		findSyntax("#file-end"),
 	)
+
 	gogpExpReverseIgnoreAll = compileMultiRegexps(
 		findSyntax("#file-begin"),
 		findSyntax("#file-end"),
 		findSyntax("#ignore"),
 	)
-	gogpExpCondition = findSyntax("#condition").Regexp()
-	gogpExpComment   = findSyntax("#comment").Regexp()
 )
