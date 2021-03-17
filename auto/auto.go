@@ -36,7 +36,7 @@ package auto
 import (
 	"fmt"
 
-	"github.com/vipally/gogp"
+	"github.com/gxlb/gogp"
 )
 
 func init() {

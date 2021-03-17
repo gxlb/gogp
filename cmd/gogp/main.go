@@ -57,7 +57,7 @@ func main() {
 	of gogp tool.
 	
 	1. DummyGoFiles
-	  Sample: https://github.com/vipally/gogp/blob/master/examples/stack.go
+	  Sample: https://github.com/gxlb/gogp/blob/master/examples/stack.go
 	  This is a "normal" go file with WELL-DESIGNED structure.
 	  Texts that matches 
 	        "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END ...\n"
