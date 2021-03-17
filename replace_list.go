@@ -117,7 +117,7 @@ func (this *replaceList) expString() (exp string) {
 		exp = b.String()
 	} else {
 		//avoid return "", which will match every byte
-		exp = `\Q#GOGP_DO_NOT_HAVE_ANY_KEY#\E`
+		exp = `\Q#GOGP_DO_NOT_HAVE_ANY_REPLACE_KEY#\E`
 	}
 
 	//fmt.Println(exp)
