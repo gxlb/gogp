@@ -116,7 +116,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#to-replace",
 		usage: "literal that waiting to replacing.",
-		exp:   `(?P<P>.?)(?P<W>\<[[:alpha:]_][[:word:]]*\>)(?P<S>.?)`,
+		exp:   `(?P<REPPREFIX>.?)(?P<REPLACEKEY>\<[[:alpha:]_][[:word:]]*\>)(?P<REPSUFFIX>.?)`,
 		syntax: `
 <{to-replace}>
 `,
@@ -229,48 +229,48 @@ func (st *syntax) Regexp() *regexp.Regexp {
 	return regexp.MustCompile(st.exp)
 }
 
-func findRE(name string) *syntax {
+func findSyntax(name string) *syntax {
 	for _, v := range res {
 		if v.name == name {
 			return v
 		}
 	}
-	panic(fmt.Errorf("findRE(%s) not found", name))
+	panic(fmt.Errorf("findSyntax(%s) not found", name))
 	return nil
 }
 
 var (
-	gogpExpTodoReplace = findRE("#replace").Regexp()
+	gogpExpTodoReplace = findSyntax("#replace").Regexp()
 	gogpExpPretreatAll = compileMultiRegexps(
-		findRE("#ignore"),
-		findRE("#require"),
-		findRE("#gpg-config"),
-		findRE("#once"),
-		findRE("#replace"),
-		findRE("#comment"),
+		findSyntax("#ignore"),
+		findSyntax("#require"),
+		findSyntax("#gpg-config"),
+		findSyntax("#once"),
+		findSyntax("#replace"),
+		findSyntax("#comment"),
 	)
-	gogpExpIgnore       = findRE("#ignore").Regexp()
+	gogpExpIgnore       = findSyntax("#ignore").Regexp()
 	gogpExpCodeSelector = compileMultiRegexps(
-		findRE("#ignore"),
-		findRE("#gp-only"),
-		findRE("#map"),
-		findRE("#if"),
-		findRE("#switch"),
+		findSyntax("#ignore"),
+		findSyntax("#gp-only"),
+		findSyntax("#map"),
+		findSyntax("#if"),
+		findSyntax("#switch"),
 	)
-	gogpExpCases         = findRE("#case").Regexp()
-	gogpExpEmptyLine     = findRE("#empty-line").Regexp()
-	gogpExpTrimEmptyLine = findRE("#trim-empty-line").Regexp()
-	gogpExpRequire       = findRE("#require").Regexp()
+	gogpExpCases         = findSyntax("#case").Regexp()
+	gogpExpEmptyLine     = findSyntax("#empty-line").Regexp()
+	gogpExpTrimEmptyLine = findSyntax("#trim-empty-line").Regexp()
+	gogpExpRequire       = findSyntax("#require").Regexp()
 	gogpExpRequireAll    = compileMultiRegexps(
-		findRE("#require"),
-		findRE("#file-begin"),
-		findRE("#file-end"),
+		findSyntax("#require"),
+		findSyntax("#file-begin"),
+		findSyntax("#file-end"),
 	)
 	gogpExpReverseIgnoreAll = compileMultiRegexps(
-		findRE("#file-begin"),
-		findRE("#file-end"),
-		findRE("#ignore"),
+		findSyntax("#file-begin"),
+		findSyntax("#file-end"),
+		findSyntax("#ignore"),
 	)
-	gogpExpCondition = findRE("#condition").Regexp()
-	gogpExpComment   = findRE("#comment").Regexp()
+	gogpExpCondition = findSyntax("#condition").Regexp()
+	gogpExpComment   = findSyntax("#comment").Regexp()
 )

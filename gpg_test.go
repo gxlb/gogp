@@ -179,7 +179,7 @@ zzz
 // #GOGP_ENDSWITCH
 tail
 `
-	expSwitch := findRE("#switch").Regexp()
+	expSwitch := findSyntax("#switch").Regexp()
 	fmt.Println("ssSwitch", expSwitch.MatchString(txt))
 	fmt.Printf("%#v\n", expSwitch.SubexpNames())
 
@@ -187,7 +187,7 @@ tail
 		cases := expSwitch.FindAllStringSubmatch(src, -1)[0][1]
 		fmt.Printf("match: %#v\n", cases)
 		if true {
-			exp := findRE("#case").Regexp()
+			exp := findSyntax("#case").Regexp()
 			//ss := exp.FindAllStringSubmatch(txt, -1)
 			fmt.Println("ssCase", exp.MatchString(txt))
 			fmt.Printf("%#v\n", exp.SubexpNames())
@@ -252,7 +252,7 @@ bbbtf
 //#GOGP_ENDIF2 //outer
 tail
 `
-	exp := findRE("#if").Regexp()
+	exp := findSyntax("#if").Regexp()
 	fmt.Println("ssCase", exp.MatchString(txt))
 	fmt.Printf("%#v\n", exp.SubexpNames())
 	rep := exp.ReplaceAllStringFunc(txt, func(src string) string {
