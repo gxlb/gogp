@@ -12,6 +12,15 @@ func makeRepFunc(f func(string) string) MatchEvaluator {
 	}
 }
 
+func (re *Regexp) ReplaceAllString(input string, repace string) string {
+	rep, err := re.Replace(input, repace, 0, -1)
+	if err != nil {
+		fmt.Println(err)
+		return input
+	}
+	return rep
+}
+
 func (re *Regexp) ReplaceAllStringFunc(input string, f func(string) string) string {
 	rep, err := re.ReplaceFunc(input, makeRepFunc(f), 0, -1)
 	if err != nil {

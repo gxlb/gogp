@@ -36,7 +36,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gxlb/gogp/ini"
+	"gogp/ini"
 )
 
 const maxRecursionDepth = 3
