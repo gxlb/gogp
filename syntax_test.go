@@ -17,9 +17,10 @@ func TestAllRegexpSyntax(t *testing.T) {
 
 		for i, v := range groups {
 
-			if true && elem[i] != "" && i > 0 {
+			if true && elem[i] != "" && i >= 0 {
 				fmt.Printf("%d %s-------\n%s\n", i, v, elem[i])
-				if v == "CASEKEY" || v == "IFCOND" {
+				switch {
+				case v == "CASEKEY" || v == "IFCOND":
 					ss := strings.Split(elem[i], "||")
 					for _, vv := range ss {
 						c := gogpExpCondition.FindAllStringSubmatch(vv, -1)[0]
@@ -27,7 +28,16 @@ func TestAllRegexpSyntax(t *testing.T) {
 							fmt.Println(j, v)
 						}
 					}
+				case v == "SWITCHCONTENT":
+					rep := gogpExpCases.ReplaceAllStringFunc(elem[i], func(src string) string {
+						elem := gogpExpCases.FindAllStringSubmatch(src, -1)[0]
+						fmt.Printf("case: %#v\n", elem)
+						return ""
+					})
+					rep = rep
+					return ""
 				}
+
 			}
 		}
 		return ""
@@ -186,28 +196,7 @@ head
 
 
 
-// #GOGP_SWITCH kk
-//    #GOGP_CASE aa
-        // #GOGP_SWITCH kk
-//    #GOGP_CASE aa
-        {case content}
-//    #GOGP_ENDCASE
-//    #GOGP_DEFAULT
-        {default content}
-//    #GOGP_ENDCASE
-// #GOGP_GOGP_ENDSWITCH
-//    #GOGP_ENDCASE
-//    #GOGP_DEFAULT
-// #GOGP_SWITCH kk
-//    #GOGP_CASE aa
-        {case content}
-//    #GOGP_ENDCASE
-//    #GOGP_DEFAULT
-        {default content}
-//    #GOGP_ENDCASE
-// #GOGP_GOGP_ENDSWITCH
-//    #GOGP_ENDCASE
-// #GOGP_GOGP_ENDSWITCH
+
 tail
 `
 

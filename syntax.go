@@ -84,7 +84,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#switch",
 		usage: "multi-way branch selector by condition",
-		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:#GOGP_SWITCH)(?:[ \t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ \t]*?.*?$)[\r\n]*(?P<SWITCHCONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDSWITCH.*?$[\r\n]?)`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:#GOGP_SWITCH)(?:[ \t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:.*?$)[\r\n]?(?P<SWITCHCONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDSWITCH(?:[ \t].*?)?$[\r\n]?)`,
 		syntax: `
 **** it is multi-switch logic(more than one case brantch can trigger out) ****
 // #GOGP_SWITCH [<SwitchKey>] 
@@ -99,26 +99,10 @@ var res = []*syntax{
 	},
 	//--------------------------------------------------------------------------
 	&syntax{
-		name:  "#switch2",
-		usage: "multi-way branch selector by condition, to nested with #switch",
-		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:#GOGP_SWITCH2)(?:[ \t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ \t]*?.*?$)[\r\n]*(?P<SWITCHCONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDSWITCH2.*?$[\r\n]?)`,
-		syntax: `
-**** it is multi-switch logic(more than one case brantch can trigger out) ****
-// #GOGP_SWITCH2 [<SwitchKey>] 
-//    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
-        {case content}
-//    #GOGP_ENDCASE
-//    #GOGP_DEFAULT
-        {default content}
-//    #GOGP_ENDCASE
-// #GOGP_GOGP_ENDSWITCH2
-`,
-	},
-	//--------------------------------------------------------------------------
-	&syntax{
-		name:  "#case",
-		usage: "branches of switch syntax",
-		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:(?:#GOGP_CASE[ \t]+(?P<CASEKEY>[[:word:]<>\!]+))|(?:#GOGP_DEFAULT))(?:[ \t]*?.*?$)[\r\n]*(?P<CASECONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDCASE.*?$[\r\n]*)`,
+		ignoreInList: false,
+		name:         "#case",
+		usage:        "branches of switch syntax",
+		expr:         `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:(?:#GOGP_CASE[ \t]+(?P<CASEKEY>[[:word:]<>\!]+))|(?:#GOGP_DEFAULT))(?:[ \t]*?.*?$)[\r\n]*(?P<CASECONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDCASE.*?$[\r\n]*)`,
 		syntax: `
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
         {case content}
@@ -315,8 +299,9 @@ var (
 		findSyntax("#ignore"),
 		findSyntax("#gp-only"),
 		findSyntax("#map"),
-		findSyntax("#if"),
 		findSyntax("#switch"),
+		findSyntax("#if"),
+		findSyntax("#if2"),
 	)
 
 	gogpExpPretreatAll = compileMultiRegexps(
