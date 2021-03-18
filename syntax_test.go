@@ -15,7 +15,7 @@ func TestAllRegexpSyntax(t *testing.T) {
 		elem := expAll.FindAllStringSubmatch(src, -1)[0]
 
 		for i, v := range groups {
-			if true && elem[i] != "" && i > 0 {
+			if true && elem[i] != "" && i >= 0 {
 				fmt.Printf("%d %s-------\n%s\n", i, v, elem[i])
 			}
 		}
@@ -140,11 +140,24 @@ head
 // #GOGP_ONCE 
     {only generate once from a gp file} 
 // #GOGP_END_ONCE 
+
 ---
 
 
 
 
 
+// #GOGP_IFDEF xx //:outer
+//    #GOGP_IFDEF yy
+	    {if-true content2}
+//    #GOGP_ENDIF
+// #GOGP_ENDIF //:outer
 tail
+`
+
+var xx = `
+// #GOGP_ELSE //:outer
+//    #GOGP_IFDEF zz
+	{if-true content2}
+//    #GOGP_ENDIF
 `
