@@ -46,7 +46,7 @@ const (
 	gpCodeFileSuffix = "gp"
 
 	thisFilePath = "github.com/gxlb/gogp/gpg.go"
-	libVersion   = "v3.1.1"
+	libVersion   = "v4.0.0"
 )
 
 var (
