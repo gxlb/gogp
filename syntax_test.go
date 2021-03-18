@@ -147,17 +147,22 @@ head
 
 
 
-// #GOGP_IFDEF xx //:outer
-//    #GOGP_IFDEF yy
-	    {if-true content2}
-//    #GOGP_ENDIF
-// #GOGP_ENDIF //:outer
+// #GOGP_IFDEF x
+//     #GOGP_IFDEF2 yyy
+	{if-true content}
+//     #GOGP_ELSE2
+	{if-else content}
+//     #GOGP_ENDIF2
+// #GOGP_ELSE
+//     #GOGP_IFDEF2 yyy
+	{if-true content}
+//     #GOGP_ELSE2
+	{if-else content}
+//     #GOGP_ENDIF2
+// #GOGP_ENDIF
 tail
 `
 
 var xx = `
-// #GOGP_ELSE //:outer
-//    #GOGP_IFDEF zz
-	{if-true content2}
-//    #GOGP_ENDIF
+
 `
