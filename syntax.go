@@ -40,7 +40,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#comment",
 		usage: "make an in line comment in fake .go file.",
-		expr:  `(?sm:(?P<COMMENT>/{2,}[ |\t]*#GOGP_COMMENT))`,
+		expr:  `(?sm:(?P<COMMENT>/{2,}[ \t]*#GOGP_COMMENT))`,
 		syntax: `
 // #GOGP_COMMENT {expected code}
 `,
@@ -49,7 +49,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#if",
 		usage: "double-way branch selector by condition",
-		expr:  `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<IFT>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r\n]?)[\r|\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF.*?$[\r\n]?)`,
+		expr:  `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF[ \t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE(?:[ \t].*?$[\r\n]?)[\r\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF.*?$[\r\n]?)`,
 		syntax: `
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -66,7 +66,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#if2",
 		usage: "double-way branch selector by condition, using nested with #if",
-		expr:  `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<IFT>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<IFF>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`,
+		expr:  `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF2[ \t]+(?P<IFCOND>[[:word:]<>\!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE2(?:.*?$[\r\n]?)[\r\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF2.*?$[\r\n]?)`,
 		syntax: `
 // #GOGP_IFDEF2 <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -83,7 +83,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#switch",
 		usage: "multi-way branch selector by condition",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<SWITCHCONTENT>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH.*?$[\r|\n]?)`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:#GOGP_SWITCH)(?:[ \t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ \t]*?.*?$)[\r\n]*(?P<SWITCHCONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDSWITCH.*?$[\r\n]?)`,
 		syntax: `
 **** it is multi-switch logic(more than one case brantch can trigger out) ****
 // #GOGP_SWITCH [<SwitchKey>] 
@@ -100,7 +100,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#switch2",
 		usage: "multi-way branch selector by condition, using nested with #switch",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH2)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<SWITCHCONTENT>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH2.*?$[\r|\n]?)`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:#GOGP_SWITCH2)(?:[ \t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ \t]*?.*?$)[\r\n]*(?P<SWITCHCONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDSWITCH2.*?$[\r\n]?)`,
 		syntax: `
 **** it is multi-switch logic(more than one case brantch can trigger out) ****
 // #GOGP_SWITCH2 [<SwitchKey>] 
@@ -117,7 +117,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#case",
 		usage: "branches of switch syntax",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:(?:#GOGP_CASE[ |\t]+(?P<CASEKEY>[[:word:]<>\|!]+))|(?:#GOGP_DEFAULT))(?:[ |\t]*?.*?$)[\r|\n]*(?P<CASECONTENT>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDCASE.*?$[\r|\n]*)`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:(?:#GOGP_CASE[ \t]+(?P<CASEKEY>[[:word:]<>\!]+))|(?:#GOGP_DEFAULT))(?:[ \t]*?.*?$)[\r\n]*(?P<CASECONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDCASE.*?$[\r\n]*)`,
 		syntax: `
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
         {case content}
@@ -131,7 +131,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#require",
 		usage: "require another .gp file",
-		expr:  `(?sm:(?P<REQ>(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ |\t]*?,[ |\t]*?(?:(?P<REQN>[[:word:]|#|@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ |\t]*?\))).*?$[\r|\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r|\n]*)`,
+		expr:  `(?sm:(?P<REQ>(?:^[ \t]*/{2,}[ \t]*)#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ \t]*?,[ \t]*?(?:(?P<REQN>[[:word:]#@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ \t]*?\))).*?$[\r\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r\n]*)`,
 		syntax: `
 // #GOGP_REQUIRE(<gp-path> [, <gpgSection>])
 `,
@@ -140,7 +140,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#replace",
 		usage: "build-in key-value replace command for generating .gp file",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ |\t]*,[ |\t]*(?P<REPDST>\S+)\))`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ \t]*,[ \t]*(?P<REPDST>\S+)\))`,
 		syntax: `
 ****<src> -> <dst>, literal replacement****
 // #GOGP_REPLACE(<src>, <dst>)
@@ -150,7 +150,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#map",
 		usage: "build-in key-value define for generating .gp file. Which can affect brantch of #if and #switch after this code.",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ |\t]*,[ |\t]*(?P<MAPDST>\S+)\))`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)#GOGP_MAP\((?P<MAPSRC>\S+)[ \t]*,[ \t]*(?P<MAPDST>\S+)\))`,
 		syntax: `
 ****<src> -> <dst>, which can affect brantch of #GOGP_IFDEF and #GOGP_SWITCH after this code****
 // #GOGP_MAP(<src>, <dst>)
@@ -160,7 +160,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#ignore",
 		usage: "txt that will ignore by gogp tool.",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r|\n]*)`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)#GOGP_IGNORE_BEGIN(?P<IGNORE>.*?)(?://)??#GOGP_IGNORE_END.*?$[\r\n]*)`,
 		syntax: `
 // #GOGP_IGNORE_BEGIN 
      {ignore-content} 
@@ -171,7 +171,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#gp-only",
 		usage: "txt that will stay at .gp file only. Which will ignored at final .go file.",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r|\n]*)`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)#GOGP_GPONLY_BEGIN(?P<GPONLY>.*?)(?://)??#GOGP_GPONLY_END.*?$[\r\n]*)`,
 		syntax: `
 // #GOGP_GPONLY_BEGIN 
      {gp-only content} 
@@ -182,7 +182,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#empty-line",
 		usage: "empty line.",
-		expr:  `(?sm:(?P<EMPTY_LINE>[\r|\n]{3,}))`,
+		expr:  `(?sm:(?P<EMPTY_LINE>[\r\n]{3,}))`,
 		syntax: `
 {empty-lines} 
 `,
@@ -192,7 +192,7 @@ var res = []*syntax{
 		name:  "#trim-empty-line",
 		usage: "trim empty line",
 		// must be "-sm", otherwise it with will repeat every line
-		expr: `(?-sm:^[\r|\n]*(?P<CONTENT>.*?)[\r|\n]*$)`,
+		expr: `(?-sm:^[\r\n]*(?P<CONTENT>.*?)[\r\n]*$)`,
 		syntax: `
 {empty-lines} 
 {contents}
@@ -203,7 +203,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#gpg-config",
 		usage: "refer .gpg config",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]<\->]+)\))`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)?#GOGP_GPGCFG\((?P<GPGCFG>[[:word:]<\->]+)\))`,
 		syntax: `
 [//] #GOGP_GPGCFG(<GPGCFG>)
 `,
@@ -212,7 +212,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#once",
 		usage: "code that will generate once during one .gp file processing.",
-		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ONCE(?:[ |\t]*?//.*?$)?[\r|\n]*(?P<ONCE>.*?)[\r|\n]?(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_END_ONCE.*?$[\r|\n]?)`,
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)#GOGP_ONCE(?:[ \t]*?//.*?$)?[\r\n]*(?P<ONCE>.*?)[\r\n]?(?:^[ \t]*/{2,}[ \t]*)#GOGP_END_ONCE.*?$[\r\n]?)`,
 		syntax: `
 // #GOGP_ONCE 
     {only generate once from a gp file} 
@@ -223,7 +223,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#file-begin",
 		usage: "file head of a fake .go file.",
-		expr:  `(?sm:(?P<FILEB>(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_FILE_BEGIN(?:[ |\t]+(?P<OPEN>[[:word:]]+))?).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r|\n]*)`,
+		expr:  `(?sm:(?P<FILEB>(?:^[ \t]*/{2,}[ \t]*)#GOGP_FILE_BEGIN(?:[ \t]+(?P<OPEN>[[:word:]]+))?).*?$[\r\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_begin.*?(?://)?#GOGP_IGNORE_END ///gogp_file_begin.*?$)?[\r\n]*)`,
 		syntax: `
 // #GOGP_FILE_BEGIN
 `,
@@ -232,7 +232,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#file-end",
 		usage: "file tail of a fake .go file.",
-		expr:  `(?sm:(?P<FILEE>(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_FILE_END).*?$[\r|\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r|\n]*)`,
+		expr:  `(?sm:(?P<FILEE>(?:^[ \t]*/{2,}[ \t]*)#GOGP_FILE_END).*?$[\r\n]*(?://#GOGP_IGNORE_BEGIN ///gogp_file_end.*?(?://)?#GOGP_IGNORE_END ///gogp_file_end.*?$)?[\r\n]*)`,
 		syntax: `
 // #GOGP_FILE_END
 `,
@@ -252,7 +252,7 @@ var res = []*syntax{
 		ignoreInList: true,
 		name:         "#condition",
 		usage:        "txt that for #if or #case condition field parser.",
-		expr:         `(?sm:^[ |\t]*(?P<NOT>!)?[ |\t]*(?P<KEY>[[:word:]<>]+)[ |\t]*(?:(?P<OP>==|!=)[ |\t]*(?P<VALUE>[[:word:]]+))?[ |\t]*)`,
+		expr:         `(?sm:^[ \t]*(?P<NOT>!)?[ \t]*(?P<KEY>[[:word:]<>]+)[ \t]*(?:(?P<OP>==|!=)[ \t]*(?P<VALUE>[[:word:]]+))?[ \t]*)`,
 		syntax: `
 <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
 `,
