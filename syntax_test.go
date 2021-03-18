@@ -2,6 +2,7 @@ package gogp
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -15,8 +16,28 @@ func TestAllRegexpSyntax(t *testing.T) {
 		elem := expAll.FindAllStringSubmatch(src, -1)[0]
 
 		for i, v := range groups {
+
 			if true && elem[i] != "" && i >= 0 {
 				fmt.Printf("%d %s-------\n%s\n", i, v, elem[i])
+				switch {
+				case v == "CASEKEY" || v == "IFCOND":
+					ss := strings.Split(elem[i], "||")
+					for _, vv := range ss {
+						c := gogpExpCondition.FindAllStringSubmatch(vv, -1)[0]
+						for j, v := range c {
+							fmt.Println(j, v)
+						}
+					}
+				case v == "SWITCHCONTENT":
+					rep := gogpExpCases.ReplaceAllStringFunc(elem[i], func(src string) string {
+						elem := gogpExpCases.FindAllStringSubmatch(src, -1)[0]
+						fmt.Printf("case: %#v\n", elem)
+						return ""
+					})
+					rep = rep
+					return ""
+				}
+
 			}
 		}
 		return ""
@@ -48,6 +69,34 @@ head
 //#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{if-true content2}
 //#GOGP_ENDIF
+
+// #GOGP_IFDEF x
+//     #GOGP_IFDEF2 yyy
+	{if-true content}
+//     #GOGP_ELSE2
+	{if-else content}
+//     #GOGP_ENDIF2
+// #GOGP_ELSE
+//     #GOGP_IFDEF2 yyy
+	{if-true content}
+//     #GOGP_ELSE2
+	{if-else content}
+//     #GOGP_ENDIF2
+// #GOGP_ENDIF
+
+// #GOGP_IFDEF2 xx
+//     #GOGP_IFDEF yyy
+	{if-true content}
+//     #GOGP_ELSE //
+	{if-else content}
+//     #GOGP_ENDIF //
+// #GOGP_ELSE2
+//     #GOGP_IFDEF yyy
+	{if-true content}
+//     #GOGP_ELSE
+	{if-else content}
+//     #GOGP_ENDIF //
+// #GOGP_ENDIF2
 
 // #GOGP_SWITCH <SwitchKey>
 //    #GOGP_CASE <SwitchKeyValue1>
@@ -147,19 +196,7 @@ head
 
 
 
-// #GOGP_IFDEF x
-//     #GOGP_IFDEF2 yyy
-	{if-true content}
-//     #GOGP_ELSE2
-	{if-else content}
-//     #GOGP_ENDIF2
-// #GOGP_ELSE
-//     #GOGP_IFDEF2 yyy
-	{if-true content}
-//     #GOGP_ELSE2
-	{if-else content}
-//     #GOGP_ENDIF2
-// #GOGP_ENDIF
+
 tail
 `
 
