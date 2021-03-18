@@ -272,7 +272,7 @@ func compileMultiRegexps(res ...*syntax) *regexp.Regexp {
 	return regexp.MustCompile(exp)
 }
 
-func (st *syntax) Regexp() *regexp.Regexp {
+func (st *syntax) MustCompile() *regexp.Regexp {
 	return regexp.MustCompile(st.expr)
 }
 
@@ -287,14 +287,14 @@ func findSyntax(name string) *syntax {
 }
 
 var (
-	gogpExpTodoReplace   = findSyntax("#replace").Regexp()
-	gogpExpIgnore        = findSyntax("#ignore").Regexp()
-	gogpExpCases         = findSyntax("#case").Regexp()
-	gogpExpEmptyLine     = findSyntax("#empty-line").Regexp()
-	gogpExpTrimEmptyLine = findSyntax("#trim-empty-line").Regexp()
-	gogpExpRequire       = findSyntax("#require").Regexp()
-	gogpExpCondition     = findSyntax("#condition").Regexp()
-	gogpExpComment       = findSyntax("#comment").Regexp()
+	gogpExpTodoReplace   = findSyntax("#replace").MustCompile()
+	gogpExpIgnore        = findSyntax("#ignore").MustCompile()
+	gogpExpCases         = findSyntax("#case").MustCompile()
+	gogpExpEmptyLine     = findSyntax("#empty-line").MustCompile()
+	gogpExpTrimEmptyLine = findSyntax("#trim-empty-line").MustCompile()
+	gogpExpRequire       = findSyntax("#require").MustCompile()
+	gogpExpCondition     = findSyntax("#condition").MustCompile()
+	gogpExpComment       = findSyntax("#comment").MustCompile()
 
 	gogpExpCodeSelector = compileMultiRegexps(
 		findSyntax("#ignore"),
