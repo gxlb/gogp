@@ -266,8 +266,8 @@ func compileMultiRegexps(res ...*syntax) *regexp.Regexp {
 		}
 		if b.Len() > 0 {
 			b.Truncate(b.Len() - 1) //remove last '|'
+			exp = b.String()
 		}
-		exp = b.String()
 	}
 	return regexp.MustCompile(exp)
 }
