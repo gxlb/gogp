@@ -1,2 +1,3 @@
 github.com/dlclark/regexp2 v1.4.0 h1:F1rxgk7p4uKjwIQxBs9oAXe5CqrXlCduYEJvrF4u93E=
 github.com/dlclark/regexp2 v1.4.0/go.mod h1:2pZnwuY/m+8K6iRw6wQdMtk+rH5tNGR1i55kozfMjCc=
+github.com/gxlb/gogp v0.0.0-20210312101037-7d4bee8dc702 h1:xpymAq4a0yeMPicrsdlTzDfOQRx3jfCkbKiU/zzlX+4=

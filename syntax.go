@@ -49,7 +49,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#if",
 		usage: "double-way branch selector by condition",
-		expr:  `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<IFT>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<IFF>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF.*?$[\r|\n]?)`,
+		expr:  `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?P<IFNAME>//:[[:word:]<>]+)?(?:.*?$[\r|\n]?)(?P<IFT>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<IFF>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF(?:[ |\t]*\k'IFNAME').*?$[\r|\n]?)`,
 		syntax: `
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
