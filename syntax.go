@@ -67,7 +67,7 @@ var res = []*syntax{
 		ignoreInList: false,
 		name:         "#if2",
 		usage:        "double-way branch selector by condition, to nested with #if",
-		expr:         `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF2[ \t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE2(?:(?:[ \t].*?)?$[\r\n]?)(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF2(?:[ \t].*?)?$[\r\n]?)`,
+		expr:         `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF2[ \t]+(?P<IFCOND2>[[:word:]<>\|!= \t]+)(?:.*?$[\r\n]?)(?P<IFT2>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE2(?:(?:[ \t].*?)?$[\r\n]?)(?P<IFF2>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF2(?:[ \t].*?)?$[\r\n]?)`,
 		syntax: `
 // #GOGP_IFDEF2 <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}

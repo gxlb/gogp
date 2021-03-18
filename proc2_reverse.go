@@ -47,6 +47,7 @@ func (this *gopgProcessor) procStep2Reverse() (err error) {
 	}
 
 	//ignore text format like "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END"
+	// []string{"", "FILEB", "OPEN", "FILEE", "IGNORE"}
 	this.codeContent = gogpExpReverseIgnoreAll.ReplaceAllString(this.codeContent, "\n\n")
 
 	if this.buildMatches(this.impName, this.gpPath, true, false) {

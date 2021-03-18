@@ -70,15 +70,11 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 	pathIdentify := fmt.Sprintf("%s|%s", relateGoPath(gpPath), relateGoPath(filepath.Dir(this.gpgPath))) //gp file+gpg path=unique
 	this.replaces.clear()
 
-	// match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
-	// "//#GOGP_IGNORE_BEGIN ... //#GOGP_IGNORE_END
-	// "//#GOGP_REQUIRE(path [, gpgSection])"
-	//"(?-sm:(?://)?#GOGP_REPLACE\\((?P<REPSRC>\\S+)[ |\\t]*,[ |\\t]*?(?P<REPDST>\\S+)\\))"
 	for _content, needReplace, i := content, true, 0; needReplace && i < 3; _content, i = rep, i+1 {
 		needReplace = false
 		//fmt.Println("try match case", i, 3, _content)
 		rep = gogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (_rep string) {
-			//[]string{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG", "REQCONTENT", "GPGCFG", "ONCE", "REPSRC", "REPDST", "MAPSRC", "MAPDST"}
+			//[]string{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG", "REQCONTENT", "GPGCFG", "ONCE", "REPSRC", "REPDST", "COMMENT"}
 			elem := gogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0]
 			ignore, req, reqp, reqn, reqgpg, reqcontent, gpgcfg, once, repsrc, repdst, comment :=
 				elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11]

@@ -168,8 +168,9 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 	}
 	replaced = gogpExpCodeSelector.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
 		repCnt++
-		elem := gogpExpCodeSelector.FindAllStringSubmatch(src, -1)[0] //{"", "IGNORE", "GPONLY", "CONDK", "T", "F"}
-		ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchKey, switchCases :=
+		// []string{"", "IGNORE", "GPONLY", "MAPSRC", "MAPDST", "SWITCHKEY", "SWITCHCONTENT", "IFCOND", "IFT", "IFF", "IFCOND2", "IFT2", "IFF2"}
+		elem := gogpExpCodeSelector.FindAllStringSubmatch(src, -1)[0]
+		ignore, gponly, mapK, mapV, switchKey, switchCases, condk, condHit, condMiss, condk2, condHit2, condMiss2 :=
 			elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11], elem[12]
 
 		switch {

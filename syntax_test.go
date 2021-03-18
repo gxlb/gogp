@@ -45,6 +45,13 @@ func TestAllRegexpSyntax(t *testing.T) {
 	fmt.Println("replaced:----------------------------------------", rep)
 }
 
+func TestMultiRegexp(t *testing.T) {
+	fmt.Printf("%#v\n", gogpExpCodeSelector.SubexpNames())
+	fmt.Printf("%#v\n", gogpExpPretreatAll.SubexpNames())
+	fmt.Printf("%#v\n", gogpExpRequireAll.SubexpNames())
+	fmt.Printf("%#v\n", gogpExpReverseIgnoreAll.SubexpNames())
+}
+
 const tstExpSyntaxAll = `
 head
 // #GOGP_COMMENT {comment code}
@@ -198,8 +205,4 @@ head
 
 
 tail
-`
-
-var xx = `
-
 `

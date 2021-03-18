@@ -46,9 +46,9 @@ func (this *gopgProcessor) procStep1Require() (err error) {
 
 	replcaceCnt := 0
 
-	//match "//#GOGP_REQUIRE(path [, gpgSection])"
+	// []string{"", "REQ", "REQP", "REQN", "REQGPG", "REQCONTENT", "FILEB", "OPEN", "FILEE"}
 	replacedCode := gogpExpRequireAll.ReplaceAllStringFunc(this.codeContent, func(src string) (rep string) {
-		elem := gogpExpRequireAll.FindAllStringSubmatch(src, -1)[0] //{"","REQ", "REQP", "REQN","REQGPG","FILEB","OPEN","FILEE"}
+		elem := gogpExpRequireAll.FindAllStringSubmatch(src, -1)[0]
 		req, reqp, reqn, reqgpg, content, fileb, open, filee := elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8]
 
 		reqp, reqn, reqgpg, content = reqp, reqn, reqgpg, content //avoid compile error
