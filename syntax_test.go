@@ -2,6 +2,7 @@ package gogp
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -15,8 +16,18 @@ func TestAllRegexpSyntax(t *testing.T) {
 		elem := expAll.FindAllStringSubmatch(src, -1)[0]
 
 		for i, v := range groups {
-			if true && elem[i] != "" && i >= 0 {
+
+			if true && elem[i] != "" && i > 0 {
 				fmt.Printf("%d %s-------\n%s\n", i, v, elem[i])
+				if v == "CASEKEY" || v == "IFCOND" {
+					ss := strings.Split(elem[i], "||")
+					for _, vv := range ss {
+						c := gogpExpCondition.FindAllStringSubmatch(vv, -1)[0]
+						for j, v := range c {
+							fmt.Println(j, v)
+						}
+					}
+				}
 			}
 		}
 		return ""
@@ -48,6 +59,34 @@ head
 //#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{if-true content2}
 //#GOGP_ENDIF
+
+// #GOGP_IFDEF x
+//     #GOGP_IFDEF2 yyy
+	{if-true content}
+//     #GOGP_ELSE2
+	{if-else content}
+//     #GOGP_ENDIF2
+// #GOGP_ELSE
+//     #GOGP_IFDEF2 yyy
+	{if-true content}
+//     #GOGP_ELSE2
+	{if-else content}
+//     #GOGP_ENDIF2
+// #GOGP_ENDIF
+
+// #GOGP_IFDEF2 xx
+//     #GOGP_IFDEF yyy
+	{if-true content}
+//     #GOGP_ELSE //
+	{if-else content}
+//     #GOGP_ENDIF //
+// #GOGP_ELSE2
+//     #GOGP_IFDEF yyy
+	{if-true content}
+//     #GOGP_ELSE
+	{if-else content}
+//     #GOGP_ENDIF //
+// #GOGP_ENDIF2
 
 // #GOGP_SWITCH <SwitchKey>
 //    #GOGP_CASE <SwitchKeyValue1>
@@ -147,19 +186,28 @@ head
 
 
 
-// #GOGP_IFDEF x
-//     #GOGP_IFDEF2 yyy
-	{if-true content}
-//     #GOGP_ELSE2
-	{if-else content}
-//     #GOGP_ENDIF2
-// #GOGP_ELSE
-//     #GOGP_IFDEF2 yyy
-	{if-true content}
-//     #GOGP_ELSE2
-	{if-else content}
-//     #GOGP_ENDIF2
-// #GOGP_ENDIF
+// #GOGP_SWITCH kk
+//    #GOGP_CASE aa
+        // #GOGP_SWITCH kk
+//    #GOGP_CASE aa
+        {case content}
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+        {default content}
+//    #GOGP_ENDCASE
+// #GOGP_GOGP_ENDSWITCH
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+// #GOGP_SWITCH kk
+//    #GOGP_CASE aa
+        {case content}
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+        {default content}
+//    #GOGP_ENDCASE
+// #GOGP_GOGP_ENDSWITCH
+//    #GOGP_ENDCASE
+// #GOGP_GOGP_ENDSWITCH
 tail
 `
 

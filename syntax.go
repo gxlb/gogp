@@ -49,7 +49,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#if",
 		usage: "double-way branch selector by condition",
-		expr:  `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF[ \t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE(?:.*?$[\r\n]?)[\r\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF.*?$[\r\n]?)`,
+		expr:  `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF[ \t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE(?:(?:[ \t].*?)?$[\r\n]?)(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF(?:[ \t].*?)?$[\r\n]?)`,
 		syntax: `
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -64,10 +64,10 @@ var res = []*syntax{
 	},
 	//--------------------------------------------------------------------------
 	&syntax{
-		ignoreInList: true,
+		ignoreInList: false,
 		name:         "#if2",
 		usage:        "double-way branch selector by condition, to nested with #if",
-		expr:         `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF2[ \t]+(?P<IFCOND>[[:word:]<>\!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE2(?:.*?$[\r\n]?)[\r\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF2.*?$[\r\n]?)`,
+		expr:         `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF2[ \t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE2(?:(?:[ \t].*?)?$[\r\n]?)(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF2(?:[ \t].*?)?$[\r\n]?)`,
 		syntax: `
 // #GOGP_IFDEF2 <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -75,9 +75,9 @@ var res = []*syntax{
 	{else content}]
 // #GOGP_ENDIF2
 
-// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
+// #GOGP_IFDEF2 <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
-// #GOGP_ENDIF
+// #GOGP_ENDIF2
 `,
 	},
 	//--------------------------------------------------------------------------
