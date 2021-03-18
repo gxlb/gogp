@@ -49,7 +49,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#if",
 		usage: "double-way branch selector by condition",
-		expr:  `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF[ \t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE(?:[ \t].*?$[\r\n]?)[\r\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF.*?$[\r\n]?)`,
+		expr:  `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF[ \t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE(?:.*?$[\r\n]?)[\r\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF.*?$[\r\n]?)`,
 		syntax: `
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -64,9 +64,10 @@ var res = []*syntax{
 	},
 	//--------------------------------------------------------------------------
 	&syntax{
-		name:  "#if2",
-		usage: "double-way branch selector by condition, using nested with #if",
-		expr:  `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF2[ \t]+(?P<IFCOND>[[:word:]<>\!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE2(?:.*?$[\r\n]?)[\r\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF2.*?$[\r\n]?)`,
+		ignoreInList: true,
+		name:         "#if2",
+		usage:        "double-way branch selector by condition, to nested with #if",
+		expr:         `(?sm:^(?:[ \t]*/{2,}[ \t]*)#GOGP_IFDEF2[ \t]+(?P<IFCOND>[[:word:]<>\!= \t]+)(?:.*?$[\r\n]?)(?P<IFT>.*?)(?:(?:[ \t]*/{2,}[ \t]*)#GOGP_ELSE2(?:.*?$[\r\n]?)[\r\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF2.*?$[\r\n]?)`,
 		syntax: `
 // #GOGP_IFDEF2 <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -99,7 +100,7 @@ var res = []*syntax{
 	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#switch2",
-		usage: "multi-way branch selector by condition, using nested with #switch",
+		usage: "multi-way branch selector by condition, to nested with #switch",
 		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:#GOGP_SWITCH2)(?:[ \t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ \t]*?.*?$)[\r\n]*(?P<SWITCHCONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDSWITCH2.*?$[\r\n]?)`,
 		syntax: `
 **** it is multi-switch logic(more than one case brantch can trigger out) ****
