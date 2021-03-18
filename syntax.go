@@ -32,7 +32,7 @@ import (
 	"fmt"
 
 	"regexp"
-	//regexp "github.com/dlclark/regexp2"
+	//regexp "github.com/dlclark/regexp2" //back-reference works too slow
 )
 
 var res = []*syntax{
@@ -116,7 +116,7 @@ var res = []*syntax{
 	&syntax{
 		name:  "#require",
 		usage: "require another .gp file",
-		expr:  `(?sm:(?P<REQ>(?:^[ \t]*/{2,}[ \t]*)#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ \t]*?,[ \t]*?(?:(?P<REQN>[[:word:]#@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ \t]*?\))).*?$[\r\n]*(?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r\n]*)`,
+		expr:  `(?sm:(?P<REQ>(?:^[ \t]*/{2,}[ \t]*)#GOGP_REQUIRE\((?P<REQP>[^\n\r,]*?)(?:[ \t]*?,[ \t]*?(?:(?P<REQN>[[:word:]#@]*)|#GOGP_GPGCFG\((?P<REQGPG>[[:word:]]+)\)))??(?:[ \t]*?\))).*?$[\r\n](?:(?://#GOGP_IGNORE_BEGIN )?///require begin from\([^\n\r,]*?\)(?P<REQCONTENT>.*?)(?://)?(?:#GOGP_IGNORE_END )?///require end from\([^\n\r,]*?\))?[\r\n]*)`,
 		syntax: `
 // #GOGP_REQUIRE(<gp-path> [, <gpgSection>])
 `,

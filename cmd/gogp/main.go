@@ -29,7 +29,8 @@
 package main
 
 import (
-	"github.com/gxlb/gogp"
+	"gogp"
+
 	"github.com/vipally/cmdline"
 	"github.com/vipally/cpright"
 )

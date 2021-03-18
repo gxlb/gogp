@@ -86,15 +86,15 @@ head
 
 // #GOGP_IFDEF2 xx
 //     #GOGP_IFDEF yyy
-	{if-true content}
+	      {if-true content}
 //     #GOGP_ELSE //
-	{if-else content}
+	      {if-else content}
 //     #GOGP_ENDIF //
 // #GOGP_ELSE2
 //     #GOGP_IFDEF yyy
-	{if-true content}
+	      {if-true content}
 //     #GOGP_ELSE
-	{if-else content}
+	      {if-else content}
 //     #GOGP_ENDIF //
 // #GOGP_ENDIF2
 
