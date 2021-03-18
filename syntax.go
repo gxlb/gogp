@@ -174,8 +174,9 @@ var res = []*syntax{
 	},
 	//--------------------------------------------------------------------------
 	&syntax{
-		name:  "#trim-empty-line",
-		usage: "trim empty line",
+		ignoreInList: true,
+		name:         "#trim-empty-line",
+		usage:        "trim empty line",
 		// must be "-sm", otherwise it with will repeat every line
 		expr: `(?-sm:^[\r\n]*(?P<CONTENT>.*?)[\r\n]*$)`,
 		syntax: `
