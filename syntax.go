@@ -31,8 +31,8 @@ import (
 	"bytes"
 	"fmt"
 
-	//"regexp"
-	regexp "github.com/dlclark/regexp2"
+	"regexp"
+	//regexp "github.com/dlclark/regexp2"
 )
 
 var res = []*syntax{
@@ -49,13 +49,30 @@ var res = []*syntax{
 	&syntax{
 		name:  "#if",
 		usage: "double-way branch selector by condition",
-		expr:  `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?P<IFNAME>//:[[:word:]<>]+)?(?:.*?$[\r|\n]?)(?P<IFT>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r|\n]?)[\r|\n]*(?P<IFF>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF(?:[ |\t]*\k'IFNAME').*?$[\r|\n]?)`,
+		expr:  `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF[ |\t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<IFT>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE(?:.*?$[\r\n]?)[\r|\n]*(?P<IFF>.*?))?(?:[ \t]*/{2,}[ \t]*)#GOGP_ENDIF.*?$[\r\n]?)`,
 		syntax: `
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
 [// #GOGP_ELSE
 	{else content}]
 // #GOGP_ENDIF
+
+// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
+	{true content}
+// #GOGP_ENDIF
+`,
+	},
+	//--------------------------------------------------------------------------
+	&syntax{
+		name:  "#if2",
+		usage: "double-way branch selector by condition, using nested with #if",
+		expr:  `(?sm:^(?:[ |\t]*/{2,}[ |\t]*)#GOGP_IFDEF2[ |\t]+(?P<IFCOND>[[:word:]<>\|!= \t]+)(?:.*?$[\r|\n]?)(?P<IFT>.*?)(?:(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ELSE2(?:.*?$[\r|\n]?)[\r|\n]*(?P<IFF>.*?))?(?:[ |\t]*/{2,}[ |\t]*)#GOGP_ENDIF2.*?$[\r|\n]?)`,
+		syntax: `
+// #GOGP_IFDEF2 <key> || ! <key> || <key> == xxx || <key> != xxx
+	{true content}
+[// #GOGP_ELSE2
+	{else content}]
+// #GOGP_ENDIF2
 
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
@@ -77,6 +94,23 @@ var res = []*syntax{
         {default content}
 //    #GOGP_ENDCASE
 // #GOGP_GOGP_ENDSWITCH
+`,
+	},
+	//--------------------------------------------------------------------------
+	&syntax{
+		name:  "#switch2",
+		usage: "multi-way branch selector by condition, using nested with #switch",
+		expr:  `(?sm:(?:^[ |\t]*/{2,}[ |\t]*)(?:#GOGP_SWITCH2)(?:[ |\t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:[ |\t]*?.*?$)[\r|\n]*(?P<SWITCHCONTENT>.*?)(?:^[ |\t]*/{2,}[ |\t]*)#GOGP_ENDSWITCH2.*?$[\r|\n]?)`,
+		syntax: `
+**** it is multi-switch logic(more than one case brantch can trigger out) ****
+// #GOGP_SWITCH2 [<SwitchKey>] 
+//    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
+        {case content}
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+        {default content}
+//    #GOGP_ENDCASE
+// #GOGP_GOGP_ENDSWITCH2
 `,
 	},
 	//--------------------------------------------------------------------------
@@ -234,7 +268,7 @@ type syntax struct {
 	ignoreInList bool
 }
 
-func compileMultiRegexps(res ...*syntax) *regexp.RegexpStd {
+func compileMultiRegexps(res ...*syntax) *regexp.Regexp {
 	var b bytes.Buffer
 	var exp = `\Q#GOGP_DO_NOT_HAVE_ANY_REGEXP_SYNTAX#\E`
 	if len(res) > 0 {
@@ -249,11 +283,11 @@ func compileMultiRegexps(res ...*syntax) *regexp.RegexpStd {
 		}
 		exp = b.String()
 	}
-	return regexp.MustCompileStd(exp)
+	return regexp.MustCompile(exp)
 }
 
-func (st *syntax) Regexp() *regexp.RegexpStd {
-	return regexp.MustCompileStd(st.expr)
+func (st *syntax) Regexp() *regexp.Regexp {
+	return regexp.MustCompile(st.expr)
 }
 
 func findSyntax(name string) *syntax {
