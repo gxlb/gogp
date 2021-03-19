@@ -22,7 +22,7 @@ func TestAllRegexpSyntax(t *testing.T) {
 		return
 	}
 
-	var submatchesCheck = [][]string{
+	var submatchesExpect = [][]string{
 		[]string{"match1", "COMMENT:// #GOGP_COMMENT"},
 		[]string{"match2", "COMMENT://#GOGP_COMMENT"},
 		[]string{"match3", "IFCOND,0,2:<key>", "IFCOND,1,1:!", "IFCOND,1,2:<key>", "IFCOND,2,2:<key>", "IFCOND,2,3:==", "IFCOND,2,4:xxx", "IFCOND,3,2:<key>", "IFCOND,3,3:!=", "IFCOND,3,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
@@ -113,7 +113,7 @@ func TestAllRegexpSyntax(t *testing.T) {
 		fmt.Println("replaced:----------------------------------------", rep)
 		fmt.Println(testShowStringList(submatches))
 	}
-	if err := testCheckStrings(submatches, submatchesCheck); err != nil {
+	if err := testCheckStrings(submatches, submatchesExpect); err != nil {
 		if !testPrintResult {
 			fmt.Println(testShowStringList(submatches))
 		}
@@ -122,7 +122,7 @@ func TestAllRegexpSyntax(t *testing.T) {
 }
 
 func TestMultiRegexp(t *testing.T) {
-	var subNamesCheck = [][]string{
+	var subNamesExpect = [][]string{
 		[]string{"", "IGNORE", "GPONLY", "MAPSRC", "MAPDST", "SWITCHKEY", "SWITCHCONTENT", "IFCOND", "IFT", "IFF", "IFCOND2", "IFT2", "IFF2"},
 		[]string{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG", "REQCONTENT", "GPGCFG", "ONCE", "REPSRC", "REPDST", "COMMENT"},
 		[]string{"", "REQ", "REQP", "REQN", "REQGPG", "REQCONTENT", "FILEB", "OPEN", "FILEE"},
@@ -139,7 +139,7 @@ func TestMultiRegexp(t *testing.T) {
 			fmt.Printf("expr-%d: %#v\n", i+1, v)
 		}
 	}
-	if err := testCheckStrings(subNames, subNamesCheck); err != nil {
+	if err := testCheckStrings(subNames, subNamesExpect); err != nil {
 		t.Error(err)
 	}
 }
