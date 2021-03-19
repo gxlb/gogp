@@ -17,8 +17,8 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 ----
 
 ## todo
-1. [ ] replace regexp package to [regexp2](https://github.com/dlclark/regexp2)
-1. [ ] rebuid and test all regexp syntax
+1. [x] replace regexp package to [regexp2](https://github.com/dlclark/regexp2) (give up for back-reference works too slow)
+1. [x] rebuid and test all regexp syntax
 1. [ ] use [cli](https://github.com/urfave/cli) rewrite the command
 1. [ ] add command to generate a initialized .go file
 1. [x] add syntax spec
@@ -107,34 +107,35 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
           So run gogp tool any times on GoPath is harmless, unless there are indeed changes.
           So any manually modification will be restored by this tool.
           Take care of that.
+
+	    5. Predefined gpg file
+```go
+		"GOGP_REVERSE"			//gpg section prefix that for gogp reverse only
+		"GOGP_IGNORE"			//gpg section prefix that for gogp never process
+		"GOGP_xxx" 				//format keys are reserved by gogp tool, who will not be replaced
+		"GOGP_Ignore"      		//ignore this section
+		"GOGP_DontSave"       	//do not save
+		"GOGP_CodeFileName"		//code file name part
+		"GOGP_GpFilePathName" 	//gp file path and name
+		"KEY_TYPE"         		//key_type
+		"VALUE_TYPE"       		//value_type
 		
-		5. Predefined
-			gpg file
-			"GOGP_REVERSE"			//gpg section prefix that for gogp reverse only
-			"GOGP_IGNORE"			//gpg section prefix that for gogp never process
-			"GOGP_xxx" 				//format keys are reserved by gogp tool, who will not be replaced
-			"GOGP_Ignore"      		//ignore this section
-			"GOGP_DontSave"       	//do not save
-			"GOGP_CodeFileName"		//code file name part
-			"GOGP_GpFilePathName" 	//gp file path and name
-			"KEY_TYPE"         		//key_type
-			"VALUE_TYPE"       		//value_type
-			
-			some predefined gogp grammar
-			ignore all text format:
-			//#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
-			
-			select by condition <cd> defines in gpg file:
-			//#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
-			
-			require another gp file:
-			//#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
-			
-			get gpg config string:
-			#GOGP_GPGCFG(<cfgName>)
-			
-			only generate <content> once from a gp file:
-			//#GOGP_ONCE <content> //#GOGP_END_ONCE
+		some predefined gogp grammar
+		ignore all text format:
+		//#GOGP_IGNORE_BEGIN <content> //#GOGP_IGNORE_END
+		
+		select by condition <cd> defines in gpg file:
+		//#GOGP_IFDEF <cd> <true_content> //#GOGP_ELSE <false_content> //#GOGP_ENDIF
+		
+		require another gp file:
+		//#GOGP_REQUIRE(<gpPath> [, <gpgSection>])
+		
+		get gpg config string:
+		#GOGP_GPGCFG(<cfgName>)
+		
+		only generate <content> once from a gp file:
+		//#GOGP_ONCE <content> //#GOGP_END_ONCE
+```
 
 ----	
 ## syntax spec
