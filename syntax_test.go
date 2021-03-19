@@ -153,8 +153,9 @@ func TestMultiRegexp(t *testing.T) {
 func testShowAllSyntax() {
 	if testPrintResult {
 		for i, v := range allSyntax {
-			fmt.Printf("- %02d/%d **%s**\n", i+1, len(allSyntax), v.name)
-			fmt.Printf("```go\n{%s}%s```\n", v.usage, v.syntax)
+			fmt.Printf("- **%02d/%d %s**<br>\n", i+1, len(allSyntax), v.name)
+			fmt.Printf("  {%s}\n", v.usage)
+			fmt.Printf("```go%s```\n", v.syntax)
 		}
 	}
 }

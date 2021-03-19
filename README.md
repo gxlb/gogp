@@ -139,14 +139,15 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 
 ----	
 ## syntax spec
-- 01/19 **#comment**
+
+- **01/19 #comment**<br>
+  {make an in line comment in fake .go file.}
 ```go
-{make an in line comment in fake .go file.}
 // #GOGP_COMMENT {expected code}
 ```
-- 02/19 **#if**
+- **02/19 #if**<br>
+  {double-way branch selector by condition}
 ```go
-{double-way branch selector by condition}
 // #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
 [// #GOGP_ELSE
@@ -157,9 +158,9 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 	{true content}
 // #GOGP_ENDIF
 ```
-- 03/19 **#if2**
+- **03/19 #if2**<br>
+  {double-way branch selector by condition, to nested with #if}
 ```go
-{double-way branch selector by condition, to nested with #if}
 // #GOGP_IFDEF2 <key> || ! <key> || <key> == xxx || <key> != xxx
 	{true content}
 [// #GOGP_ELSE2
@@ -170,9 +171,9 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 	{true content}
 // #GOGP_ENDIF2
 ```
-- 04/19 **#switch**
+- **04/19 #switch**<br>
+  {multi-way branch selector by condition. It is one-switch logic(only one case brantch can trigger out)}
 ```go
-{multi-way branch selector by condition. It is one-switch logic(only one case brantch can trigger out)}
 // #GOGP_SWITCH [<SwitchKey>] 
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
         {case content}
@@ -182,9 +183,9 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 //    #GOGP_ENDCASE
 // #GOGP_ENDSWITCH
 ```
-- 05/19 **#multi-switch**
+- **05/19 #multi-switch**<br>
+  {multi-way branch selector by condition. It is multi-switch logic(more than one case brantch can trigger out)}
 ```go
-{multi-way branch selector by condition. It is multi-switch logic(more than one case brantch can trigger out)}
 // #GOGP_MULTISWITCH [<MultiSwitchKey>] 
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
         {case content}
@@ -194,9 +195,9 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
 //    #GOGP_ENDCASE
 // #GOGP_ENDMULTISWITCH
 ```
-- 06/19 **#case**
+- **06/19 #case**<br>
+  {branches of #switch/#multi-switch syntax}
 ```go
-{branches of #switch/#multi-switch syntax}
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
         {case content}
 //    #GOGP_ENDCASE
@@ -204,78 +205,78 @@ Site    : [https://github.com/vipally](https://github.com/vipally)
         {default content}
 //    #GOGP_ENDCASE
 ```
-- 07/19 **#require**
+- **07/19 #require**<br>
+  {require another .gp file}
 ```go
-{require another .gp file}
 // #GOGP_REQUIRE(<gp-path> [, <gpgSection>])
 ```
-- 08/19 **#replace**
+- **08/19 #replace**<br>
+  {<src> -> <dst>, declare build-in key-value replace command for generating .gp file}
 ```go
-{<src> -> <dst>, declare build-in key-value replace command for generating .gp file}
 // #GOGP_REPLACE(<src>, <dst>)
 ```
-- 09/19 **#map**
+- **09/19 #map**<br>
+  {build-in key-value define for generating .gp file. Which can affect brantch of #if and #switch after this code.}
 ```go
-{build-in key-value define for generating .gp file. Which can affect brantch of #if and #switch after this code.}
 ****<src> -> <dst>, which can affect brantch of #GOGP_IFDEF and #GOGP_SWITCH after this code****
 // #GOGP_MAP(<src>, <dst>)
 ```
-- 10/19 **#ignore**
+- **10/19 #ignore**<br>
+  {txt that will ignore by gogp tool.}
 ```go
-{txt that will ignore by gogp tool.}
 // #GOGP_IGNORE_BEGIN 
      {ignore-content} 
 // #GOGP_IGNORE_END
 ```
-- 11/19 **#gp-only**
+- **11/19 #gp-only**<br>
+  {txt that will stay at .gp file only. Which will ignored at final .go file.}
 ```go
-{txt that will stay at .gp file only. Which will ignored at final .go file.}
 // #GOGP_GPONLY_BEGIN 
      {gp-only content} 
 // #GOGP_GPONLY_END
 ```
-- 12/19 **#empty-line**
+- **12/19 #empty-line**<br>
+  {empty line.}
 ```go
-{empty line.}
 {empty-lines} 
 ```
-- 13/19 **#trim-empty-line**
+- **13/19 #trim-empty-line**<br>
+  {trim empty line}
 ```go
-{trim empty line}
 {empty-lines} 
 {contents}
 {empty-lines} 
 ```
-- 14/19 **#gpg-config**
+- **14/19 #gpg-config**<br>
+  {refer .gpg config}
 ```go
-{refer .gpg config}
 [//] #GOGP_GPGCFG(<GPGCFG>)
 ```
-- 15/19 **#once**
+- **15/19 #once**<br>
+  {code that will generate once during one .gp file processing.}
 ```go
-{code that will generate once during one .gp file processing.}
 // #GOGP_ONCE 
     {only generate once from a gp file} 
 // #GOGP_END_ONCE 
 ```
-- 16/19 **#file-begin**
+- **16/19 #file-begin**<br>
+  {file head of a fake .go file.}
 ```go
-{file head of a fake .go file.}
 // #GOGP_FILE_BEGIN
 ```
-- 17/19 **#file-end**
+- **17/19 #file-end**<br>
+  {file tail of a fake .go file.}
 ```go
-{file tail of a fake .go file.}
 // #GOGP_FILE_END
 ```
-- 18/19 **#to-replace**
+- **18/19 #to-replace**<br>
+  {literal that waiting to replacing.}
 ```go
-{literal that waiting to replacing.}
 <{to-replace}>
 ```
-- 19/19 **#condition**
+- **19/19 #condition**<br>
+  {txt that for #if or #case condition field parser.}
 ```go
-{txt that for #if or #case condition field parser.}
 <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
 ```
 	
