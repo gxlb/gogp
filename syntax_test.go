@@ -12,7 +12,7 @@ const (
 )
 
 func TestAllRegexpSyntax(t *testing.T) {
-	expAll := compileMultiRegexps(res...)
+	expAll := compileMultiRegexps(allSyntax...)
 	groups := expAll.SubexpNames()
 	if testPrintResult {
 		fmt.Printf("%#v\n", groups)
@@ -113,15 +113,17 @@ func TestAllRegexpSyntax(t *testing.T) {
 
 		return ""
 	})
-	if testPrintResult {
-		fmt.Println("replaced:----------------------------------------", rep)
-		fmt.Println(testShowStringList(submatches))
-	}
+
 	if err := testCheckStrings(submatches, submatchesExpected); err != nil {
 		if !testPrintResult {
 			fmt.Println(testShowStringList(submatches))
 		}
 		t.Error(err)
+	}
+	if testPrintResult {
+		fmt.Println("replaced:----------------------------------------", rep)
+		fmt.Println(testShowStringList(submatches))
+		testShowAllSyntax()
 	}
 }
 
@@ -138,13 +140,22 @@ func TestMultiRegexp(t *testing.T) {
 		gogpExpRequireAll.SubexpNames(),
 		gogpExpReverseIgnoreAll.SubexpNames(),
 	}
+	if err := testCheckStrings(subNames, subNamesExpected); err != nil {
+		t.Error(err)
+	}
 	if testPrintResult {
 		for i, v := range subNames {
 			fmt.Printf("expr-%d: %#v\n", i+1, v)
 		}
 	}
-	if err := testCheckStrings(subNames, subNamesExpected); err != nil {
-		t.Error(err)
+}
+
+func testShowAllSyntax() {
+	if testPrintResult {
+		for i, v := range allSyntax {
+			fmt.Printf("- %02d/%d **%s**\n", i+1, len(allSyntax), v.name)
+			fmt.Printf("```go\n{%s}%s```\n", v.usage, v.syntax)
+		}
 	}
 }
 

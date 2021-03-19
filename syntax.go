@@ -35,7 +35,7 @@ import (
 	//regexp "github.com/dlclark/regexp2" //back-reference works too slow
 )
 
-var res = []*syntax{
+var allSyntax = []*syntax{
 	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#comment",
@@ -93,7 +93,7 @@ var res = []*syntax{
 //    #GOGP_DEFAULT
         {default content}
 //    #GOGP_ENDCASE
-// #GOGP_GOGP_ENDSWITCH
+// #GOGP_ENDSWITCH
 `,
 	},
 	//--------------------------------------------------------------------------
@@ -109,14 +109,14 @@ var res = []*syntax{
 //    #GOGP_DEFAULT
         {default content}
 //    #GOGP_ENDCASE
-// #GOGP_GOGP_ENDMULTISWITCH
+// #GOGP_ENDMULTISWITCH
 `,
 	},
 	//--------------------------------------------------------------------------
 	&syntax{
 		ignoreInList: false,
 		name:         "#case",
-		usage:        "branches of switch syntax",
+		usage:        "branches of #switch/#multi-switch syntax",
 		expr:         `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:(?:#GOGP_CASE[ \t]+(?P<CASEKEY>[[:word:]<>\!]+))|(?:#GOGP_DEFAULT))(?:[ \t]*?.*?$)[\r\n]*(?P<CASECONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDCASE.*?$[\r\n]*)`,
 		syntax: `
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
@@ -139,10 +139,9 @@ var res = []*syntax{
 	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#replace",
-		usage: "build-in key-value replace command for generating .gp file",
+		usage: "<src> -> <dst>, declare build-in key-value replace command for generating .gp file",
 		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)#GOGP_REPLACE\((?P<REPSRC>\S+)[ \t]*,[ \t]*(?P<REPDST>\S+)\))`,
 		syntax: `
-****<src> -> <dst>, literal replacement****
 // #GOGP_REPLACE(<src>, <dst>)
 `,
 	},
@@ -292,7 +291,7 @@ func (st *syntax) MustCompile() *regexp.Regexp {
 }
 
 func findSyntax(name string) *syntax {
-	for _, v := range res {
+	for _, v := range allSyntax {
 		if v.name == name {
 			return v
 		}
