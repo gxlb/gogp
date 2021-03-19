@@ -38,7 +38,7 @@ func (this *gopgProcessor) procStep1Require() (err error) {
 	codeFilePath := this.getFakeSrcFilePath(pathWithName)
 	this.codePath = codeFilePath
 
-	this.buildMatches(this.impName, "", false, false)
+	this.buildMatches(this.section, "", false, false)
 
 	if err = this.loadCodeFile(this.codePath); err != nil { //load code file
 		return
@@ -57,7 +57,8 @@ func (this *gopgProcessor) procStep1Require() (err error) {
 		var replaced bool
 		switch {
 		case req != "":
-			if rep, replaced, err = this.procRequireReplacement(src, this.impName, 0); err != nil {
+			//fmt.Printf("req: %#v\n", elem[1:])
+			if rep, replaced, err = this.procRequireReplacement(src, this.section, 0); err != nil {
 				fmt.Println(err)
 			}
 		case fileb != "":
@@ -114,7 +115,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 	req, reqp, reqn, reqgpg, content := elem[1], elem[2], elem[3], elem[4], elem[5]
 
 	if debug {
-		fmt.Printf("[gogp debug] #GOGP_REQUIRE: [%s][%s][%s]\n", reqp, reqn, content)
+		fmt.Printf("[gogp debug] #GOGP_REQUIRE: [%s][%s][%s][%s][%s]\n", req, reqp, reqn, reqgpg, content)
 	}
 
 	if reqgpg != "" && reqn == "" { //section name is config from gpg file
@@ -139,6 +140,7 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 	gpContent := ""
 
 	if gpContent, err = this.rawLoadFile(gpFullPath); err == nil {
+		//fmt.Println("gpContent", gpContent)
 		replacedGp := ""
 		if this.step == gogpStepPRODUCE {
 			replaced = true
@@ -202,21 +204,28 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 				replaced = true
 			} else {
 				if nDepth == 0 { //do not let require recursive
+					//fmt.Println("000", gpContent)
 					if replacedGp, err = this.doGpReplace(gpFullPath, gpContent, replaceSection, nDepth, true); err != nil {
 						return
 					}
+					//fmt.Println("111", replacedGp)
 					//					if section == "GOGP_REVERSE_datadef" {
 					//						fmt.Printf("@@procRequireReplacement replacedGp=[%s]\n", replacedGp)
 					//					}
 					replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 					replacedGp = strings.Replace(replacedGp, "import", "//import", -1)
-					//fmt.Println("111", replacedGp)
+					//fmt.Println("222", replacedGp)
 					//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
 					reqResult := fmt.Sprintf(leftFmt, reqp, "$CONTENT", reqp)
 					out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
+					//fmt.Println("out", out)
+					//fmt.Printf("replacedGp0 %#v\n", replacedGp)
+					//fmt.Printf("%t %#v\n", gogpExpTrimEmptyLine.MatchString(replacedGp), gogpExpTrimEmptyLine.FindAllStringSubmatch(replacedGp, -1))
 					replacedGp = gogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
-					oldContent := gogpExpRequire.ReplaceAllString(statement, "$REQCONTENT")
-					//fmt.Println("222", replacedGp)
+					//fmt.Println("replacedGp1", replacedGp)
+
+					oldContent := content
+					//fmt.Println("333", replacedGp)
 
 					rep = goFmt(replacedGp, this.gpPath)
 

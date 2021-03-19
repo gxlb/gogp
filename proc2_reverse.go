@@ -50,7 +50,7 @@ func (this *gopgProcessor) procStep2Reverse() (err error) {
 	// []string{"", "FILEB", "OPEN", "FILEE", "IGNORE"}
 	this.codeContent = gogpExpReverseIgnoreAll.ReplaceAllString(this.codeContent, "\n\n")
 
-	if this.buildMatches(this.impName, this.gpPath, true, false) {
+	if this.buildMatches(this.section, this.gpPath, true, false) {
 		this.matches.sort()
 		replacedCode, norep := this.matches.doReplacing(this.codeContent, this.gpgPath, true)
 		this.nNoReplaceMathNum += norep
@@ -58,7 +58,7 @@ func (this *gopgProcessor) procStep2Reverse() (err error) {
 		replacedCode = gogpExpEmptyLine.ReplaceAllString(replacedCode, "\n\n") //avoid multi empty lines
 
 		if this.nNoReplaceMathNum > 0 { //report error
-			s := fmt.Sprintf("[gogp error]: [%s:%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.impName)
+			s := fmt.Sprintf("[gogp error]: [%s:%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.section)
 			//fmt.Println(s)
 			err = fmt.Errorf(s)
 		}
@@ -103,7 +103,7 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 	h := fmt.Sprintf(`//#GOGP_IGNORE_BEGIN
 %s//#GOGP_IGNORE_END
 
-`, this.fileHead(this.codePath, this.gpgPath, this.impName))
+`, this.fileHead(this.codePath, this.gpgPath, this.section))
 	wt.WriteString(h)
 	wt.WriteString(body)
 	if err = wt.Flush(); err != nil {

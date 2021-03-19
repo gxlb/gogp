@@ -54,7 +54,7 @@ type gopgProcessor struct {
 	gpgContent        *ini.IniFile //gpg file content
 	gpContent         string
 	codeContent       string
-	impName           string          //current gpg section name
+	section           string          //current gpg section name
 	step              gogpProcessStep //current processing step
 	matches2          replaceList     //cases that need replacing, secondary
 	replaces          replaceList     //keys that need replace
@@ -85,10 +85,10 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 		return
 	}
 
-	this.impName = impName
+	this.section = impName
 
 	if !optSilence {
-		fmt.Printf(">[gogp] %s [%s:%s] \n", this.step, relateGoPath(this.gpgPath), this.impName)
+		fmt.Printf(">[gogp] %s [%s:%s] \n", this.step, relateGoPath(this.gpgPath), this.section)
 	}
 
 	switch this.step {
@@ -100,7 +100,7 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 		err = this.procStep3Produce()
 	}
 	if err != nil {
-		fmt.Printf("[gogp error]: %s [%s:%s] [%s]\n", this.step, relateGoPath(this.gpgPath), this.impName, err.Error())
+		fmt.Printf("[gogp error]: %s [%s:%s] [%s]\n", this.step, relateGoPath(this.gpgPath), this.section, err.Error())
 	}
 
 	return
@@ -109,7 +109,7 @@ func (this *gopgProcessor) genProduct(id int, impName string) (err error) {
 //get file suffix of code file
 func (this *gopgProcessor) getCodeFileSuffix(section string) (r string) {
 	if section == "" {
-		section = this.impName
+		section = this.section
 	}
 	if v := this.getGpgCfg(section, rawKeyProductName, false); v != "" {
 		r = v
@@ -145,12 +145,12 @@ func (this *gopgProcessor) getCodeFileSuffix(section string) (r string) {
 }
 
 func (this *gopgProcessor) reportNoReplacing(key, gpfile string) {
-	fmt.Printf("[gogp error]: %s [%s] has no replacing. [%s:%s %s]\n", this.step, key, relateGoPath(this.gpgPath), this.impName, gpfile)
+	fmt.Printf("[gogp error]: %s [%s] has no replacing. [%s:%s %s]\n", this.step, key, relateGoPath(this.gpgPath), this.section, gpfile)
 }
 
 //if has set key GOGP_Name, use it, else use section name
 func (this *gopgProcessor) getGpName() (r string) {
-	if name := this.getGpgCfg(this.impName, rawKeySrcPathName, true); name != "" {
+	if name := this.getGpgCfg(this.section, rawKeySrcPathName, true); name != "" {
 		n := filepath.Base(name)
 		idx := 0
 		if idx = strings.Index(n, "."); idx < 0 { //split by first '.'
@@ -159,7 +159,7 @@ func (this *gopgProcessor) getGpName() (r string) {
 		r = n[:idx]
 	} else {
 		r = "missing"
-		fmt.Printf("[gogp error]: missing %s in %s:%s\n", rawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
+		fmt.Printf("[gogp error]: missing %s in %s:%s\n", rawKeySrcPathName, relateGoPath(this.gpgPath), this.section)
 	}
 	return
 }
@@ -215,7 +215,7 @@ func (this *gopgProcessor) buildMatches(section, gpPath string, reverse, second 
 	}
 	pmatch.clear()
 	if section == "" || section == "_" {
-		section = this.impName
+		section = this.section
 	}
 	pmatch.sectionName = section
 	pmatch.gpgPath = this.gpgPath
@@ -290,7 +290,7 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 	gpPath := ""
 	gpgDir := filepath.Dir(this.gpgPath)
 	if "" == gp {
-		gp = this.getGpgCfg(this.impName, rawKeySrcPathName, false) //read gp file from another path or name
+		gp = this.getGpgCfg(this.section, rawKeySrcPathName, false) //read gp file from another path or name
 	}
 	if gp != "" { //read gp file from another path or name
 		if !strings.HasPrefix(gp, gpExt) {
@@ -302,7 +302,7 @@ func (this *gopgProcessor) getGpFullPath(gp string) string {
 			gpPath = filepath.Join(goPath, gp)
 		}
 	} else {
-		fmt.Printf("[gogp error]: missing [%s] in [%s:%s]\n", rawKeySrcPathName, relateGoPath(this.gpgPath), this.impName)
+		fmt.Printf("[gogp error]: missing [%s] in [%s:%s]\n", rawKeySrcPathName, relateGoPath(this.gpgPath), this.section)
 	}
 	return gpPath
 }

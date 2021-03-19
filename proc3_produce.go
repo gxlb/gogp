@@ -42,7 +42,7 @@ func (this *gopgProcessor) procStep3Produce() (err error) {
 	gpgDir := filepath.Dir(this.gpgPath)
 
 	gpName := strings.TrimSuffix(filepath.Base(gpPath), gpExt)
-	codePath := this.getProductFilePath(gpgDir, gpName, this.getCodeFileSuffix(this.impName))
+	codePath := this.getProductFilePath(gpgDir, gpName, this.getCodeFileSuffix(this.section))
 
 	this.loadCodeFile(codePath) //load code file, ignore error
 	if this.gpPath != gpPath {  //load gp file if needed
@@ -52,7 +52,7 @@ func (this *gopgProcessor) procStep3Produce() (err error) {
 	}
 
 	replacedGp := ""
-	if replacedGp, err = this.doGpReplace(this.gpPath, this.gpContent, this.impName, 0, false); err != nil {
+	if replacedGp, err = this.doGpReplace(this.gpPath, this.gpContent, this.section, 0, false); err != nil {
 		// if err = this.saveCodeFile(replacedGp); err != nil { //save code to file
 		// 	return
 		// }
@@ -229,7 +229,7 @@ func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 		defer fout.Close()
 		wt := bufio.NewWriter(fout)
 
-		wt.WriteString(this.fileHead(this.gpPath, this.gpgPath, this.impName))
+		wt.WriteString(this.fileHead(this.gpPath, this.gpgPath, this.section))
 		wt.WriteByte('\n')
 		wt.WriteString(body)
 
