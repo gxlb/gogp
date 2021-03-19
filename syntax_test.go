@@ -25,21 +25,21 @@ func TestAllRegexpSyntax(t *testing.T) {
 	var submatchesExpect = [][]string{
 		[]string{"match1", "COMMENT:// #GOGP_COMMENT"},
 		[]string{"match2", "COMMENT://#GOGP_COMMENT"},
-		[]string{"match3", "IFCOND,0,2:<key>", "IFCOND,1,1:!", "IFCOND,1,2:<key>", "IFCOND,2,2:<key>", "IFCOND,2,3:==", "IFCOND,2,4:xxx", "IFCOND,3,2:<key>", "IFCOND,3,3:!=", "IFCOND,3,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
-		[]string{"match4", "IFCOND,0,2:<key>", "IFCOND,1,1:!", "IFCOND,1,2:<key>", "IFCOND,2,2:<key>", "IFCOND,2,3:==", "IFCOND,2,4:xxx", "IFCOND,3,2:<key>", "IFCOND,3,3:!=", "IFCOND,3,4:xxx", "IFT:\t{if-true content2}\n"},
-		[]string{"match5", "IFCOND,0,2:<key>", "IFCOND,1,1:!", "IFCOND,1,2:<key>", "IFCOND,2,2:<key>", "IFCOND,2,3:==", "IFCOND,2,4:xxx", "IFCOND,3,2:<key>", "IFCOND,3,3:!=", "IFCOND,3,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
-		[]string{"match6", "IFCOND,0,2:<key>", "IFCOND,1,1:!", "IFCOND,1,2:<key>", "IFCOND,2,2:<key>", "IFCOND,2,3:==", "IFCOND,2,4:xxx", "IFCOND,3,2:<key>", "IFCOND,3,3:!=", "IFCOND,3,4:xxx", "IFT:\t{if-true content2}\n"},
-		[]string{"match7", "IFCOND,0,2:x", "IFT://     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n", "IFF://     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n"},
-		[]string{"match8", "IFCOND2:xx", "IFT2://     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n", "IFF2://     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n"},
+		[]string{"match3", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
+		[]string{"match4", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content2}\n"},
+		[]string{"match5", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
+		[]string{"match6", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content2}\n"},
+		[]string{"match7", "IFCOND,1,2:x", "IFT://     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n", "IFF://     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n"},
+		[]string{"match8", "IFCOND2,1,2:xx", "IFT2://     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n", "IFF2://     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n"},
 		[]string{"match9", "SWITCHKEY:<SwitchKey>", "SWITCHCONTENT,1:<SwitchKeyValue1>", "SWITCHCONTENT,2:        {case content1}\n", "SWITCHCONTENT,1:<SwitchKeyValue2>", "SWITCHCONTENT,2:        {case content2}\n", "SWITCHCONTENT,2:        {default content1}\n"},
 		[]string{"match10", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content3}\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content4}\n", "SWITCHCONTENT,2:        {default content2}\n"},
 		[]string{"match11", "SWITCHKEY:<SwitchKey>", "SWITCHCONTENT,1:<SwitchKeyValue1>", "SWITCHCONTENT,2:        {case content1}\n", "SWITCHCONTENT,1:<SwitchKeyValue2>", "SWITCHCONTENT,2:        {case content2}\n", "SWITCHCONTENT,2:        {default content1}\n"},
 		[]string{"match12", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content3}\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content4}\n", "SWITCHCONTENT,2:        {default content2}\n"},
-		[]string{"match13", "CASEKEY,0,2:<key>", "CASECONTENT:        {case content3}\n"},
-		[]string{"match14", "CASEKEY,0,2:<key>", "CASECONTENT:        {case content4}\n"},
+		[]string{"match13", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content3}\n"},
+		[]string{"match14", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content4}\n"},
 		[]string{"match15", "CASECONTENT:        {default content2}\n"},
-		[]string{"match16", "CASEKEY,0,2:<key>", "CASECONTENT:        {case content3}\n"},
-		[]string{"match17", "CASEKEY,0,2:<key>", "CASECONTENT:        {case content4}\n"},
+		[]string{"match16", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content3}\n"},
+		[]string{"match17", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content4}\n"},
 		[]string{"match18", "CASECONTENT:        {default content2}\n"},
 		[]string{"match19", "REQ:// #GOGP_REQUIRE(<gp-path> , gpgSection)", "REQP:<gp-path>", "REQN:gpgSection"},
 		[]string{"match20", "GPGCFG:<config-name>"},
@@ -67,7 +67,7 @@ func TestAllRegexpSyntax(t *testing.T) {
 					fmt.Printf("%d %s-------\n%s\n", i, v, elem[i])
 				}
 				switch {
-				case v == "CASEKEY" || v == "IFCOND":
+				case v == "CASEKEY" || v == "IFCOND" || v == "IFCOND2":
 					ss := strings.Split(elem[i], "||")
 					for j, vv := range ss {
 						c := gogpExpCondition.FindAllStringSubmatch(vv, -1)[0]
@@ -76,7 +76,7 @@ func TestAllRegexpSyntax(t *testing.T) {
 								fmt.Println(j, k, v)
 							}
 							if v != "" && i > 0 && k > 0 {
-								subs = append(subs, fmt.Sprintf("%s,%d,%d:%s", groups[i], j, k, v))
+								subs = append(subs, fmt.Sprintf("%s,%d,%d:%s", groups[i], j+1, k, v))
 							}
 						}
 					}
