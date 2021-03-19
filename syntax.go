@@ -83,10 +83,9 @@ var res = []*syntax{
 	//--------------------------------------------------------------------------
 	&syntax{
 		name:  "#switch",
-		usage: "multi-way branch selector by condition",
+		usage: "multi-way branch selector by condition. It is one-switch logic(only one case brantch can trigger out)",
 		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:#GOGP_SWITCH)(?:[ \t]+(?P<SWITCHKEY>[[:word:]<>]+))?(?:.*?$)[\r\n]?(?P<SWITCHCONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDSWITCH(?:[ \t].*?)?$[\r\n]?)`,
 		syntax: `
-**** it is multi-switch logic(more than one case brantch can trigger out) ****
 // #GOGP_SWITCH [<SwitchKey>] 
 //    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
         {case content}
@@ -95,6 +94,22 @@ var res = []*syntax{
         {default content}
 //    #GOGP_ENDCASE
 // #GOGP_GOGP_ENDSWITCH
+`,
+	},
+	//--------------------------------------------------------------------------
+	&syntax{
+		name:  "#multi-switch",
+		usage: "multi-way branch selector by condition. It is multi-switch logic(more than one case brantch can trigger out)",
+		expr:  `(?sm:(?:^[ \t]*/{2,}[ \t]*)(?:#GOGP_MULTISWITCH)(?:[ \t]+(?P<MULTISWITCHKEY>[[:word:]<>]+))?(?:.*?$)[\r\n]?(?P<MULTISWITCHCONTENT>.*?)(?:^[ \t]*/{2,}[ \t]*)#GOGP_ENDMULTISWITCH(?:[ \t].*?)?$[\r\n]?)`,
+		syntax: `
+// #GOGP_MULTISWITCH [<MultiSwitchKey>] 
+//    #GOGP_CASE <key> || !<key> || <key> == xxx || <key> != xxx || <SwitchKeyValue> || !<SwitchKeyValue>
+        {case content}
+//    #GOGP_ENDCASE
+//    #GOGP_DEFAULT
+        {default content}
+//    #GOGP_ENDCASE
+// #GOGP_GOGP_ENDMULTISWITCH
 `,
 	},
 	//--------------------------------------------------------------------------
@@ -301,6 +316,7 @@ var (
 		findSyntax("#gp-only"),
 		findSyntax("#map"),
 		findSyntax("#switch"),
+		findSyntax("#multi-switch"),
 		findSyntax("#if"),
 		findSyntax("#if2"),
 	)

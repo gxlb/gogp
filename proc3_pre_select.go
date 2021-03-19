@@ -136,12 +136,12 @@ func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth i
 	return ret
 }
 
-func (this *gopgProcessor) selectByCases(section, cases string, predefKey string) string {
+func (this *gopgProcessor) selectByCases(section, cases string, predefKey string, multiSwitch bool) string {
 	defaultContent := ""
 	found := false
 	repaced := gogpExpCases.ReplaceAllStringFunc(cases, func(src string) string {
-		if found { //ignore the rest cases if has found
-			//return "" //treat as multi switch
+		if found && !multiSwitch { //ignore the rest cases if has found in one-way switch
+			return ""
 		}
 		elem := gogpExpCases.FindAllStringSubmatch(src, -1)[0]
 		cond, content := elem[1], elem[2]
@@ -168,10 +168,10 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 	}
 	replaced = gogpExpCodeSelector.ReplaceAllStringFunc(gpContent, func(src string) (rep string) {
 		repCnt++
-		// []string{"", "IGNORE", "GPONLY", "MAPSRC", "MAPDST", "SWITCHKEY", "SWITCHCONTENT", "IFCOND", "IFT", "IFF", "IFCOND2", "IFT2", "IFF2"}
+		// []string{"", "IGNORE", "GPONLY", "MAPSRC", "MAPDST", "SWITCHKEY", "SWITCHCONTENT", "MULTISWITCHKEY", "MULTISWITCHCONTENT", "IFCOND", "IFT", "IFF", "IFCOND2", "IFT2", "IFF2"}
 		elem := gogpExpCodeSelector.FindAllStringSubmatch(src, -1)[0]
-		ignore, gponly, mapK, mapV, switchKey, switchCases, condk, condHit, condMiss, condk2, condHit2, condMiss2 :=
-			elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11], elem[12]
+		ignore, gponly, mapK, mapV, switchKey, switchCases, multiswitchKey, multiswitchCases, condk, condHit, condMiss, condk2, condHit2, condMiss2 :=
+			elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7], elem[8], elem[9], elem[10], elem[11], elem[12], elem[13], elem[14]
 
 		switch {
 		case condk != "":
@@ -181,7 +181,10 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 			rep = this.selectByCondition(section, condk2, condHit2, condMiss2, depth)
 
 		case switchCases != "":
-			return this.selectByCases(section, switchCases, switchKey)
+			return this.selectByCases(section, switchCases, switchKey, false)
+
+		case multiswitchCases != "":
+			return this.selectByCases(section, multiswitchCases, multiswitchKey, true)
 
 		case mapK != "":
 			this.maps.insert(mapK, mapV, false)
