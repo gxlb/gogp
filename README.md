@@ -1,4 +1,4 @@
-# gogp [![GoDoc](https://godoc.org/github.com/vipally/gogp?status.svg)](https://godoc.org/github.com/vipally/gogp) ![Version](https://img.shields.io/badge/version-3.0.0.final-green.svg)
+# gogp [![GoDoc](https://godoc.org/github.com/vipally/gogp?status.svg)](https://godoc.org/github.com/vipally/gogp) ![Version](https://img.shields.io/badge/version-4.0.0-green.svg)
 ----
 	
 package gogp is a generic-programming solution for golang or any other languages.
