@@ -220,10 +220,6 @@ func (this *gopgProcessor) buildMatches(section, gpPath string, reverse, second 
 	pmatch.sectionName = section
 	pmatch.gpgPath = this.gpgPath
 	pmatch.gpPath = gpPath
-	//this.replaces.sectionName = section
-	//this.replaces.gpgPath = this.gpgPath
-	//this.replaces.gpPath = gpPath
-	//println("buildMatches", section, gpPath, reverse, second, pmatch.sectionName, pmatch.gpgPath, pmatch.gpPath)
 	if replaceList := this.gpgContent.Keys(section); replaceList != nil {
 		//make replace map
 		for _, key := range replaceList {

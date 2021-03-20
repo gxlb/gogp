@@ -121,7 +121,6 @@ func (this *replaceList) expString() (exp string) {
 		exp = `\Q#GOGP_DO_NOT_HAVE_ANY_REPLACE_KEY#\E`
 	}
 
-	//fmt.Println(exp)
 	return exp
 }
 
@@ -131,13 +130,7 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 		exp := this.expString()
 		reg = regexp.MustCompile(exp)
 	}
-	//	if gDebug {
-	//		if this.sectionName == "tree_sort_slice" {
-	//			for i, v := range this.list {
-	//				fmt.Printf("%d %#v\n", i, v)
-	//			}
-	//		}
-	//	}
+
 	rep = reg.ReplaceAllStringFunc(content, func(src string) (r string) {
 		p, w, s := "", src, ""
 		rawName := false
@@ -146,7 +139,6 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 			p, w, s = elem[1], elem[2], elem[3]
 			//.<VALUE_TYPE> <VALUE_TYPE>:
 			rawName = (w == "<VALUE_TYPE>" || w == "<KEY_TYPE>") && (p == "." || s == ":")
-			//fmt.Printf("[%s][%s][%s][%s][%v]\n", src, p, w, s, rawName)
 		}
 		if v, ok := this.getMatch(w); ok {
 			if reverse {
@@ -157,11 +149,10 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 					wv = getRawName(v)
 				}
 				r = p + wv + s
-				//fmt.Printf("[%s][%s]->[%s]\n", w, v, r)
 			}
 		} else {
 			fmt.Printf("[gogp error]: [%s] has no replacing.[%s] [%s : %s]\n", w, relateGoPath(this.gpPath), relateGoPath(this.gpgPath), this.sectionName)
-			//println(_path, src, this.gpgPath, this.gpPath, this.sectionName)
+
 			r = src
 			noRep++
 		}

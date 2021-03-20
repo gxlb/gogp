@@ -110,7 +110,6 @@ func TestAllRegexpSyntax(t *testing.T) {
 			}
 		}
 
-		//fmt.Println(subs)
 		submatches = append(submatches, subs)
 
 		return ""

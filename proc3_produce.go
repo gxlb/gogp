@@ -53,9 +53,6 @@ func (this *gopgProcessor) procStep3Produce() (err error) {
 
 	replacedGp := ""
 	if replacedGp, err = this.doGpReplace(this.gpPath, this.gpContent, this.section, 0, false); err != nil {
-		// if err = this.saveCodeFile(replacedGp); err != nil { //save code to file
-		// 	return
-		// }
 		return
 	}
 
@@ -72,7 +69,6 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 
 	for _content, needReplace, i := content, true, 0; needReplace && i < 3; _content, i = rep, i+1 {
 		needReplace = false
-		//fmt.Println("try match case", i, 3, _content)
 		rep = gogpExpPretreatAll.ReplaceAllStringFunc(_content, func(src string) (_rep string) {
 			//[]string{"", "IGNORE", "REQ", "REQP", "REQN", "REQGPG", "REQCONTENT", "GPGCFG", "ONCE", "REPSRC", "REPDST", "COMMENT"}
 			elem := gogpExpPretreatAll.FindAllStringSubmatch(src, -1)[0]
@@ -134,18 +130,9 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 			default:
 				fmt.Printf("[gogp error]: %s invalid predef statement [%#v]\n", this.step, src)
 			}
-			//			if section == "GOGP_REVERSE_datadef" {
-			//				fmt.Printf("##gpPath=[%s] section[%s]\n##%s 2src=[%s]\n##%s 3rep=[%s]##4%s rep=[%s]\n",
-			//					gpPath, section, section, src, section, _rep, section, reqcontent)
-			//				//				fmt.Printf("ignore=[%s] req=[%s] reqp=[%s] reqn=[%s] reqgpg=[%s] gpgcfg=[%s] once=[%s] repsrc=[%s] repdst=[%s]\n",
-			//				//					ignore, req, reqp, reqn, reqgpg, gpgcfg, once, repsrc, repdst)
-			//			}
+
 			return
 		})
-		//fmt.Println(rep)
-		//		if section == "GOGP_REVERSE_datadef" {
-		//			fmt.Printf("@@i=%d _content=[%s]\ni=%d rep=[%s]\n", i, _content, i, rep)
-		//		}
 	}
 
 	if this.step == gogpStepPRODUCE { //prevent gen #GOGP_ONCE code twice when gen code
@@ -157,31 +144,19 @@ func (this *gopgProcessor) doPredefReplace(gpPath, content, section string, nDep
 
 func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth int, second bool) (replacedGp string, err error) {
 	_path := fmt.Sprintf("%s|%s", relateGoPath(gpPath), relateGoPath(filepath.Dir(this.gpgPath))) //gp file+gpg path=unique
-	//fmt.Println("doGpReplace", this.step.String(), content)
+
 	replacedGp = content
 	this.replaces.clear()
 
 	if this.step == gogpStepPRODUCE {
-		//replacedGp = gGogpExpCodeIgnore.ReplaceAllString(replacedGp, "\n\n")
 		replacedGp = this.step3PretreatGpCodeSelector(replacedGp, section)
-		//fmt.Println("doGpReplace1", this.step.String(), replacedGp)
 	}
 
 	replacedGp = this.doPredefReplace(gpPath, replacedGp, section, nDepth)
-	//fmt.Println("doGpReplace2", this.step.String(), content)
 
 	//replaces keys that need be replacing
 	if this.replaces.Len() > 0 {
-		//fmt.Println(this.replaces.expString())
-		noRep := 0
-		replacedGp, noRep = this.replaces.doReplacing(replacedGp, this.gpgPath, true)
-		if noRep > 0 {
-			//for _, v := range this.replaces.list {
-			//	fmt.Println(v)
-			//}
-			//fmt.Println("doGpReplace3", noRep, this.step.String(), gpPath, section, content)
-			//os.Exit(1)
-		}
+		replacedGp, _ = this.replaces.doReplacing(replacedGp, this.gpgPath, true)
 		this.replaces.clear()
 	}
 
@@ -199,14 +174,9 @@ func (this *gopgProcessor) doGpReplace(gpPath, content, section string, nDepth i
 
 	if this.nNoReplaceMathNum > 0 { //report error
 		s := fmt.Sprintf("[gogp error]: [%s:%s %s depth=%d] not every gp have been replaced\n", relateGoPath(this.gpgPath), relateGoPath(_path), replist.sectionName, nDepth)
-		//fmt.Println(s)
 		fmt.Printf("----**result is:\n%s\n----**end\n", replacedGp)
 		err = fmt.Errorf(s)
 	}
-
-	//	if section == "GOGP_REVERSE_datadef" {
-	//		fmt.Printf("@@doGpReplace replacedGp=[%s]\n", replacedGp)
-	//	}
 
 	return
 }
@@ -218,9 +188,6 @@ func (this *gopgProcessor) saveCodeFile(body string) (err error) {
 		return
 	}
 	if optForceUpdate || !strings.HasSuffix(this.codeContent, body) { //body change then save it,else skip it
-		//fmt.Printf("[%#v]\n", this.gpContent)
-		//fmt.Printf("[%#v]\n", this.codeContent)
-		//fmt.Printf("[%#v]\n", body)
 
 		var fout *os.File
 		if fout, err = os.OpenFile(this.codePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm); err != nil {

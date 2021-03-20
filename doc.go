@@ -1,8 +1,3 @@
-//    CopyRight @Ally Dale 2016
-//    Author  : Ally Dale(vipally@gmail.com)
-//    Blog    : http://blog.csdn.net/vipally
-//    Site    : https://github.com/vipally
-
 /*
 package gogp is a generic-programming solution for golang or any other languages.
 
@@ -143,10 +138,3 @@ More gogp details:
            "GOGP_GpFilePath" is used to specify .gp file path in the second flow.
 */
 package gogp
-
-//20161016: match "//#GOGP_IFDEF cdk ... //#GOGP_ELSE ... //#GOGP_ENDIF" case
-//20161023: match "//#GOGP_REQUIRE(gpPath[,gpgSection|#GOGP_GPGCFG(cfg)])" case
-//20161030: match "#GOGP_GPGCFG(cfg)" case
-//20161031: match "//#GOGP_ONCE ... //#GOGP_END_ONCE" case
-//20161113: let fake go file end with ".gp.go"
-//todo: #define Macro(xxx) yyyy

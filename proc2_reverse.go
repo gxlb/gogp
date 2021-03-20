@@ -59,7 +59,6 @@ func (this *gopgProcessor) procStep2Reverse() (err error) {
 
 		if this.nNoReplaceMathNum > 0 { //report error
 			s := fmt.Sprintf("[gogp error]: [%s:%s] not every gp have been replaced\n", relateGoPath(this.gpgPath), this.section)
-			//fmt.Println(s)
 			err = fmt.Errorf(s)
 		}
 
@@ -86,10 +85,6 @@ func (this *gopgProcessor) saveGpFile(body, gpFilePath string) (err error) {
 				fmt.Printf(">>[gogp][%s] skip\n", relateGoPath(this.gpPath))
 			}
 			return
-		} else {
-			//fmt.Println("[%s]", xhash.MD5.StringHash(this.gpContent))
-			//fmt.Println("[%s]", xhash.MD5.StringHash(body))
-			//fmt.Println("[%s]", xhash.MD5.StringHash(strings.TrimSuffix(this.gpContent, body)))
 		}
 	}
 

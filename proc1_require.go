@@ -57,7 +57,6 @@ func (this *gopgProcessor) procStep1Require() (err error) {
 		var replaced bool
 		switch {
 		case req != "":
-			//fmt.Printf("req: %#v\n", elem[1:])
 			if rep, replaced, err = this.procRequireReplacement(src, this.section, 0); err != nil {
 				fmt.Println(err)
 			}
@@ -105,7 +104,6 @@ func (this *gopgProcessor) procStep1Require() (err error) {
 
 //require a gp file, maybe recursive
 func (this *gopgProcessor) procRequireReplacement(statement, section string, nDepth int) (rep string, replaced bool, err error) {
-	//fmt.Println("statement", statement)
 	rep = statement
 	if nDepth >= 5 {
 		panic(fmt.Sprintf("[gogp error] [%s:%s]maybe loop recursive of #GOGP_REQUIRE(...), %d", relateGoPath(this.gpgPath), section, nDepth))
@@ -140,7 +138,6 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 	gpContent := ""
 
 	if gpContent, err = this.rawLoadFile(gpFullPath); err == nil {
-		//fmt.Println("gpContent", gpContent)
 		replacedGp := ""
 		if this.step == gogpStepPRODUCE {
 			replaced = true
@@ -166,15 +163,9 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 				}
 
 				if _, ok := savedCodeFile[codePath]; ok { //skip saved file
-					//					if gDebug {
-					//						fmt.Printf("[gogp] debug: step%d Required file [%s] skip\n", this.step, codePath)
-					//					}
 					return
 				} else {
 					savedCodeFile[codePath] = true //to prevent rewrite this file no matter it chages or not
-					//					if gDebug {
-					//						fmt.Printf("[gogp] debug: step%d Required file [%s] save ok\n", this.step, codePath)
-					//					}
 				}
 
 				oldCode, _ := this.rawLoadFile(codePath)
@@ -204,47 +195,29 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 				replaced = true
 			} else {
 				if nDepth == 0 { //do not let require recursive
-					//fmt.Println("000", gpContent)
 					if replacedGp, err = this.doGpReplace(gpFullPath, gpContent, replaceSection, nDepth, true); err != nil {
 						return
 					}
-					//fmt.Println("111", replacedGp)
-					//					if section == "GOGP_REVERSE_datadef" {
-					//						fmt.Printf("@@procRequireReplacement replacedGp=[%s]\n", replacedGp)
-					//					}
+
 					replacedGp = strings.Replace(replacedGp, "package", "//package", -1) //comment package declaration
 					replacedGp = strings.Replace(replacedGp, "import", "//import", -1)
-					//fmt.Println("222", replacedGp)
-					//reqSave := strings.Replace(req, "//#GOGP_REQUIRE", "//##GOGP_REQUIRE", -1)
+
 					reqResult := fmt.Sprintf(leftFmt, reqp, "$CONTENT", reqp)
 					out := fmt.Sprintf("\n\n%s\n%s\n\n", req, reqResult)
-					//fmt.Println("out", out)
-					//fmt.Printf("replacedGp0 %#v\n", replacedGp)
-					//fmt.Printf("%t %#v\n", gogpExpTrimEmptyLine.MatchString(replacedGp), gogpExpTrimEmptyLine.FindAllStringSubmatch(replacedGp, -1))
+
 					replacedGp = gogpExpTrimEmptyLine.ReplaceAllString(replacedGp, out)
-					//fmt.Println("replacedGp1", replacedGp)
 
 					oldContent := content
-					//fmt.Println("333", replacedGp)
 
 					rep = goFmt(replacedGp, this.gpPath)
 
 					//check if content changed
 					replaced = oldContent == "" || !strings.Contains(rep, oldContent) //|| !strings.Contains(oldContent, "//#GOGP_IGNORE_BEGIN")
-					//					if section == "GOGP_REVERSE_datadef" {
-					//						fmt.Printf("@@procRequireReplacement replaced=%v old=[%s] \nreplaced=%v replacedGp=[%s]\n", replaced, oldContent, replaced, rep)
-					//					}
-					//if replaced {
-					//	fmt.Printf("\nrep=[%#v]\nold=[%#v]\n", rep, oldContent)
-					//}
 
 				} else {
 					rep = "\n\n"
 					replaced = true
 				}
-				//if gDebug {
-				//	fmt.Printf("%#v %d\n%#v\n%#v\n", replaced, nDepth, statement, rep)
-				//}
 			}
 		}
 
@@ -253,10 +226,6 @@ func (this *gopgProcessor) procRequireReplacement(statement, section string, nDe
 		err = nil
 		rep = statement
 	}
-	//if gDebug {
-	//	//fmt.Printf("%#v %d\n[%#v]\n[%#v]\n", replaced, nDepth, statement, rep)
-	//}
-	//fmt.Println("statement", statement)
-	//fmt.Println("rep", rep)
+
 	return
 }

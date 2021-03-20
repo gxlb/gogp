@@ -132,7 +132,7 @@ func (this *gopgProcessor) selectByCondition(section, cond, t, f string, depth i
 	} else {
 		ret = this.selectPart(section, f, depth)
 	}
-	//fmt.Printf("[xx]selectByCondition section=%s depth=%d ret=%s\n%s, %q, %q\n", section, depth, ret, cond, t, f)
+
 	return ret
 }
 
@@ -189,16 +189,13 @@ func (this *gopgProcessor) pretreatSelector(gpContent string, section string, de
 		case mapK != "":
 			this.maps.insert(mapK, mapV, false)
 			rep = ""
-			//println("set2", mapK, mapV)
 
 		case ignore != "" || gponly != "":
 			rep = "\n\n"
 		default:
 			rep = ""
 		}
-		//fmt.Printf("[$$] rep=%s\ndepth=%d ##src=[%#v]\n ignore=[%s] gponly=[%s] condk=[%s] t=[%q] f=[%q] condk2=[%s] t2=[%q] f2=[%q] map=[%s,%s] switchCases=[%s]\n", rep, depth, src, ignore, gponly, condk, condHit, condMiss, condk2, condHit2, condMiss2, mapK, mapV, switchCases)
 		return
 	})
-	//fmt.Println("[$$$]", replaced)
 	return
 }
