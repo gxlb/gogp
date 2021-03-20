@@ -301,7 +301,7 @@ func findSyntax(name string) *syntax {
 }
 
 var (
-	gogpExpTodoReplace   = findSyntax("#replace").MustCompile()
+	gogpExpTodoReplace   = findSyntax("#to-replace").MustCompile()
 	gogpExpIgnore        = findSyntax("#ignore").MustCompile()
 	gogpExpCases         = findSyntax("#case").MustCompile()
 	gogpExpEmptyLine     = findSyntax("#empty-line").MustCompile()
