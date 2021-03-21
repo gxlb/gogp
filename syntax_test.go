@@ -212,51 +212,6 @@ func TestSingleRegexps(t *testing.T) {
 			return
 		}
 	}
-	// if true {
-	// 	expect := []string{"<src>", "<dst>", "<src2>", "<dst2>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<src>", "<dst>", "<src>", "<dst>"}
-	// 	match := gogpExpTodoReplace.FindAllStringSubmatch(tstExpSyntaxAll, -1)
-	// 	got := testShowMatch(match)
-	// 	if err := testCheckStrings(got, expect); err != nil {
-	// 		fmt.Printf("%#v\n", testShowMatch(match))
-	// 		t.Errorf("gogpExpTodoReplace test error: %s", err)
-	// 	}
-	// }
-	// if true {
-	// 	expect := []string{"\n\t{ignore}\n", " \n     {ignore content} \n// "}
-	// 	match := gogpExpIgnore.FindAllStringSubmatch(tstExpSyntaxAll, -1)
-	// 	got := testShowMatch(match)
-	// 	if err := testCheckStrings(got, expect); err != nil {
-	// 		fmt.Printf("%#v\n", testShowMatch(match))
-	// 		t.Errorf("gogpExpIgnore test error: %s", err)
-	// 	}
-	// }
-	// if true {
-	// 	expect := []string{"<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<key>", "<key>", "", "<key>", "<key>", ""}
-	// 	match := gogpExpCases.FindAllStringSubmatch(tstExpSyntaxAll, -1)
-	// 	got := testShowMatch(match)
-	// 	if err := testCheckStrings(got, expect); err != nil {
-	// 		fmt.Printf("%#v\n", testShowMatch(match))
-	// 		t.Errorf("gogpExpCases test error: %s", err)
-	// 	}
-	// }
-	// if true {
-	// 	expect := []string{"\n\n\n", "\n\n\n\n\n\n\n", "\n\n\n"}
-	// 	match := gogpExpEmptyLine.FindAllStringSubmatch(tstExpSyntaxAll, -1)
-	// 	got := testShowMatch(match)
-	// 	if err := testCheckStrings(got, expect); err != nil {
-	// 		fmt.Printf("%#v\n", testShowMatch(match))
-	// 		t.Errorf("gogpExpEmptyLine test error: %s", err)
-	// 	}
-	// }
-	// if true {
-	// 	expect := []string{"head\n// #GOGP_COMMENT {comment code}\n//#GOGP_COMMENT {comment code2}\n\n//#GOGP_IGNORE_BEGIN\n\t{ignore}\n//#GOGP_IGNORE_END\n\n// #GOGP_REPLACE(<src>, <dst>)\n//#GOGP_REPLACE(<src2>, <dst2>)\n\n--------------------------------------\n\n// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n// #GOGP_ELSE\n\t{if-else content}\n// #GOGP_ENDIF\n\n// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n// #GOGP_ENDIF\n\n//#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n//#GOGP_ELSE\n\t{if-else content}\n//#GOGP_ENDIF\n\n//#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n//#GOGP_ENDIF\n\n// #GOGP_IFDEF x\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ELSE\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ENDIF\n\n// #GOGP_IFDEF2 xx\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ELSE2\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ENDIF2\n\n--------------------------------------\n\n// #GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n\n// #GOGP_SWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n\n//#GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n\n//#GOGP_SWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n\n--------------------------------------\n\n// #GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n\n// #GOGP_MULTISWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n\n//#GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n\n//#GOGP_MULTISWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n\n--------------------------------------\n\n//#GOGP_CASE <key>\n        {case content3}\n//#GOGP_ENDCASE\n//#GOGP_CASE <key> != val\n        {case content4}\n//#GOGP_ENDCASE\n//#GOGP_DEFAULT\n        {default content2}\n//#GOGP_ENDCASE\n\n// #GOGP_REQUIRE(<gp-path> , gpgSection)\n\n--------------------------------------\n\n#GOGP_GPGCFG(<config-name>)\n\n// #GOGP_REPLACE(<src>, <dst>)\n\n// #GOGP_MAP(<src>, <dst>)\n\n// #GOGP_IGNORE_BEGIN \n     {ignore content} \n// #GOGP_IGNORE_END\n\n// #GOGP_GPONLY_BEGIN \n     {gp-only content} \n// #GOGP_GPONLY_END\n\n// #GOGP_FILE_BEGIN\n\n// #GOGP_FILE_END\n\n// #GOGP_ONCE \n    {only generate once from a gp file} \n// #GOGP_END_ONCE \n\n---\n\n\n\n\n\n\ntail"}
-	// 	match := gogpExpTrimEmptyLine.FindAllStringSubmatch(tstExpSyntaxAll, -1)
-	// 	got := testShowMatch(match)
-	// 	if err := testCheckStrings(got, expect); err != nil {
-	// 		fmt.Printf("%#v\n", testShowMatch(match))
-	// 		t.Errorf("gogpExpTrimEmptyLine test error: %s", err)
-	// 	}
-	// }
 }
 
 func testShowMatch(match [][]string) []string {
