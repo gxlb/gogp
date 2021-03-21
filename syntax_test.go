@@ -3,6 +3,7 @@ package gogp
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -27,39 +28,40 @@ func TestAllRegexpSyntax(t *testing.T) {
 		[]string{"match1", "0:\n\n\n", "EMPTY_LINE:\n\n\n"},
 		[]string{"match2", "0:// #GOGP_COMMENT", "COMMENT:// #GOGP_COMMENT"},
 		[]string{"match3", "0://#GOGP_COMMENT", "COMMENT://#GOGP_COMMENT"},
-		[]string{"match4", "0:// #GOGP_REPLACE(<src>, <dst>)", "REPSRC:<src>", "REPDST:<dst>"},
-		[]string{"match5", "0://#GOGP_REPLACE(<src2>, <dst2>)", "REPSRC:<src2>", "REPDST:<dst2>"},
-		[]string{"match6", "0:// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n// #GOGP_ELSE\n\t{if-else content}\n// #GOGP_ENDIF\n", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
-		[]string{"match7", "0:// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n// #GOGP_ENDIF\n", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content2}\n"},
-		[]string{"match8", "0://#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n//#GOGP_ELSE\n\t{if-else content}\n//#GOGP_ENDIF\n", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
-		[]string{"match9", "0://#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n//#GOGP_ENDIF\n", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content2}\n"},
-		[]string{"match10", "0:// #GOGP_IFDEF x\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ELSE\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ENDIF\n", "IFCOND,1,2:x", "IFT://     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n", "IFF://     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n"},
-		[]string{"match11", "0:// #GOGP_IFDEF2 xx\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ELSE2\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ENDIF2\n", "IFCOND2,1,2:xx", "IFT2://     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n", "IFF2://     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n"},
-		[]string{"match12", "0:// #GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n", "SWITCHKEY:<SwitchKey>", "SWITCHCONTENT,1:<SwitchKeyValue1>", "SWITCHCONTENT,2:        {case content1}\n", "SWITCHCONTENT,1:<SwitchKeyValue2>", "SWITCHCONTENT,2:        {case content2}\n", "SWITCHCONTENT,2:        {default content1}\n"},
-		[]string{"match13", "0:// #GOGP_SWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content3}\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content4}\n", "SWITCHCONTENT,2:        {default content2}\n"},
-		[]string{"match14", "0://#GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n", "SWITCHKEY:<SwitchKey>", "SWITCHCONTENT,1:<SwitchKeyValue1>", "SWITCHCONTENT,2:        {case content1}\n", "SWITCHCONTENT,1:<SwitchKeyValue2>", "SWITCHCONTENT,2:        {case content2}\n", "SWITCHCONTENT,2:        {default content1}\n"},
-		[]string{"match15", "0://#GOGP_SWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content3}\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content4}\n", "SWITCHCONTENT,2:        {default content2}\n"},
-		[]string{"match16", "0:// #GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n", "MULTISWITCHKEY:<SwitchKey>", "MULTISWITCHCONTENT,1:<SwitchKeyValue1>", "MULTISWITCHCONTENT,2:        {case content1}\n", "MULTISWITCHCONTENT,1:<SwitchKeyValue2>", "MULTISWITCHCONTENT,2:        {case content2}\n", "MULTISWITCHCONTENT,2:        {default content1}\n"},
-		[]string{"match17", "0:// #GOGP_MULTISWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n", "MULTISWITCHCONTENT,1:<key>", "MULTISWITCHCONTENT,2:        {case content3}\n", "MULTISWITCHCONTENT,1:<key>", "MULTISWITCHCONTENT,2:        {case content4}\n", "MULTISWITCHCONTENT,2:        {default content2}\n"},
-		[]string{"match18", "0://#GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n", "MULTISWITCHKEY:<SwitchKey>", "MULTISWITCHCONTENT,1:<SwitchKeyValue1>", "MULTISWITCHCONTENT,2:        {case content1}\n", "MULTISWITCHCONTENT,1:<SwitchKeyValue2>", "MULTISWITCHCONTENT,2:        {case content2}\n", "MULTISWITCHCONTENT,2:        {default content1}\n"},
-		[]string{"match19", "0://#GOGP_MULTISWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n", "MULTISWITCHCONTENT,1:<key>", "MULTISWITCHCONTENT,2:        {case content3}\n", "MULTISWITCHCONTENT,1:<key>", "MULTISWITCHCONTENT,2:        {case content4}\n", "MULTISWITCHCONTENT,2:        {default content2}\n"},
-		[]string{"match20", "0://    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content3}\n"},
-		[]string{"match21", "0://    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content4}\n"},
-		[]string{"match22", "0://    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n\n", "CASECONTENT:        {default content2}\n"},
-		[]string{"match23", "0://#GOGP_CASE <key>\n        {case content3}\n//#GOGP_ENDCASE\n", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content3}\n"},
-		[]string{"match24", "0://#GOGP_CASE <key> != val\n        {case content4}\n//#GOGP_ENDCASE\n", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content4}\n"},
-		[]string{"match25", "0://#GOGP_DEFAULT\n        {default content2}\n//#GOGP_ENDCASE\n\n", "CASECONTENT:        {default content2}\n"},
-		[]string{"match26", "0:// #GOGP_REQUIRE(<gp-path> , gpgSection)\n\n", "REQ:// #GOGP_REQUIRE(<gp-path> , gpgSection)", "REQP:<gp-path>", "REQN:gpgSection"},
-		[]string{"match27", "0:#GOGP_GPGCFG(<config-name>)", "GPGCFG:<config-name>"},
-		[]string{"match28", "0:// #GOGP_REPLACE(<src>, <dst>)", "REPSRC:<src>", "REPDST:<dst>"},
-		[]string{"match29", "0:// #GOGP_MAP(<src>, <dst>)", "MAPSRC:<src>", "MAPDST:<dst>"},
-		[]string{"match30", "0:// #GOGP_IGNORE_BEGIN \n     {ignore content} \n// #GOGP_IGNORE_END\n\n", "IGNORE: \n     {ignore content} \n// "},
-		[]string{"match31", "0:// #GOGP_GPONLY_BEGIN \n     {gp-only content} \n// #GOGP_GPONLY_END\n\n", "GPONLY: \n     {gp-only content} \n// "},
-		[]string{"match32", "0:// #GOGP_FILE_BEGIN\n\n", "FILEB:// #GOGP_FILE_BEGIN"},
-		[]string{"match33", "0:// #GOGP_FILE_END\n\n", "FILEE:// #GOGP_FILE_END"},
-		[]string{"match34", "0:// #GOGP_ONCE \n    {only generate once from a gp file} \n// #GOGP_END_ONCE \n", "ONCE: \n    {only generate once from a gp file} "},
-		[]string{"match35", "0:\n\n\n\n\n\n\n", "EMPTY_LINE:\n\n\n\n\n\n\n"},
-		[]string{"match36", "0:\n\n\n", "EMPTY_LINE:\n\n\n"},
+		[]string{"match4", "0://#GOGP_IGNORE_BEGIN\n\t{ignore}\n//#GOGP_IGNORE_END\n\n", "IGNORE:\n\t{ignore}\n"},
+		[]string{"match5", "0:// #GOGP_REPLACE(<src>, <dst>)", "REPSRC:<src>", "REPDST:<dst>"},
+		[]string{"match6", "0://#GOGP_REPLACE(<src2>, <dst2>)", "REPSRC:<src2>", "REPDST:<dst2>"},
+		[]string{"match7", "0:// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n// #GOGP_ELSE\n\t{if-else content}\n// #GOGP_ENDIF\n", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
+		[]string{"match8", "0:// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n// #GOGP_ENDIF\n", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content2}\n"},
+		[]string{"match9", "0://#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n//#GOGP_ELSE\n\t{if-else content}\n//#GOGP_ENDIF\n", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content}\n", "IFF:\t{if-else content}\n"},
+		[]string{"match10", "0://#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n//#GOGP_ENDIF\n", "IFCOND,1,2:<key>", "IFCOND,2,1:!", "IFCOND,2,2:<key>", "IFCOND,3,2:<key>", "IFCOND,3,3:==", "IFCOND,3,4:xxx", "IFCOND,4,2:<key>", "IFCOND,4,3:!=", "IFCOND,4,4:xxx", "IFT:\t{if-true content2}\n"},
+		[]string{"match11", "0:// #GOGP_IFDEF x\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ELSE\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ENDIF\n", "IFCOND,1,2:x", "IFT://     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n", "IFF://     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n"},
+		[]string{"match12", "0:// #GOGP_IFDEF2 xx\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ELSE2\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ENDIF2\n", "IFCOND2,1,2:xx", "IFT2://     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n", "IFF2://     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n"},
+		[]string{"match13", "0:// #GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n", "SWITCHKEY:<SwitchKey>", "SWITCHCONTENT,1:<SwitchKeyValue1>", "SWITCHCONTENT,2:        {case content1}\n", "SWITCHCONTENT,1:<SwitchKeyValue2>", "SWITCHCONTENT,2:        {case content2}\n", "SWITCHCONTENT,2:        {default content1}\n"},
+		[]string{"match14", "0:// #GOGP_SWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content3}\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content4}\n", "SWITCHCONTENT,2:        {default content2}\n"},
+		[]string{"match15", "0://#GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n", "SWITCHKEY:<SwitchKey>", "SWITCHCONTENT,1:<SwitchKeyValue1>", "SWITCHCONTENT,2:        {case content1}\n", "SWITCHCONTENT,1:<SwitchKeyValue2>", "SWITCHCONTENT,2:        {case content2}\n", "SWITCHCONTENT,2:        {default content1}\n"},
+		[]string{"match16", "0://#GOGP_SWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content3}\n", "SWITCHCONTENT,1:<key>", "SWITCHCONTENT,2:        {case content4}\n", "SWITCHCONTENT,2:        {default content2}\n"},
+		[]string{"match17", "0:// #GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n", "MULTISWITCHKEY:<SwitchKey>", "MULTISWITCHCONTENT,1:<SwitchKeyValue1>", "MULTISWITCHCONTENT,2:        {case content1}\n", "MULTISWITCHCONTENT,1:<SwitchKeyValue2>", "MULTISWITCHCONTENT,2:        {case content2}\n", "MULTISWITCHCONTENT,2:        {default content1}\n"},
+		[]string{"match18", "0:// #GOGP_MULTISWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n", "MULTISWITCHCONTENT,1:<key>", "MULTISWITCHCONTENT,2:        {case content3}\n", "MULTISWITCHCONTENT,1:<key>", "MULTISWITCHCONTENT,2:        {case content4}\n", "MULTISWITCHCONTENT,2:        {default content2}\n"},
+		[]string{"match19", "0://#GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n", "MULTISWITCHKEY:<SwitchKey>", "MULTISWITCHCONTENT,1:<SwitchKeyValue1>", "MULTISWITCHCONTENT,2:        {case content1}\n", "MULTISWITCHCONTENT,1:<SwitchKeyValue2>", "MULTISWITCHCONTENT,2:        {case content2}\n", "MULTISWITCHCONTENT,2:        {default content1}\n"},
+		[]string{"match20", "0://#GOGP_MULTISWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n", "MULTISWITCHCONTENT,1:<key>", "MULTISWITCHCONTENT,2:        {case content3}\n", "MULTISWITCHCONTENT,1:<key>", "MULTISWITCHCONTENT,2:        {case content4}\n", "MULTISWITCHCONTENT,2:        {default content2}\n"},
+		[]string{"match21", "0://    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content3}\n"},
+		[]string{"match22", "0://    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content4}\n"},
+		[]string{"match23", "0://    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n\n", "CASECONTENT:        {default content2}\n"},
+		[]string{"match24", "0://#GOGP_CASE <key>\n        {case content3}\n//#GOGP_ENDCASE\n", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content3}\n"},
+		[]string{"match25", "0://#GOGP_CASE <key> != val\n        {case content4}\n//#GOGP_ENDCASE\n", "CASEKEY,1,2:<key>", "CASECONTENT:        {case content4}\n"},
+		[]string{"match26", "0://#GOGP_DEFAULT\n        {default content2}\n//#GOGP_ENDCASE\n\n", "CASECONTENT:        {default content2}\n"},
+		[]string{"match27", "0:// #GOGP_REQUIRE(<gp-path> , gpgSection)\n\n", "REQ:// #GOGP_REQUIRE(<gp-path> , gpgSection)", "REQP:<gp-path>", "REQN:gpgSection"},
+		[]string{"match28", "0:#GOGP_GPGCFG(<config-name>)", "GPGCFG:<config-name>"},
+		[]string{"match29", "0:// #GOGP_REPLACE(<src>, <dst>)", "REPSRC:<src>", "REPDST:<dst>"},
+		[]string{"match30", "0:// #GOGP_MAP(<src>, <dst>)", "MAPSRC:<src>", "MAPDST:<dst>"},
+		[]string{"match31", "0:// #GOGP_IGNORE_BEGIN \n     {ignore content} \n// #GOGP_IGNORE_END\n\n", "IGNORE: \n     {ignore content} \n// "},
+		[]string{"match32", "0:// #GOGP_GPONLY_BEGIN \n     {gp-only content} \n// #GOGP_GPONLY_END\n\n", "GPONLY: \n     {gp-only content} \n// "},
+		[]string{"match33", "0:// #GOGP_FILE_BEGIN\n\n", "FILEB:// #GOGP_FILE_BEGIN"},
+		[]string{"match34", "0:// #GOGP_FILE_END\n\n", "FILEE:// #GOGP_FILE_END"},
+		[]string{"match35", "0:// #GOGP_ONCE \n    {only generate once from a gp file} \n// #GOGP_END_ONCE \n", "ONCE: \n    {only generate once from a gp file} "},
+		[]string{"match36", "0:\n\n\n\n\n\n\n", "EMPTY_LINE:\n\n\n\n\n\n\n"},
+		[]string{"match37", "0:\n\n\n", "EMPTY_LINE:\n\n\n"},
 	}
 
 	var submatches [][]string
@@ -117,7 +119,7 @@ func TestAllRegexpSyntax(t *testing.T) {
 		return ""
 	})
 
-	if err := testCheckStrings(submatches, submatchesExpected); err != nil {
+	if err := testCheckMatches(submatches, submatchesExpected); err != nil {
 		if !testPrintResult {
 			fmt.Println(testShowStringList(submatches))
 		}
@@ -143,7 +145,7 @@ func TestMultiRegexp(t *testing.T) {
 		gogpExpRequireAll.SubexpNames(),
 		gogpExpReverseIgnoreAll.SubexpNames(),
 	}
-	if err := testCheckStrings(subNames, subNamesExpected); err != nil {
+	if err := testCheckMatches(subNames, subNamesExpected); err != nil {
 		t.Error(err)
 	}
 	if testPrintResult {
@@ -154,11 +156,115 @@ func TestMultiRegexp(t *testing.T) {
 }
 
 func TestSingleRegexps(t *testing.T) {
-	if true {
-		match := gogpExpTodoReplace.FindAllStringSubmatch(tstExpSyntaxAll, -1)
-		fmt.Printf("%#v\n", match)
+	type testCase struct {
+		expect []string
+		syntax *regexp.Regexp
+		name   string
 	}
+	var testCases = []*testCase{
+		&testCase{
+			expect: []string{"<src>", "<dst>", "<src2>", "<dst2>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<src>", "<dst>", "<src>", "<dst>"},
+			syntax: gogpExpTodoReplace,
+			name:   "gogpExpTodoReplace",
+		},
+		&testCase{
+			expect: []string{"\n\t{ignore}\n", " \n     {ignore content} \n// "},
+			syntax: gogpExpIgnore,
+			name:   "gogpExpIgnore",
+		},
+		&testCase{
+			expect: []string{"<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<key>", "<key>", "", "<key>", "<key>", ""},
+			syntax: gogpExpCases,
+			name:   "gogpExpCases",
+		},
+		&testCase{
+			expect: []string{"\n\n\n", "\n\n\n\n\n\n\n", "\n\n\n"},
+			syntax: gogpExpEmptyLine,
+			name:   "gogpExpEmptyLine",
+		},
+		&testCase{
+			expect: []string{"head\n// #GOGP_COMMENT {comment code}\n//#GOGP_COMMENT {comment code2}\n\n//#GOGP_IGNORE_BEGIN\n\t{ignore}\n//#GOGP_IGNORE_END\n\n// #GOGP_REPLACE(<src>, <dst>)\n//#GOGP_REPLACE(<src2>, <dst2>)\n\n--------------------------------------\n\n// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n// #GOGP_ELSE\n\t{if-else content}\n// #GOGP_ENDIF\n\n// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n// #GOGP_ENDIF\n\n//#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n//#GOGP_ELSE\n\t{if-else content}\n//#GOGP_ENDIF\n\n//#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n//#GOGP_ENDIF\n\n// #GOGP_IFDEF x\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ELSE\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ENDIF\n\n// #GOGP_IFDEF2 xx\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ELSE2\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ENDIF2\n\n--------------------------------------\n\n// #GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n\n// #GOGP_SWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n\n//#GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n\n//#GOGP_SWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n\n--------------------------------------\n\n// #GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n\n// #GOGP_MULTISWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n\n//#GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n\n//#GOGP_MULTISWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n\n--------------------------------------\n\n//#GOGP_CASE <key>\n        {case content3}\n//#GOGP_ENDCASE\n//#GOGP_CASE <key> != val\n        {case content4}\n//#GOGP_ENDCASE\n//#GOGP_DEFAULT\n        {default content2}\n//#GOGP_ENDCASE\n\n// #GOGP_REQUIRE(<gp-path> , gpgSection)\n\n--------------------------------------\n\n#GOGP_GPGCFG(<config-name>)\n\n// #GOGP_REPLACE(<src>, <dst>)\n\n// #GOGP_MAP(<src>, <dst>)\n\n// #GOGP_IGNORE_BEGIN \n     {ignore content} \n// #GOGP_IGNORE_END\n\n// #GOGP_GPONLY_BEGIN \n     {gp-only content} \n// #GOGP_GPONLY_END\n\n// #GOGP_FILE_BEGIN\n\n// #GOGP_FILE_END\n\n// #GOGP_ONCE \n    {only generate once from a gp file} \n// #GOGP_END_ONCE \n\n---\n\n\n\n\n\n\ntail"},
+			syntax: gogpExpTrimEmptyLine,
+			name:   "gogpExpTrimEmptyLine",
+		},
+		&testCase{
+			expect: []string{"// #GOGP_REQUIRE(<gp-path> , gpgSection)"},
+			syntax: gogpExpRequire,
+			name:   "gogpExpRequire",
+		},
+		&testCase{
+			expect: []string{"", ""},
+			syntax: gogpExpCondition,
+			name:   "gogpExpCondition",
+		},
+		&testCase{
+			expect: []string{"// #GOGP_COMMENT", "//#GOGP_COMMENT"},
+			syntax: gogpExpComment,
+			name:   "gogpExpComment",
+		},
+	}
+	for i, v := range testCases {
+		match := v.syntax.FindAllStringSubmatch(tstExpSyntaxAll, -1)
+		got := testShowMatch(match)
+		if err := testCheckStrings(got, v.expect); err != nil {
+			fmt.Printf("%#v\n", testShowMatch(match))
+			t.Errorf("%d %s test error: %s", i+1, v.name, err)
+			return
+		}
+	}
+	// if true {
+	// 	expect := []string{"<src>", "<dst>", "<src2>", "<dst2>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<SwitchKey>", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "<key>", "<key>", "<key>", "<key>", "<key>", "<key>", "<src>", "<dst>", "<src>", "<dst>"}
+	// 	match := gogpExpTodoReplace.FindAllStringSubmatch(tstExpSyntaxAll, -1)
+	// 	got := testShowMatch(match)
+	// 	if err := testCheckStrings(got, expect); err != nil {
+	// 		fmt.Printf("%#v\n", testShowMatch(match))
+	// 		t.Errorf("gogpExpTodoReplace test error: %s", err)
+	// 	}
+	// }
+	// if true {
+	// 	expect := []string{"\n\t{ignore}\n", " \n     {ignore content} \n// "}
+	// 	match := gogpExpIgnore.FindAllStringSubmatch(tstExpSyntaxAll, -1)
+	// 	got := testShowMatch(match)
+	// 	if err := testCheckStrings(got, expect); err != nil {
+	// 		fmt.Printf("%#v\n", testShowMatch(match))
+	// 		t.Errorf("gogpExpIgnore test error: %s", err)
+	// 	}
+	// }
+	// if true {
+	// 	expect := []string{"<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<SwitchKeyValue1>", "<SwitchKeyValue2>", "", "<key>", "<key>", "", "<key>", "<key>", "", "<key>", "<key>", ""}
+	// 	match := gogpExpCases.FindAllStringSubmatch(tstExpSyntaxAll, -1)
+	// 	got := testShowMatch(match)
+	// 	if err := testCheckStrings(got, expect); err != nil {
+	// 		fmt.Printf("%#v\n", testShowMatch(match))
+	// 		t.Errorf("gogpExpCases test error: %s", err)
+	// 	}
+	// }
+	// if true {
+	// 	expect := []string{"\n\n\n", "\n\n\n\n\n\n\n", "\n\n\n"}
+	// 	match := gogpExpEmptyLine.FindAllStringSubmatch(tstExpSyntaxAll, -1)
+	// 	got := testShowMatch(match)
+	// 	if err := testCheckStrings(got, expect); err != nil {
+	// 		fmt.Printf("%#v\n", testShowMatch(match))
+	// 		t.Errorf("gogpExpEmptyLine test error: %s", err)
+	// 	}
+	// }
+	// if true {
+	// 	expect := []string{"head\n// #GOGP_COMMENT {comment code}\n//#GOGP_COMMENT {comment code2}\n\n//#GOGP_IGNORE_BEGIN\n\t{ignore}\n//#GOGP_IGNORE_END\n\n// #GOGP_REPLACE(<src>, <dst>)\n//#GOGP_REPLACE(<src2>, <dst2>)\n\n--------------------------------------\n\n// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n// #GOGP_ELSE\n\t{if-else content}\n// #GOGP_ENDIF\n\n// #GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n// #GOGP_ENDIF\n\n//#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content}\n//#GOGP_ELSE\n\t{if-else content}\n//#GOGP_ENDIF\n\n//#GOGP_IFDEF <key> || ! <key> || <key> == xxx || <key> != xxx\n\t{if-true content2}\n//#GOGP_ENDIF\n\n// #GOGP_IFDEF x\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ELSE\n//     #GOGP_IFDEF2 yyy\n\t{if-true content}\n//     #GOGP_ELSE2\n\t{if-else content}\n//     #GOGP_ENDIF2\n// #GOGP_ENDIF\n\n// #GOGP_IFDEF2 xx\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE //\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ELSE2\n//     #GOGP_IFDEF yyy\n\t      {if-true content}\n//     #GOGP_ELSE\n\t      {if-else content}\n//     #GOGP_ENDIF //\n// #GOGP_ENDIF2\n\n--------------------------------------\n\n// #GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n\n// #GOGP_SWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDSWITCH\n\n//#GOGP_SWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n\n//#GOGP_SWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDSWITCH\n\n--------------------------------------\n\n// #GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n\n// #GOGP_MULTISWITCH\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n// #GOGP_ENDMULTISWITCH\n\n//#GOGP_MULTISWITCH <SwitchKey>\n//    #GOGP_CASE <SwitchKeyValue1>\n        {case content1}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <SwitchKeyValue2>\n        {case content2}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content1}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n\n//#GOGP_MULTISWITCH \n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n//#GOGP_ENDMULTISWITCH\n\n//    #GOGP_CASE <key>\n        {case content3}\n//    #GOGP_ENDCASE\n//    #GOGP_CASE <key> != val\n        {case content4}\n//    #GOGP_ENDCASE\n//    #GOGP_DEFAULT\n        {default content2}\n//    #GOGP_ENDCASE\n\n--------------------------------------\n\n//#GOGP_CASE <key>\n        {case content3}\n//#GOGP_ENDCASE\n//#GOGP_CASE <key> != val\n        {case content4}\n//#GOGP_ENDCASE\n//#GOGP_DEFAULT\n        {default content2}\n//#GOGP_ENDCASE\n\n// #GOGP_REQUIRE(<gp-path> , gpgSection)\n\n--------------------------------------\n\n#GOGP_GPGCFG(<config-name>)\n\n// #GOGP_REPLACE(<src>, <dst>)\n\n// #GOGP_MAP(<src>, <dst>)\n\n// #GOGP_IGNORE_BEGIN \n     {ignore content} \n// #GOGP_IGNORE_END\n\n// #GOGP_GPONLY_BEGIN \n     {gp-only content} \n// #GOGP_GPONLY_END\n\n// #GOGP_FILE_BEGIN\n\n// #GOGP_FILE_END\n\n// #GOGP_ONCE \n    {only generate once from a gp file} \n// #GOGP_END_ONCE \n\n---\n\n\n\n\n\n\ntail"}
+	// 	match := gogpExpTrimEmptyLine.FindAllStringSubmatch(tstExpSyntaxAll, -1)
+	// 	got := testShowMatch(match)
+	// 	if err := testCheckStrings(got, expect); err != nil {
+	// 		fmt.Printf("%#v\n", testShowMatch(match))
+	// 		t.Errorf("gogpExpTrimEmptyLine test error: %s", err)
+	// 	}
+	// }
+}
 
+func testShowMatch(match [][]string) []string {
+	ret := make([]string, 0, len(match))
+	for _, v := range match {
+		ret = append(ret, v[1])
+	}
+	return ret
 }
 
 func testShowAllSyntax() {
@@ -171,7 +277,21 @@ func testShowAllSyntax() {
 	}
 }
 
-func testCheckStrings(got, expect [][]string) error {
+func testCheckStrings(got, expect []string) error {
+	w := expect
+	if len(got) != len(w) {
+		return fmt.Errorf("regexp submatch-num mismatch, expect %d, got %d", len(w), len(got))
+	}
+
+	for j, vv := range got {
+		if vv != w[j] {
+			return fmt.Errorf(`regexp match %d submatch mismatch, expect "%s", got "%s"`, j+1, w[j], vv)
+		}
+	}
+	return nil
+}
+
+func testCheckMatches(got, expect [][]string) error {
 	if len(got) != len(expect) {
 		return fmt.Errorf("regexp num mismatch, expect %d, got %d", len(expect), len(got))
 	}
@@ -206,6 +326,10 @@ const tstExpSyntaxAll = `
 head
 // #GOGP_COMMENT {comment code}
 //#GOGP_COMMENT {comment code2}
+
+//#GOGP_IGNORE_BEGIN
+	{ignore}
+//#GOGP_IGNORE_END
 
 // #GOGP_REPLACE(<src>, <dst>)
 //#GOGP_REPLACE(<src2>, <dst2>)
