@@ -242,7 +242,7 @@ var allSyntax = []*syntax{
 		ignoreInList: true,
 		name:         "#to-replace",
 		usage:        "literal that waiting to replacing.",
-		expr:         `(?P<REPPREFIX>.?)(?P<REPLACEKEY>\<[[:alpha:]_][[:word:]]*\>)(?P<REPSUFFIX>.?)`,
+		expr:         `(?P<REPLACEKEY>\<[[:alpha:]_][[:word:]]*\>)`,
 		syntax: `
 <{to-replace}>
 `,

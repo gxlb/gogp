@@ -37,10 +37,10 @@ import (
 )
 
 //remove "*" from src
-func getRawName(src string) (r string) {
-	r = strings.Replace(src, "*", "", -1)
-	return
-}
+// func getRawName(src string) (r string) {
+// 	r = strings.Replace(src, "*", "", -1)
+// 	return
+// }
 
 //cases of template replacing
 type replaceCase struct {
@@ -132,23 +132,17 @@ func (this *replaceList) doReplacing(content, _path string, reverse bool) (rep s
 	}
 
 	rep = reg.ReplaceAllStringFunc(content, func(src string) (r string) {
-		p, w, s := "", src, ""
-		rawName := false
+		w := src
 		if !reverse {
 			elem := reg.FindAllStringSubmatch(src, 1)[0]
-			p, w, s = elem[1], elem[2], elem[3]
-			//.<VALUE_TYPE> <VALUE_TYPE>:
-			rawName = (w == "<VALUE_TYPE>" || w == "<KEY_TYPE>") && (p == "." || s == ":")
+			w = elem[1]
 		}
 		if v, ok := this.getMatch(w); ok {
 			if reverse {
 				r = v
 			} else { //gp replacing
 				wv := v
-				if rawName {
-					wv = getRawName(v)
-				}
-				r = p + wv + s
+				r = wv
 			}
 		} else {
 			fmt.Printf("[gogp error]: [%s] has no replacing.[%s] [%s : %s]\n", w, relateGoPath(this.gpPath), relateGoPath(this.gpgPath), this.sectionName)
